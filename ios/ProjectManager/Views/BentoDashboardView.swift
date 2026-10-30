@@ -179,14 +179,14 @@ struct BentoDashboardView: View {
             }
             .searchable(text: $searchQuery, prompt: "Search projects or next actions...")
             .sheet(isPresented: $showingNewProjectSheet) {
-                QuickNewProjectView {
+                QuickNewProjectView(onCreated: {
                     Task { await loadBento() }
-                }
+                })
             }
             .sheet(isPresented: $showingNewFieldSheet) {
-                FieldEditModalView {
+                FieldEditModalView(onSaved: { _ in
                     Task { await loadBento() }
-                }
+                })
             }
             .sheet(item: $folderToEdit) { folder in
                 FieldEditModalView(
