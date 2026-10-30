@@ -4,7 +4,8 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./state_and_next.db")
 
-# Heroku postgres URLs often start with postgres:// which SQLAlchemy 1.4+ expects as postgresql://
+# Heroku postgres URLs start with postgres:// or postgresql://
+# If postgres://, convert to postgresql://
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
