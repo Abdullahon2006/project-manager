@@ -20,21 +20,24 @@ def seed_default_data():
             db.add_all([f1, f2, f3])
             db.commit()
 
-            # Seed sample project
-            p1 = Project(
-                folder_id=f1.id,
-                title="State & Next Monorepo",
-                current_state="FastAPI backend setup complete. Structuring SwiftUI views for iOS and Tauri desktop app.",
-                status="active"
-            )
-            db.add(p1)
-            db.commit()
+        # Ensure sample projects exist so workspace is never empty
+        if db.query(Project).count() == 0:
+            f1 = db.query(Folder).order_by(Folder.order).first()
+            if f1:
+                p1 = Project(
+                    folder_id=f1.id,
+                    title="State & Next Monorepo",
+                    current_state="FastAPI backend setup complete. Structuring SwiftUI views for iOS and Tauri desktop app.",
+                    status="active"
+                )
+                db.add(p1)
+                db.commit()
 
-            m1 = Milestone(project_id=p1.id, title="Compile SwiftUI Xcode project", is_completed=False, order=1)
-            m2 = Milestone(project_id=p1.id, title="Test staged conflict resolution modal", is_completed=False, order=2)
-            m_archived = Milestone(project_id=p1.id, title="Design Bento UI and Sync Engine architecture", is_completed=True, completed_at=p1.created_at, order=0)
-            db.add_all([m1, m2, m_archived])
-            db.commit()
+                m1 = Milestone(project_id=p1.id, title="Compile SwiftUI Xcode project", is_completed=False, order=1)
+                m2 = Milestone(project_id=p1.id, title="Test staged conflict resolution modal", is_completed=False, order=2)
+                m_archived = Milestone(project_id=p1.id, title="Design Bento UI and Sync Engine architecture", is_completed=True, completed_at=p1.created_at, order=0)
+                db.add_all([m1, m2, m_archived])
+                db.commit()
     finally:
         db.close()
 

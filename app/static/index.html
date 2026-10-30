@@ -103,7 +103,7 @@
       background-color: var(--bg-color);
       color: var(--text-main);
       font-family: var(--font-sans);
-      letter-spacing: -0.012em;
+      letter-spacing: normal;
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
@@ -275,7 +275,7 @@
       font-size: 16px;
       font-weight: 700;
       font-style: normal;
-      letter-spacing: -0.03em;
+      letter-spacing: 0;
       color: var(--text-main);
     }
 
@@ -365,7 +365,7 @@
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--border-subtle);
-      border-radius: 20px;
+      border-radius: 14px;
       padding: 24px;
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
       display: flex;
@@ -671,7 +671,7 @@
       font-family: var(--font-display);
       font-size: clamp(26px, 3vw, 36px);
       font-weight: 700;
-      letter-spacing: -0.035em;
+      letter-spacing: 0;
       font-style: normal;
       color: var(--text-main);
       line-height: 1.15;
@@ -694,20 +694,20 @@
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--border-subtle);
-      border-radius: 20px;
+      border-radius: 14px;
       padding: 24px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
     }
     .bento-card:hover {
       background: var(--card-hover);
       border-color: var(--border-focus);
       transform: translateY(-2px);
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
     }
 
     .bento-featured { grid-column: span 7; min-height: 380px; }
@@ -745,7 +745,7 @@
     .card-name {
       font-size: 18px;
       font-weight: 700;
-      letter-spacing: -0.02em;
+      letter-spacing: 0;
     }
     .count-badge {
       font-family: var(--mono);
@@ -817,13 +817,16 @@
     }
 
     .stream-item {
-      background: var(--card-bg);
+      background: rgba(15, 23, 42, 0.03);
       border: 1px solid var(--border-subtle);
-      border-radius: 13px;
+      border-radius: 10px;
       padding: 11px 13px;
       cursor: pointer;
       transition: all 0.15s;
       position: relative;
+    }
+    [data-theme="dark"] .stream-item {
+      background: rgba(255, 255, 255, 0.04);
     }
     .stream-item:hover {
       background: var(--card-hover);
@@ -928,7 +931,7 @@
     .field-card {
       background: var(--card-bg);
       border: 1px solid var(--border-subtle);
-      border-radius: 18px;
+      border-radius: 14px;
       padding: 20px;
       display: flex;
       flex-direction: column;
@@ -1091,7 +1094,7 @@
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--border-subtle);
-      border-radius: 20px;
+      border-radius: 14px;
       padding: 24px;
       display: flex;
       flex-direction: column;
@@ -1343,7 +1346,7 @@
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--border-subtle);
-      border-radius: 20px;
+      border-radius: 14px;
       padding: 24px;
       display: flex;
       flex-direction: column;
@@ -1426,7 +1429,7 @@
     .modal-dialog {
       background: var(--frame-bg);
       border: 1px solid var(--border-focus);
-      border-radius: 22px;
+      border-radius: 14px;
       max-width: 480px;
       width: 90%;
       padding: 26px;
@@ -1446,7 +1449,7 @@
       font-family: var(--font-display);
       font-size: 19px;
       font-weight: 700;
-      letter-spacing: -0.025em;
+      letter-spacing: 0;
       font-style: normal;
       color: var(--text-main);
     }
@@ -1723,28 +1726,28 @@
 
             <div class="font-choice-grid">
               <div class="font-choice-card active-font" id="fontOptGeist" onclick="applyFontTheme('geist')">
-                <div class="font-choice-title" style="font-family: 'Geist', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: -0.03em;">Geist Precision</div>
+                <div class="font-choice-title" style="font-family: 'Geist', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: 0;">Geist Precision</div>
                 <div class="font-choice-sub">Geist + Geist Mono</div>
                 <div class="font-choice-desc">Vercel's precision typeface — crisp, razor-sharp, engineered for modern productivity tools.</div>
                 <span class="font-active-badge">ACTIVE</span>
               </div>
 
               <div class="font-choice-card" id="fontOptOutfit" onclick="applyFontTheme('outfit')">
-                <div class="font-choice-title" style="font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: -0.02em;">Geometric Modern</div>
+                <div class="font-choice-title" style="font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700; letter-spacing: 0;">Geometric Modern</div>
                 <div class="font-choice-sub">Pure Outfit Sans</div>
                 <div class="font-choice-desc">Clean, geometric sans with balanced proportions and modern tech presence.</div>
                 <span class="font-active-badge">ACTIVE</span>
               </div>
 
               <div class="font-choice-card" id="fontOptJakarta" onclick="applyFontTheme('jakarta')">
-                <div class="font-choice-title" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: -0.02em;">Plus Jakarta</div>
+                <div class="font-choice-title" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0;">Plus Jakarta</div>
                 <div class="font-choice-sub">Plus Jakarta Sans</div>
                 <div class="font-choice-desc">Ergonomic, tech-forward neo-grotesque sans with high information density.</div>
                 <span class="font-active-badge">ACTIVE</span>
               </div>
 
               <div class="font-choice-card" id="fontOptInter" onclick="applyFontTheme('inter')">
-                <div class="font-choice-title" style="font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: -0.02em;">Inter Precision</div>
+                <div class="font-choice-title" style="font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: 0;">Inter Precision</div>
                 <div class="font-choice-sub">Inter Interface</div>
                 <div class="font-choice-desc">Battle-tested, neutral, pixel-perfect interface typography.</div>
                 <span class="font-active-badge">ACTIVE</span>
@@ -2138,7 +2141,7 @@
     }
 
     let API_URL = getInitialApiUrl();
-    const CACHE_KEY = "state_next_bento_cache_v6";
+    const CACHE_KEY = "state_next_bento_cache_v7";
 
     const defaultSeedFolders = [
       {
