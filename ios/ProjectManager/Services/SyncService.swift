@@ -66,6 +66,54 @@ public class SyncService: ObservableObject {
         }
     }
 
+    // MARK: - Folders / Fields API
+
+    /// Creates a new Field/Folder
+    public func createFolder(name: String, icon: String, color: String, order: Int = 0) async throws -> FolderBento {
+        guard let url = URL(string: "\(serverBaseURL)/api/folders") else { throw URLError(.badURL) }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        let body: [String: Any] = ["name": name, "icon": icon, "color": color, "order": order]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            throw URLError(.badServerResponse)
+        }
+        return try JSONDecoder.apiDecoder.decode(FolderBento.self, from: data)
+    }
+
+    /// Updates existing Field/Folder
+    public func updateFolder(id: String, name: String? = nil, icon: String? = nil, color: String? = nil, order: Int? = nil) async throws {
+        guard let url = URL(string: "\(serverBaseURL)/api/folders/\(id)") else { throw URLError(.badURL) }
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        var body: [String: Any] = [:]
+        if let n = name { body["name"] = n }
+        if let i = icon { body["icon"] = i }
+        if let c = color { body["color"] = c }
+        if let o = order { body["order"] = o }
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        let (_, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            throw URLError(.badServerResponse)
+        }
+    }
+
+    /// Deletes a Field/Folder
+    public func deleteFolder(id: String) async throws {
+        guard let url = URL(string: "\(serverBaseURL)/api/folders/\(id)") else { throw URLError(.badURL) }
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        let (_, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            throw URLError(.badServerResponse)
+        }
+    }
+
+    // MARK: - Projects API
+
     /// Fetches project detail with active and archived milestones
     public func fetchProject(id: String) async throws -> ProjectDetail {
         guard let url = URL(string: "\(serverBaseURL)/api/projects/\(id)") else {
@@ -124,8 +172,8 @@ public class SyncService: ObservableObject {
         return try JSONDecoder.apiDecoder.decode(ProjectDetail.self, from: data)
     }
 
-    /// Updates project current state of affairs
-    public func updateProjectState(id: String, currentState: String) async throws {
+    /// Updates project properties (title, current_state, folder_id, status)
+    public func updateProject(id: String, title: String? = nil, currentState: String? = nil, folderId: String? = nil, status: String? = nil) async throws {
         guard let url = URL(string: "\(serverBaseURL)/api/projects/\(id)") else {
             throw URLError(.badURL)
         }
@@ -134,13 +182,22 @@ public class SyncService: ObservableObject {
         request.httpMethod = "PATCH"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        let body = ["current_state": currentState]
+        var body: [String: Any] = [:]
+        if let t = title { body["title"] = t }
+        if let s = currentState { body["current_state"] = s }
+        if let f = folderId { body["folder_id"] = f }
+        if let st = status { body["status"] = st }
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
         
         let (_, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
             throw URLError(.badServerResponse)
         }
+    }
+
+    /// Updates project current state of affairs
+    public func updateProjectState(id: String, currentState: String) async throws {
+        try await updateProject(id: id, currentState: currentState)
     }
 
     /// Toggles project status (e.g. "active" <-> "completed")
@@ -225,6 +282,27 @@ public class SyncService: ObservableObject {
         }
         
         return try JSONDecoder.apiDecoder.decode(MilestoneItem.self, from: data)
+    }
+
+    /// Updates milestone title or order
+    public func updateMilestone(milestoneId: String, title: String? = nil, order: Int? = nil) async throws {
+        guard let url = URL(string: "\(serverBaseURL)/api/milestones/\(milestoneId)") else {
+            throw URLError(.badURL)
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        var body: [String: Any] = [:]
+        if let t = title { body["title"] = t }
+        if let o = order { body["order"] = o }
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+        
+        let (_, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            throw URLError(.badServerResponse)
+        }
     }
 
     /// Deletes a milestone

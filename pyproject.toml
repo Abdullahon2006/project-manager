@@ -1,10 +1,10 @@
 [project]
-name = "state-and-next-backend"
+name = "project-manager-backend"
 version = "0.1.0"
-description = "Add your description here"
+description = "Project Manager Backend API"
 readme = "README.md"
 authors = [
-    { name = "“Abdullahon”", email = "“abdullahon.valihonov.farps@gmail.com" }
+    { name = "Abdullahon", email = "abdullahon.valihonov.farps@gmail.com" }
 ]
 requires-python = ">=3.11"
 dependencies = [
@@ -18,7 +18,7 @@ dependencies = [
 ]
 
 [project.scripts]
-state-and-next-backend = "state_and_next_backend:main"
+project-manager-backend = "state_and_next_backend:main"
 
 [build-system]
 requires = ["uv_build>=0.13.5,<0.14.0"]

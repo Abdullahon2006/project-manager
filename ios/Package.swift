@@ -2,23 +2,23 @@
 import PackageDescription
 
 let package = Package(
-    name: "StateAndNext",
+    name: "ProjectManager",
     platforms: [
         .iOS(.v16),
         .macOS(.v13)
     ],
     products: [
         .library(
-            name: "StateAndNext",
-            targets: ["StateAndNext"]
+            name: "ProjectManager",
+            targets: ["ProjectManager"]
         ),
     ],
     dependencies: [],
     targets: [
         .target(
-            name: "StateAndNext",
+            name: "ProjectManager",
             dependencies: [],
-            path: "StateAndNext"
+            path: "ProjectManager"
         )
     ]
 )

@@ -11,13 +11,19 @@ struct ProjectDetailView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var project: ProjectDetail? = nil
+    @State private var allFolders: [FolderBento] = []
+
+    @State private var editableTitle: String = ""
+    @State private var isEditingTitle: Bool = false
+
     @State private var currentStateText: String = ""
     @State private var newMilestoneTitle: String = ""
     @State private var isArchiveExpanded: Bool = false
     @State private var isLoading: Bool = true
     @State private var isSavingState: Bool = false
     @State private var showDeleteConfirmation: Bool = false
-    @State private var errorMessage: String? = nil
+    @State private var editingMilestone: MilestoneItem? = nil
+    @State private var editedMilestoneTitle: String = ""
 
     @State private var stateSaveTask: Task<Void, Never>? = nil
 
@@ -26,11 +32,11 @@ struct ProjectDetailView: View {
         self.initialTitle = initialTitle
     }
 
-    // Convenience initializer for direct previews or parent model passing
     init(project: ProjectDetail) {
         self.projectId = project.id
         self.initialTitle = project.title
         _project = State(initialValue: project)
+        _editableTitle = State(initialValue: project.title)
         _currentStateText = State(initialValue: project.currentState)
         _isLoading = State(initialValue: false)
     }
@@ -49,32 +55,83 @@ struct ProjectDetailView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 22) {
                         
-                        // Header Status & Meta Bar
-                        HStack(alignment: .center) {
-                            StatusBadge(status: proj.status)
-                            Spacer()
-                            if isSavingState {
-                                HStack(spacing: 4) {
-                                    ProgressView()
-                                        .scaleEffect(0.7)
-                                    Text("Saving...")
-                                        .font(.caption2)
-                                        .foregroundColor(.secondary)
+                        // 1. Header Bar: Editable Title & Field Selector
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack(alignment: .center) {
+                                StatusBadge(status: proj.status)
+                                
+                                Spacer()
+                                
+                                // Folder / Field Selector
+                                if !allFolders.isEmpty {
+                                    Menu {
+                                        ForEach(allFolders) { f in
+                                            Button {
+                                                moveProjectToFolder(f.id)
+                                            } label: {
+                                                HStack {
+                                                    Text("\(f.icon) \(f.name)")
+                                                    if f.id == proj.folderId {
+                                                        Image(systemName: "checkmark")
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    } label: {
+                                        HStack(spacing: 4) {
+                                            Text(currentFolderName)
+                                                .font(.caption)
+                                                .fontWeight(.semibold)
+                                            Image(systemName: "chevron.up.chevron.down")
+                                                .font(.caption2)
+                                        }
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 4)
+                                        .background(.ultraThinMaterial)
+                                        .clipShape(Capsule())
+                                    }
                                 }
-                            } else {
+
                                 Text("v\(proj.version)")
                                     .font(.caption2)
                                     .fontWeight(.medium)
                                     .foregroundColor(.secondary)
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 3)
-                                    .background(Color(.tertiarySystemBackground))
+                                    .background(.ultraThinMaterial)
                                     .clipShape(Capsule())
+                            }
+
+                            // Project Title (Editable)
+                            HStack {
+                                if isEditingTitle {
+                                    TextField("Project Title", text: $editableTitle)
+                                        .font(.title2.weight(.bold))
+                                        .textFieldStyle(.roundedBorder)
+                                        .onSubmit { saveTitle() }
+
+                                    Button("Done") { saveTitle() }
+                                        .font(.subheadline.weight(.semibold))
+                                } else {
+                                    Text(proj.title)
+                                        .font(.title2.weight(.bold))
+                                        .foregroundColor(.primary)
+
+                                    Button {
+                                        editableTitle = proj.title
+                                        isEditingTitle = true
+                                    } label: {
+                                        Image(systemName: "pencil")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                                Spacer()
                             }
                         }
                         .padding(.horizontal)
 
-                        // 1. Current State of Affairs (Auto-saving text box)
+                        // 2. Current State of Affairs (Auto-saving text box)
                         VStack(alignment: .leading, spacing: 8) {
                             HStack {
                                 Label("Current State of Affairs", systemImage: "doc.text.fill")
@@ -83,9 +140,28 @@ struct ProjectDetailView: View {
                                     .textCase(.uppercase)
                                     .foregroundColor(.secondary)
                                 Spacer()
-                                Image(systemName: "mic.fill")
-                                    .font(.caption)
-                                    .foregroundColor(.blue.opacity(0.8))
+                                if isSavingState {
+                                    HStack(spacing: 4) {
+                                        ProgressView().scaleEffect(0.6)
+                                        Text("Saving...")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                            }
+
+                            // Quick Template Chips
+                            HStack(spacing: 8) {
+                                TemplateChip(title: "+ Progress") {
+                                    appendTemplateText("\n• Progress: ")
+                                }
+                                TemplateChip(title: "+ Blocker") {
+                                    appendTemplateText("\n• Blocker: ")
+                                }
+                                TemplateChip(title: "+ Next") {
+                                    appendTemplateText("\n• Next: ")
+                                }
+                                Spacer()
                             }
 
                             ZStack(alignment: .topLeading) {
@@ -100,11 +176,11 @@ struct ProjectDetailView: View {
                                     .frame(minHeight: 120)
                                     .padding(8)
                                     .scrollContentBackground(.hidden)
-                                    .background(Color(.secondarySystemBackground))
+                                    .background(.ultraThinMaterial)
                                     .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                                     .overlay(
                                         RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                            .stroke(Color.primary.opacity(0.06), lineWidth: 1)
+                                            .stroke(Color.primary.opacity(0.08), lineWidth: 1)
                                     )
                                     .onChange(of: currentStateText) { newValue in
                                         scheduleStateAutoSave(newValue)
@@ -113,7 +189,7 @@ struct ProjectDetailView: View {
                         }
                         .padding(.horizontal)
 
-                        // 2. Active Next Actions
+                        // 3. Active Next Actions
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
                                 Label("Next Actions", systemImage: "bolt.fill")
@@ -133,7 +209,7 @@ struct ProjectDetailView: View {
                                 TextField("Add immediate next action...", text: $newMilestoneTitle)
                                     .padding(.horizontal, 12)
                                     .padding(.vertical, 10)
-                                    .background(Color(.secondarySystemBackground))
+                                    .background(.ultraThinMaterial)
                                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                                     .onSubmit {
                                         createNextAction()
@@ -163,7 +239,7 @@ struct ProjectDetailView: View {
                                     .padding(.vertical, 14)
                                     Spacer()
                                 }
-                                .background(Color(.secondarySystemBackground).opacity(0.5))
+                                .background(.ultraThinMaterial)
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                                 .padding(.horizontal)
                             } else {
@@ -172,6 +248,10 @@ struct ProjectDetailView: View {
                                         ActiveMilestoneRow(
                                             milestone: milestone,
                                             onToggle: { completeMilestone(milestone) },
+                                            onEdit: {
+                                                editingMilestone = milestone
+                                                editedMilestoneTitle = milestone.title
+                                            },
                                             onDelete: { deleteMilestone(milestone) }
                                         )
                                     }
@@ -180,7 +260,7 @@ struct ProjectDetailView: View {
                             }
                         }
 
-                        // 3. Packed Archive (Completed Milestones Accordion)
+                        // 4. Packed Archive (Completed Milestones Accordion)
                         if proj.archivedCount > 0 || !proj.archivedMilestones.isEmpty {
                             VStack(alignment: .leading, spacing: 10) {
                                 Button(action: {
@@ -201,7 +281,7 @@ struct ProjectDetailView: View {
                                     }
                                     .padding(.horizontal, 14)
                                     .padding(.vertical, 10)
-                                    .background(Color(.secondarySystemBackground))
+                                    .background(.ultraThinMaterial)
                                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                                 }
                                 .buttonStyle(.plain)
@@ -217,7 +297,6 @@ struct ProjectDetailView: View {
                                         }
                                     }
                                 } else {
-                                    // Preview top 2 archived items
                                     VStack(spacing: 6) {
                                         ForEach(proj.archivedPreview) { item in
                                             HStack(spacing: 8) {
@@ -248,7 +327,7 @@ struct ProjectDetailView: View {
                         Divider()
                             .padding(.horizontal)
 
-                        // 4. Project Actions (Finish / Reopen & Delete)
+                        // 5. Project Actions (Finish / Reopen & Delete)
                         VStack(spacing: 12) {
                             Button(action: toggleProjectCompletion) {
                                 HStack {
@@ -258,7 +337,7 @@ struct ProjectDetailView: View {
                                 .font(.subheadline.weight(.semibold))
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 12)
-                                .background(proj.status == "active" ? Color.green.opacity(0.15) : Color.blue.opacity(0.15))
+                                .background(proj.status == "active" ? Color.green.opacity(0.18) : Color.blue.opacity(0.18))
                                 .foregroundColor(proj.status == "active" ? .green : .blue)
                                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                             }
@@ -290,6 +369,7 @@ struct ProjectDetailView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
+        .withAppWallpaper()
         .navigationTitle(project?.title ?? initialTitle)
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {
@@ -297,6 +377,28 @@ struct ProjectDetailView: View {
         }
         .task {
             await loadProject()
+            await loadFolders()
+        }
+        .sheet(item: $editingMilestone) { m in
+            NavigationStack {
+                Form {
+                    Section("Edit Next Action") {
+                        TextField("Action title", text: $editedMilestoneTitle)
+                    }
+                }
+                .navigationTitle("Edit Action")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") { editingMilestone = nil }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Save") {
+                            saveMilestoneTitle(m, newTitle: editedMilestoneTitle)
+                        }
+                    }
+                }
+            }
         }
         .confirmationDialog("Delete Project?", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
             Button("Delete Project", role: .destructive) {
@@ -308,6 +410,14 @@ struct ProjectDetailView: View {
         }
     }
 
+    private var currentFolderName: String {
+        guard let p = project else { return "Field" }
+        if let match = allFolders.first(where: { $0.id == p.folderId }) {
+            return "\(match.icon) \(match.name)"
+        }
+        return "Field"
+    }
+
     // MARK: - Actions & Sync Helpers
 
     private func loadProject() async {
@@ -315,25 +425,68 @@ struct ProjectDetailView: View {
             let detail = try await sync.fetchProject(id: projectId)
             await MainActor.run {
                 self.project = detail
+                self.editableTitle = detail.title
                 self.currentStateText = detail.currentState
                 self.isLoading = false
             }
         } catch {
             await MainActor.run {
-                self.errorMessage = error.localizedDescription
                 self.isLoading = false
             }
         }
     }
 
+    private func loadFolders() async {
+        if let folders = try? await sync.fetchBento() {
+            await MainActor.run {
+                self.allFolders = folders
+            }
+        }
+    }
+
+    private func saveTitle() {
+        let trimmed = editableTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, var p = project else {
+            isEditingTitle = false
+            return
+        }
+        isEditingTitle = false
+        p.title = trimmed
+        project = p
+
+        Task {
+            try? await sync.updateProject(id: p.id, title: trimmed)
+        }
+    }
+
+    private func moveProjectToFolder(_ folderId: String) {
+        guard var p = project, p.folderId != folderId else { return }
+        #if os(iOS)
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        #endif
+        p.folderId = folderId
+        project = p
+
+        Task {
+            try? await sync.updateProject(id: p.id, folderId: folderId)
+        }
+    }
+
+    private func appendTemplateText(_ snippet: String) {
+        #if os(iOS)
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        #endif
+        currentStateText += snippet
+    }
+
     private func scheduleStateAutoSave(_ text: String) {
         stateSaveTask?.cancel()
         stateSaveTask = Task {
-            try? await Task.sleep(nanoseconds: 700_000_000) // 700ms debounce
+            try? await Task.sleep(nanoseconds: 700_000_000)
             if !Task.isCancelled {
                 await MainActor.run { isSavingState = true }
                 do {
-                    try await sync.updateProjectState(id: projectId, currentState: text)
+                    try await sync.updateProject(id: projectId, currentState: text)
                     await MainActor.run {
                         isSavingState = false
                         if var p = project {
@@ -343,7 +496,6 @@ struct ProjectDetailView: View {
                         }
                     }
                 } catch {
-                    // Fallback to staged queue if offline
                     if let p = project {
                         sync.stageProjectUpdate(projectId: p.id, baseVersion: p.version, title: nil, state: text)
                     }
@@ -373,7 +525,6 @@ struct ProjectDetailView: View {
                     }
                 }
             } catch {
-                // Optimistic local add and staged queue
                 let localId = UUID().uuidString
                 let tempMilestone = MilestoneItem(
                     id: localId,
@@ -444,6 +595,23 @@ struct ProjectDetailView: View {
         }
     }
 
+    private func saveMilestoneTitle(_ milestone: MilestoneItem, newTitle: String) {
+        let trimmed = newTitle.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            editingMilestone = nil
+            return
+        }
+        editingMilestone = nil
+
+        if let idx = project?.activeMilestones.firstIndex(where: { $0.id == milestone.id }) {
+            project?.activeMilestones[idx].title = trimmed
+        }
+
+        Task {
+            try? await sync.updateMilestone(milestoneId: milestone.id, title: trimmed)
+        }
+    }
+
     private func deleteMilestone(_ milestone: MilestoneItem) {
         withAnimation {
             project?.activeMilestones.removeAll { $0.id == milestone.id }
@@ -455,11 +623,7 @@ struct ProjectDetailView: View {
         }
 
         Task {
-            do {
-                try await sync.deleteMilestone(milestoneId: milestone.id)
-            } catch {
-                // If offline, staged delete
-            }
+            try? await sync.deleteMilestone(milestoneId: milestone.id)
         }
     }
 
@@ -476,11 +640,7 @@ struct ProjectDetailView: View {
         }
 
         Task {
-            do {
-                try await sync.toggleProjectStatus(id: p.id, status: targetStatus)
-            } catch {
-                sync.stageProjectUpdate(projectId: p.id, baseVersion: p.version, title: nil, state: nil)
-            }
+            try? await sync.toggleProjectStatus(id: p.id, status: targetStatus)
         }
     }
 
@@ -490,21 +650,36 @@ struct ProjectDetailView: View {
         #endif
 
         Task {
-            do {
-                try await sync.deleteProject(id: projectId)
-                await MainActor.run { dismiss() }
-            } catch {
-                await MainActor.run { dismiss() }
-            }
+            try? await sync.deleteProject(id: projectId)
+            await MainActor.run { dismiss() }
         }
     }
 }
 
 // MARK: - Subcomponents
 
+struct TemplateChip: View {
+    let title: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.caption2.weight(.semibold))
+                .foregroundColor(.secondary)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(.ultraThinMaterial)
+                .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 struct ActiveMilestoneRow: View {
     let milestone: MilestoneItem
     let onToggle: () -> Void
+    let onEdit: () -> Void
     let onDelete: () -> Void
 
     var body: some View {
@@ -523,6 +698,13 @@ struct ActiveMilestoneRow: View {
 
             Spacer()
 
+            Button(action: onEdit) {
+                Image(systemName: "pencil")
+                    .font(.caption2)
+                    .foregroundColor(.secondary.opacity(0.6))
+            }
+            .buttonStyle(.plain)
+
             Button(action: onDelete) {
                 Image(systemName: "xmark")
                     .font(.caption2)
@@ -531,7 +713,7 @@ struct ActiveMilestoneRow: View {
             .buttonStyle(.plain)
         }
         .padding(12)
-        .background(Color(.secondarySystemBackground))
+        .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }
@@ -571,7 +753,7 @@ struct ArchivedMilestoneRow: View {
             .buttonStyle(.plain)
         }
         .padding(10)
-        .background(Color(.tertiarySystemBackground))
+        .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 }

@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "AA0500012C00000000000001"
-               BuildableName = "StateAndNext.app"
-               BlueprintName = "StateAndNext"
-               ReferencedContainer = "container:StateAndNext.xcodeproj">
+               BuildableName = "ProjectManager.app"
+               BlueprintName = "ProjectManager"
+               ReferencedContainer = "container:ProjectManager.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -44,9 +44,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AA0500012C00000000000001"
-            BuildableName = "StateAndNext.app"
-            BlueprintName = "StateAndNext"
-            ReferencedContainer = "container:StateAndNext.xcodeproj">
+            BuildableName = "ProjectManager.app"
+            BlueprintName = "ProjectManager"
+            ReferencedContainer = "container:ProjectManager.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -61,9 +61,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "AA0500012C00000000000001"
-            BuildableName = "StateAndNext.app"
-            BlueprintName = "StateAndNext"
-            ReferencedContainer = "container:StateAndNext.xcodeproj">
+            BuildableName = "ProjectManager.app"
+            BlueprintName = "ProjectManager"
+            ReferencedContainer = "container:ProjectManager.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

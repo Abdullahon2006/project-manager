@@ -77,11 +77,14 @@ struct FinishedArchiveView: View {
                             }
                             .padding(.vertical, 4)
                         }
+                        .listRowBackground(Color.clear)
                     }
                 }
+                .scrollContentBackground(.hidden)
                 .searchable(text: $searchQuery, prompt: "Search finished archive...")
             }
         }
+        .withAppWallpaper()
         .navigationTitle("Finished Archive")
         .navigationBarTitleDisplayMode(.inline)
         .refreshable {

@@ -3,15 +3,99 @@ import SwiftUI
 struct SettingsSheetView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var sync: SyncService
-    
+    @ObservedObject var theme = ThemeManager.shared
+
     @State private var serverURL: String = ""
     @State private var testStatusMessage: String? = nil
     @State private var isTesting: Bool = false
+    @State private var customUrlText: String = ""
 
     var body: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Cloud Server Configuration"), footer: Text("Enter the base URL of your FastAPI backend. Default is the production Heroku deployment.")) {
+                // Section 1: Appearance & Theme
+                Section("Appearance & Theme") {
+                    Picker("Color Mode", selection: $theme.appearanceMode) {
+                        Text("System").tag("system")
+                        Text("Light (Daylight)").tag("light")
+                        Text("Dark (Obsidian)").tag("dark")
+                    }
+                    .pickerStyle(.segmented)
+                }
+
+                // Section 2: Wallpaper Gallery
+                Section("Atmospheric Wallpapers") {
+                    // Option None
+                    Button {
+                        theme.selectedWallpaperId = "none"
+                    } label: {
+                        HStack {
+                            Text("⬜ Clean Canvas (No Wallpaper)")
+                                .foregroundColor(.primary)
+                            Spacer()
+                            if theme.selectedWallpaperId == "none" {
+                                Image(systemName: "checkmark")
+                                    .foregroundColor(.blue)
+                            }
+                        }
+                    }
+
+                    // Presets
+                    ForEach(ThemeManager.presets) { preset in
+                        Button {
+                            theme.selectedWallpaperId = preset.id
+                        } label: {
+                            HStack {
+                                Text("\(preset.thumbnail) \(preset.name)")
+                                    .foregroundColor(.primary)
+                                Spacer()
+                                if theme.selectedWallpaperId == preset.id {
+                                    Image(systemName: "checkmark")
+                                        .foregroundColor(.blue)
+                                }
+                            }
+                        }
+                    }
+
+                    // Custom URL
+                    VStack(alignment: .leading, spacing: 8) {
+                        Button {
+                            theme.selectedWallpaperId = "custom"
+                        } label: {
+                            HStack {
+                                Text("🔗 Custom Image URL")
+                                    .foregroundColor(.primary)
+                                Spacer()
+                                if theme.selectedWallpaperId == "custom" {
+                                    Image(systemName: "checkmark")
+                                        .foregroundColor(.blue)
+                                }
+                            }
+                        }
+
+                        if theme.selectedWallpaperId == "custom" {
+                            TextField("https://images.unsplash.com/...", text: $customUrlText)
+                                .textFieldStyle(.roundedBorder)
+                                .keyboardType(.URL)
+                                .autocapitalization(.none)
+                                .onSubmit {
+                                    theme.customWallpaperUrl = customUrlText
+                                }
+                        }
+                    }
+
+                    if theme.selectedWallpaperId != "none" {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text("Wallpaper Dimming: \(Int(theme.wallpaperDimming * 100))%")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                            Slider(value: $theme.wallpaperDimming, in: 0.05...0.70, step: 0.05)
+                        }
+                    }
+                }
+
+                // Section 3: Cloud Server Configuration
+                Section(header: Text("Cloud Server Configuration"), footer: Text("Enter the base URL of your FastAPI backend. Production is hosted on Heroku.")) {
                     TextField("Server URL", text: $serverURL)
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
@@ -81,17 +165,20 @@ struct SettingsSheetView: View {
                     .disabled(sync.pendingSyncCount == 0 && !sync.isOnline)
                 }
             }
-            .navigationTitle("Connection Settings")
+            .navigationTitle("Settings & Appearance")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
+                    Button("Done") {
                         let trimmed = serverURL.trimmingCharacters(in: .whitespacesAndNewlines)
                         if !trimmed.isEmpty {
                             sync.serverBaseURL = trimmed
+                        }
+                        if theme.selectedWallpaperId == "custom" {
+                            theme.customWallpaperUrl = customUrlText
                         }
                         dismiss()
                     }
@@ -99,6 +186,7 @@ struct SettingsSheetView: View {
             }
             .onAppear {
                 serverURL = sync.serverBaseURL
+                customUrlText = theme.customWallpaperUrl
             }
         }
     }

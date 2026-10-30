@@ -10,7 +10,9 @@ struct FolderProjectsListView: View {
     @State private var projects: [ProjectSummary] = []
     @State private var isLoading: Bool = true
     @State private var selectedStatus: ProjectFilter = .active
+    @State private var searchQuery: String = ""
     @State private var showingAddProjectSheet: Bool = false
+    @State private var showingEditFolderSheet: Bool = false
     @State private var errorMessage: String? = nil
 
     enum ProjectFilter: String, CaseIterable, Identifiable {
@@ -20,12 +22,17 @@ struct FolderProjectsListView: View {
     }
 
     var filteredProjects: [ProjectSummary] {
-        switch selectedStatus {
-        case .active:
-            return projects.filter { $0.status == "active" }
-        case .completed:
-            return projects.filter { $0.status == "completed" }
+        var list = projects
+        if selectedStatus == .active {
+            list = list.filter { $0.status == "active" }
+        } else {
+            list = list.filter { $0.status == "completed" }
         }
+
+        if !searchQuery.trimmingCharacters(in: .whitespaces).isEmpty {
+            list = list.filter { $0.title.localizedCaseInsensitiveContains(searchQuery) || ($0.nextAction?.localizedCaseInsensitiveContains(searchQuery) ?? false) }
+        }
+        return list
     }
 
     var body: some View {
@@ -68,6 +75,7 @@ struct FolderProjectsListView: View {
                         NavigationLink(destination: ProjectDetailView(projectId: project.id, initialTitle: project.title)) {
                             ProjectRowView(project: project)
                         }
+                        .listRowBackground(Color.clear)
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                             Button(role: .destructive) {
                                 deleteProject(project)
@@ -78,16 +86,34 @@ struct FolderProjectsListView: View {
                     }
                 }
                 .listStyle(.insetGrouped)
+                .scrollContentBackground(.hidden)
             }
         }
+        .withAppWallpaper()
+        .searchable(text: $searchQuery, prompt: "Search in \(folder.name)...")
         .navigationTitle("\(folder.icon) \(folder.name)")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: { showingAddProjectSheet = true }) {
-                    Image(systemName: "plus")
-                        .fontWeight(.semibold)
+                HStack(spacing: 10) {
+                    Button {
+                        showingEditFolderSheet = true
+                    } label: {
+                        Image(systemName: "pencil.circle")
+                    }
+
+                    Button {
+                        showingAddProjectSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                            .fontWeight(.semibold)
+                    }
                 }
+            }
+        }
+        .sheet(isPresented: $showingEditFolderSheet) {
+            FieldEditModalView(folderToEdit: folder) {
+                Task { await loadProjects() }
             }
         }
         .sheet(isPresented: $showingAddProjectSheet) {
@@ -192,14 +218,14 @@ struct QuickNewProjectView: View {
                         .autocapitalization(.sentences)
 
                     if presetFolderId == nil {
-                        Picker("Folder", selection: $selectedFolderId) {
+                        Picker("Field", selection: $selectedFolderId) {
                             ForEach(availableFolders) { f in
                                 Text("\(f.icon) \(f.name)").tag(f.id)
                             }
                         }
                     } else if let fname = folderName {
                         HStack {
-                            Text("Folder")
+                            Text("Field")
                             Spacer()
                             Text(fname).foregroundColor(.secondary)
                         }
@@ -264,7 +290,6 @@ struct QuickNewProjectView: View {
                     currentState: currentState.trimmingCharacters(in: .whitespacesAndNewlines)
                 )
 
-                // If first milestone provided, create it immediately
                 let trimmedM = firstMilestone.trimmingCharacters(in: .whitespacesAndNewlines)
                 if !trimmedM.isEmpty {
                     _ = try? await sync.createMilestone(projectId: newProj.id, title: trimmedM)

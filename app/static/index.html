@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>State & Next — Bento Workspace</title>
+  <title>Project Manager — Bento Workspace</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -142,33 +142,30 @@
       -webkit-backdrop-filter: none;
     }
 
-    /* Floating Frosted Glass Top Bar */
+    /* Floating Island Header (ZERO rectangular edge-to-edge bar; seamless wallpaper) */
     header {
-      padding: 14px 32px;
+      padding: 18px 32px 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid var(--border-subtle);
-      background: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
+      background: transparent !important;
+      border: none !important;
+      border-bottom: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      box-shadow: none !important;
       position: sticky;
       top: 0;
       z-index: 50;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     }
-    [data-theme="dark"] header {
-      background: rgba(14, 18, 28, 0.85);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.30);
-    }
-
-    /* Trello-Style Wallpaper Atmospheric Contrast (Floating clean over scenery) */
+    [data-theme="dark"] header,
     body.has-wallpaper header {
-      background: rgba(15, 23, 42, 0.65);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      background: transparent !important;
+      border: none !important;
+      border-bottom: none !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
     }
     body.has-wallpaper .brand-title {
       color: #ffffff !important;
@@ -248,8 +245,25 @@
     .brand-group {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
       cursor: pointer;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 6px 16px 6px 6px;
+      border-radius: 9999px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .brand-group:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
+    }
+    body.has-wallpaper .brand-group {
+      background: rgba(15, 23, 42, 0.70);
+      border-color: rgba(255, 255, 255, 0.18);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.40);
     }
 
     .brand-mark {
@@ -309,6 +323,18 @@
       display: flex;
       align-items: center;
       gap: 10px;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 6px 10px;
+      border-radius: 9999px;
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+    }
+    body.has-wallpaper .nav-actions {
+      background: rgba(15, 23, 42, 0.70);
+      border-color: rgba(255, 255, 255, 0.18);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.40);
     }
 
     /* Header Action Buttons */
@@ -1488,7 +1514,7 @@
         <div class="brand-mark">
           <svg class="vector-icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
         </div>
-        <div class="brand-title">State & Next</div>
+        <div class="brand-title">Project Manager</div>
         <div class="status-chip" id="syncStatusChip">
           <span class="status-dot" id="statusDot"></span>
           <span id="statusLabel">CONNECTING...</span>
@@ -2147,7 +2173,7 @@
         color: "#2563eb", /* Royal Blue */
         project_count: 2,
         recent_projects: [
-          { id: "p1", folder_id: "f1", title: "State & Next Monorepo", next_action: "Push frontend overhaul to Heroku", status: "active", version: 1 },
+          { id: "p1", folder_id: "f1", title: "Project Manager Monorepo", next_action: "Push frontend overhaul to Heroku", status: "active", version: 1 },
           { id: "p2", folder_id: "f1", title: "Telegram Bridge Engine", next_action: "Test streaming responses", status: "active", version: 2 }
         ]
       },

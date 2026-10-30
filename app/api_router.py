@@ -76,6 +76,30 @@ def create_folder(payload: schemas.FolderCreate, db: Session = Depends(get_db)):
         recent_projects=[]
     )
 
+@api_router.patch("/folders/{folder_id}")
+def update_folder(folder_id: str, payload: schemas.FolderUpdate, db: Session = Depends(get_db)):
+    folder = db.query(models.Folder).filter(models.Folder.id == folder_id).first()
+    if not folder:
+        raise HTTPException(status_code=404, detail="Folder not found")
+    for k, v in payload.dict(exclude_unset=True).items():
+        setattr(folder, k, v)
+    db.commit()
+    db.refresh(folder)
+    return {"status": "ok", "id": folder.id}
+
+@api_router.delete("/folders/{folder_id}")
+def delete_folder(folder_id: str, db: Session = Depends(get_db)):
+    folder = db.query(models.Folder).filter(models.Folder.id == folder_id).first()
+    if not folder:
+        raise HTTPException(status_code=404, detail="Folder not found")
+    projects = db.query(models.Project).filter(models.Project.folder_id == folder_id).all()
+    for p in projects:
+        db.query(models.Milestone).filter(models.Milestone.project_id == p.id).delete()
+        db.delete(p)
+    db.delete(folder)
+    db.commit()
+    return {"status": "ok", "deleted_id": folder_id}
+
 # --- Projects ---
 @api_router.get("/folders/{folder_id}/projects", response_model=List[schemas.ProjectSummary])
 def get_folder_projects(folder_id: str, db: Session = Depends(get_db)):

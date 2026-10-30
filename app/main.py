@@ -44,7 +44,7 @@ def seed_default_data():
 seed_default_data()
 
 app = FastAPI(
-    title="State & Next Backend API",
+    title="Project Manager API",
     version="1.0.0",
     description="Synchronized Backend Engine with Bento Folders, Staged Conflict Resolution, and AI Agent API."
 )
