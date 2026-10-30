@@ -101,6 +101,33 @@ def get_folder_projects(folder_id: str, db: Session = Depends(get_db)):
         ))
     return summaries
 
+@api_router.get("/projects", response_model=List[schemas.ProjectSummary])
+def list_projects(status: Optional[str] = None, folder_id: Optional[str] = None, db: Session = Depends(get_db)):
+    q = db.query(models.Project)
+    if status:
+        q = q.filter(models.Project.status == status)
+    if folder_id:
+        q = q.filter(models.Project.folder_id == folder_id)
+    projects = q.order_by(models.Project.updated_at.desc()).all()
+
+    summaries = []
+    for p in projects:
+        next_m = db.query(models.Milestone).filter(
+            models.Milestone.project_id == p.id,
+            models.Milestone.is_completed == False
+        ).order_by(models.Milestone.order).first()
+
+        summaries.append(schemas.ProjectSummary(
+            id=p.id,
+            folder_id=p.folder_id,
+            title=p.title,
+            status=p.status,
+            version=p.version,
+            next_action=next_m.title if next_m else None,
+            updated_at=p.updated_at
+        ))
+    return summaries
+
 @api_router.get("/projects/{project_id}", response_model=schemas.ProjectDetailOut)
 def get_project_detail(project_id: str, db: Session = Depends(get_db)):
     proj = db.query(models.Project).filter(models.Project.id == project_id).first()

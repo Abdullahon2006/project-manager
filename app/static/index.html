@@ -158,6 +158,7 @@
       display: flex;
       align-items: center;
       gap: 14px;
+      cursor: pointer;
     }
 
     .brand-mark {
@@ -243,6 +244,37 @@
       box-shadow: 0 0 6px var(--theme-dot);
     }
 
+    /* Tabs & Filters */
+    .tab-pills {
+      display: inline-flex;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      padding: 4px;
+      gap: 4px;
+    }
+    .tab-pill {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tab-pill.active {
+      background: var(--card-bg);
+      color: var(--text-main);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    }
+    .tab-pill:hover:not(.active) {
+      color: var(--text-main);
+    }
+
     /* Buttons */
     .btn-pill {
       font-family: var(--sans);
@@ -278,6 +310,16 @@
     .btn-secondary:hover {
       background: rgba(255, 255, 255, 0.09);
       border-color: var(--border-focus);
+    }
+
+    .btn-success-subtle {
+      background: rgba(16, 185, 129, 0.12);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .btn-success-subtle:hover {
+      background: #10b981;
+      color: #0c0d11;
     }
 
     .btn-danger {
@@ -317,7 +359,9 @@
       overflow-y: auto;
     }
 
-    .view-header { margin-bottom: 26px; }
+    .view-header {
+      margin-bottom: 26px;
+    }
     .eyebrow {
       font-family: var(--mono);
       font-size: 11px;
@@ -381,6 +425,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
+      cursor: pointer;
     }
     .card-icon-box {
       width: 34px;
@@ -541,6 +586,72 @@
     }
 
     /* ============================================================
+       DEDICATED FIELD (FOLDER) VIEW
+       ============================================================ */
+    .folder-view {
+      display: none;
+      flex-direction: column;
+      gap: 24px;
+      max-width: 1180px;
+      margin: 0 auto;
+      animation: fadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .folder-top-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 20px;
+    }
+
+    .folder-headline-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 18px;
+    }
+
+    .field-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+    }
+    .field-card:hover {
+      background: var(--card-hover);
+      border-color: var(--border-focus);
+      transform: translateY(-2px);
+    }
+    .field-card.finished-card {
+      opacity: 0.85;
+      border-style: dashed;
+    }
+
+    /* ============================================================
+       FINISHED PROJECTS SECTION
+       ============================================================ */
+    .finished-section {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+      animation: fadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* ============================================================
        PROJECT WORKSPACE VIEW (TWO-COLUMN SPLIT)
        ============================================================ */
     .workspace-view {
@@ -587,6 +698,7 @@
       justify-content: space-between;
       align-items: center;
       gap: 16px;
+      flex-wrap: wrap;
     }
 
     .version-tag {
@@ -597,6 +709,25 @@
       border: 1px solid var(--accent-glow);
       border-radius: 999px;
       padding: 2px 8px;
+    }
+
+    .status-badge {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      padding: 3px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+    .status-badge.active-badge {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--accent-glow);
+    }
+    .status-badge.finished-badge {
+      background: rgba(16, 185, 129, 0.14);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.35);
     }
 
     /* Two-Column Grid */
@@ -997,7 +1128,7 @@
   <div class="app-frame">
     <!-- Header -->
     <header>
-      <div class="brand-group">
+      <div class="brand-group" onclick="showDashboard('streams')">
         <div class="brand-mark">
           <svg class="vector-icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
         </div>
@@ -1010,12 +1141,12 @@
 
       <div class="nav-actions">
         <!-- Live Theme Switcher -->
-        <button class="theme-picker-btn" onclick="cycleTheme()" title="Click to cycle themes (Solar Amber / Emerald Growth / Sunset Coral / Daylight Paper)">
+        <button class="theme-picker-btn" onclick="cycleTheme()" title="Click to cycle themes">
           <span class="theme-color-bullet"></span>
           <span id="themeNameLabel">SOLAR</span>
         </button>
 
-        <button class="btn-pill btn-secondary" onclick="openNewFolderModal()">+ New Folder</button>
+        <button class="btn-pill btn-secondary" onclick="openNewFolderModal()">+ New Field</button>
         <button class="btn-pill btn-primary" onclick="openNewProjectModal()">
           <span>+ New Project</span>
           <svg class="vector-icon" style="width:14px; height:14px;" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
@@ -1028,42 +1159,98 @@
 
     <!-- Main Content -->
     <main>
-      <!-- 1. Bento Dashboard -->
+      <!-- 1. Bento Dashboard (Streams & Finished Switcher) -->
       <div id="bentoSection">
-        <div class="view-header">
-          <div class="eyebrow">01 // FOLDER STREAMS</div>
-          <div class="display-h1">Active Workspaces</div>
-          <div class="display-sub">Live state of projects, milestones, and next actions.</div>
+        <div class="view-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px;">
+          <div>
+            <div class="eyebrow">01 // PROJECT DOMAINS</div>
+            <div class="display-h1">Active Workspaces</div>
+            <div class="display-sub">Living state of projects, milestones, and finished archives.</div>
+          </div>
+          <div class="tab-pills">
+            <button class="tab-pill active" id="tabStreamsBtn" onclick="switchDashboardTab('streams')">⚡ Active Streams</button>
+            <button class="tab-pill" id="tabFinishedBtn" onclick="switchDashboardTab('finished')">✓ Finished Projects (<span id="finishedCountBadge">0</span>)</button>
+          </div>
         </div>
 
+        <!-- Bento Grid for Active Streams -->
         <div class="bento-grid" id="bentoContainer"></div>
+
+        <!-- Showcase for Finished Projects -->
+        <div class="finished-section" id="finishedContainer">
+          <div class="field-grid" id="finishedProjectsGrid"></div>
+        </div>
       </div>
 
-      <!-- 2. Project Workspace View (Two-Column Split) -->
+      <!-- 2. Dedicated Separate Page For Every Field / Folder -->
+      <div class="folder-view" id="folderSection">
+        <div class="folder-top-bar">
+          <div class="breadcrumbs">
+            <span class="breadcrumb-link" onclick="showDashboard('streams')">STREAMS</span>
+            <span>/</span>
+            <span style="color: var(--text-main);" id="folderBcName">FIELD</span>
+          </div>
+
+          <div class="folder-headline-row">
+            <div style="display: flex; align-items: center; gap: 14px;">
+              <div class="card-icon-box" id="folderPageIcon"></div>
+              <div>
+                <h1 class="display-h1" id="folderPageTitle">Field Stream</h1>
+                <div class="display-sub" id="folderPageSub">All projects in this domain</div>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <div class="tab-pills">
+                <button class="tab-pill active" id="folderTabAll" onclick="filterFolderProjects('all')">All</button>
+                <button class="tab-pill" id="folderTabActive" onclick="filterFolderProjects('active')">Active</button>
+                <button class="tab-pill" id="folderTabFinished" onclick="filterFolderProjects('finished')">Finished</button>
+              </div>
+              <button class="btn-pill btn-primary" onclick="openNewProjectInCurrentFolder()">+ New Project</button>
+              <button class="btn-pill btn-secondary" onclick="showDashboard('streams')">
+                <svg class="vector-icon" style="width:14px; height:14px;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                <span>Back</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-grid" id="folderProjectsGrid"></div>
+      </div>
+
+      <!-- 3. Dedicated Project Workspace View (Two-Column Split) -->
       <div class="workspace-view" id="workspaceSection">
         <div class="workspace-top-bar">
           <div class="breadcrumbs">
-            <span class="breadcrumb-link" onclick="closeWorkspace()">STREAMS</span>
+            <span class="breadcrumb-link" onclick="showDashboard('streams')">STREAMS</span>
             <span>/</span>
-            <span class="breadcrumb-link" id="bcFolder">CODING</span>
+            <span class="breadcrumb-link" id="bcFolder" onclick="openFolderFromWorkspace()">CODING</span>
             <span>/</span>
             <span style="color: var(--text-main);" id="bcProject">PROJECT</span>
           </div>
 
           <div class="proj-headline">
-            <div style="display:flex; align-items:baseline; gap:12px;">
+            <div style="display:flex; align-items:center; gap:12px; flex-wrap: wrap;">
               <h1 class="display-h1" id="projectTitle">Project Title</h1>
+              <span class="status-badge" id="projectStatusBadge">ACTIVE</span>
               <span class="version-tag" id="projectVersionTag">v1</span>
             </div>
-            <div style="display: flex; gap: 10px; align-items: center;">
-              <!-- Prominent Delete Project Button inside Workspace -->
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+              <!-- Toggle Project Finished / Active Button -->
+              <button class="btn-pill btn-success-subtle" id="toggleProjectStatusBtn" onclick="toggleProjectFinished()">
+                <svg class="vector-icon" style="width:14px; height:14px;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                <span id="finishProjectBtnLabel">Mark Finished</span>
+              </button>
+
+              <!-- Delete Project Button -->
               <button class="btn-pill btn-danger" onclick="deleteCurrentProject()" title="Delete Project">
                 <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                <span>Delete Project</span>
+                <span>Delete</span>
               </button>
+
               <button class="btn-pill btn-secondary" onclick="closeWorkspace()">
                 <svg class="vector-icon" style="width:14px; height:14px;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-                <span>Back to Streams</span>
+                <span>Back</span>
               </button>
             </div>
           </div>
@@ -1126,7 +1313,7 @@
   <!-- Floating Undo Toast -->
   <div class="toast-undo" id="undoToast">
     <span id="toastMsg">Action completed</span>
-    <button class="toast-undo-btn" onclick="undoLastComplete()">↺ Undo</button>
+    <button class="toast-undo-btn" id="toastUndoBtn" onclick="undoLastComplete()">↺ Undo</button>
   </div>
 
   <!-- New Project Modal -->
@@ -1138,7 +1325,7 @@
         <input type="text" class="form-input" id="modalProjName" placeholder="e.g. Portfolio Redesign" autofocus>
       </div>
       <div class="form-field">
-        <label class="form-label">Assign To Folder</label>
+        <label class="form-label">Assign To Field</label>
         <select class="form-input" id="modalProjFolder"></select>
       </div>
       <div class="form-field">
@@ -1155,14 +1342,14 @@
   <!-- New Folder Modal -->
   <div class="modal-backdrop" id="newFolderModal">
     <div class="modal-dialog">
-      <div class="modal-title">Create Folder</div>
+      <div class="modal-title">Create Project Field</div>
       <div class="form-field">
-        <label class="form-label">Folder Name</label>
-        <input type="text" class="form-input" id="modalFolderName" placeholder="e.g. Research, Operations">
+        <label class="form-label">Field Name</label>
+        <input type="text" class="form-input" id="modalFolderName" placeholder="e.g. Research, Operations, Writing">
       </div>
       <div class="modal-actions">
         <button class="btn-pill btn-secondary" onclick="closeModals()">Cancel</button>
-        <button class="btn-pill btn-primary" onclick="confirmCreateFolder()">Add Folder →</button>
+        <button class="btn-pill btn-primary" onclick="confirmCreateFolder()">Add Field →</button>
       </div>
     </div>
   </div>
@@ -1211,7 +1398,6 @@
       applyTheme(THEMES[currentThemeIdx].id);
     }
 
-    // Init theme
     const savedTheme = localStorage.getItem("state_next_theme") || "solar";
     applyTheme(savedTheme);
 
@@ -1229,7 +1415,7 @@
     }
 
     let API_URL = getInitialApiUrl();
-    const CACHE_KEY = "state_next_bento_cache_v4";
+    const CACHE_KEY = "state_next_bento_cache_v5";
 
     const defaultSeedFolders = [
       {
@@ -1266,11 +1452,15 @@
     ];
 
     let folders = loadCachedFolders();
+    let allFinishedProjects = [];
+    let currentFolderId = null;
+    let currentFolderFilter = "all";
     let activeProjectId = null;
     let activeProjectData = null;
     let saveDebounceTimer = null;
     let lastCompletedMilestone = null;
     let toastTimeout = null;
+    let currentDashboardTab = "streams";
 
     function getVectorIcon(iconType) {
       if (iconType === "code") {
@@ -1299,6 +1489,25 @@
     async function init() {
       renderBento(folders);
       await syncWithBackend();
+      await fetchFinishedProjects();
+      handleHashChange();
+    }
+
+    window.addEventListener("hashchange", handleHashChange);
+
+    function handleHashChange() {
+      const hash = window.location.hash || "";
+      if (hash.startsWith("#/project/")) {
+        const pid = hash.replace("#/project/", "");
+        openWorkspace(pid);
+      } else if (hash.startsWith("#/folder/")) {
+        const fid = hash.replace("#/folder/", "");
+        openFolderView(fid);
+      } else if (hash === "#/finished") {
+        showDashboard("finished");
+      } else {
+        showDashboard("streams");
+      }
     }
 
     async function syncWithBackend() {
@@ -1353,6 +1562,52 @@
       }
     }
 
+    async function fetchFinishedProjects() {
+      try {
+        const res = await fetch(`${API_URL}/projects?status=completed`);
+        if (res.ok) {
+          allFinishedProjects = await res.json();
+        }
+      } catch (e) {
+        allFinishedProjects = [];
+      }
+      document.getElementById("finishedCountBadge").innerText = allFinishedProjects.length;
+      renderFinishedProjects();
+    }
+
+    /* Dashboard Navigation */
+    function showDashboard(tab) {
+      document.getElementById("bentoSection").style.display = "block";
+      document.getElementById("folderSection").style.display = "none";
+      document.getElementById("workspaceSection").style.display = "none";
+      activeProjectId = null;
+      currentFolderId = null;
+      switchDashboardTab(tab || currentDashboardTab);
+    }
+
+    function switchDashboardTab(tab) {
+      currentDashboardTab = tab;
+      const streamsBtn = document.getElementById("tabStreamsBtn");
+      const finishedBtn = document.getElementById("tabFinishedBtn");
+      const bentoContainer = document.getElementById("bentoContainer");
+      const finishedContainer = document.getElementById("finishedContainer");
+
+      if (tab === "finished") {
+        streamsBtn.classList.remove("active");
+        finishedBtn.classList.add("active");
+        bentoContainer.style.display = "none";
+        finishedContainer.style.display = "flex";
+        renderFinishedProjects();
+        if (window.location.hash !== "#/finished") window.location.hash = "#/finished";
+      } else {
+        streamsBtn.classList.add("active");
+        finishedBtn.classList.remove("active");
+        bentoContainer.style.display = "grid";
+        finishedContainer.style.display = "none";
+        if (window.location.hash === "#/finished") window.location.hash = "";
+      }
+    }
+
     function renderBento(folderList) {
       const container = document.getElementById("bentoContainer");
       if (!folderList || folderList.length === 0) folderList = defaultSeedFolders;
@@ -1367,7 +1622,7 @@
           <div class="bento-card ${spanClass}">
             <div>
               <div class="card-top">
-                <div class="card-title-group">
+                <div class="card-title-group" onclick="openFolderView('${f.id}')" title="Open ${escapeHtml(f.name)} Field Page">
                   <div class="card-icon-box" style="color: ${f.color || 'var(--accent)'}">${iconSvg}</div>
                   <span class="card-name">${escapeHtml(f.name)}</span>
                 </div>
@@ -1375,7 +1630,7 @@
                   <button class="stream-add-btn" onclick="openInlineProjectAdd('${f.id}', event)" title="Quick-add project to ${escapeHtml(f.name)}">
                     <svg class="vector-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                   </button>
-                  <span class="count-badge">${f.project_count || 0} STREAMS</span>
+                  <span class="count-badge" onclick="openFolderView('${f.id}')" style="cursor: pointer;">${f.project_count || 0} STREAMS</span>
                 </div>
               </div>
 
@@ -1413,12 +1668,189 @@
             </div>
 
             <div class="card-footer">
-              <span style="font-family: var(--mono); font-size: 11px; color: var(--text-dim);">STREAM ACTIVE</span>
-              <button class="btn-pill btn-secondary" style="padding: 5px 12px; font-size: 11px;" onclick="openInlineProjectAdd('${f.id}', event)">+ Add Stream</button>
+              <span style="font-family: var(--mono); font-size: 11px; color: var(--text-dim);">FIELD STREAM</span>
+              <button class="btn-pill btn-secondary" style="padding: 5px 12px; font-size: 11px;" onclick="openFolderView('${f.id}')">Open Field →</button>
             </div>
           </div>
         `;
       }).join("");
+    }
+
+    function renderFinishedProjects() {
+      const grid = document.getElementById("finishedProjectsGrid");
+      if (!grid) return;
+
+      if (!allFinishedProjects || allFinishedProjects.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: var(--card-bg); border: 1px dashed var(--border-subtle); border-radius: 18px;">
+            <div style="font-size: 24px; margin-bottom: 8px;">🌱</div>
+            <div style="font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">No Finished Projects Yet</div>
+            <div style="font-size: 13px; color: var(--text-muted);">When you complete a project, click "Mark Finished" inside its workspace to store it here.</div>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = allFinishedProjects.map(p => {
+        const folder = folders.find(f => f.id === p.folder_id);
+        const folderName = folder ? folder.name : "FIELD";
+        return `
+          <div class="field-card finished-card">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                <span class="count-badge" style="background: rgba(16, 185, 129, 0.12); color: #10b981; border-color: rgba(16, 185, 129, 0.3);">✓ FINISHED</span>
+                <span style="font-family: var(--mono); font-size: 10px; color: var(--text-dim);">${formatDate(p.updated_at)}</span>
+              </div>
+              <h3 style="font-size: 17px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">${escapeHtml(p.title)}</h3>
+              <div style="font-family: var(--mono); font-size: 11px; color: var(--text-dim);">${escapeHtml(folderName.toUpperCase())}</div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.04); padding-top: 12px; margin-top: 8px;">
+              <button class="btn-restore" onclick="reopenFinishedProject('${p.id}', event)">↺ Reopen to Active</button>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn-pill btn-secondary" style="padding: 4px 10px; font-size: 11px;" onclick="openWorkspace('${p.id}', '${escapeHtml(folderName)}')">View</button>
+                <button class="stream-del-btn" style="opacity: 0.8;" onclick="deleteProjectFromStream('${p.id}', '${escapeHtml(p.title)}', event)">
+                  <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function reopenFinishedProject(projectId, event) {
+      if (event) event.stopPropagation();
+      try {
+        await fetch(`${API_URL}/projects/${projectId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "active" })
+        });
+      } catch (e) {}
+
+      allFinishedProjects = allFinishedProjects.filter(p => p.id !== projectId);
+      document.getElementById("finishedCountBadge").innerText = allFinishedProjects.length;
+      renderFinishedProjects();
+      syncWithBackend();
+    }
+
+    /* ============================================================
+       DEDICATED FIELD (FOLDER) VIEW LOGIC
+       ============================================================ */
+    let currentFolderProjects = [];
+
+    async function openFolderView(folderId) {
+      currentFolderId = folderId;
+      window.location.hash = `#/folder/${folderId}`;
+
+      document.getElementById("bentoSection").style.display = "none";
+      document.getElementById("workspaceSection").style.display = "none";
+      document.getElementById("folderSection").style.display = "flex";
+
+      const folder = folders.find(f => f.id === folderId) || { name: "Field", color: "var(--accent)" };
+      document.getElementById("folderBcName").innerText = folder.name.toUpperCase();
+      document.getElementById("folderPageTitle").innerText = `${folder.name} Field`;
+      document.getElementById("folderPageSub").innerText = `Dedicated project domain with live streams`;
+
+      const iconType = folder.name.toLowerCase().includes("code") ? "code" : (folder.name.toLowerCase().includes("creat") ? "creative" : (folder.name.toLowerCase().includes("life") ? "life" : "folder"));
+      document.getElementById("folderPageIcon").innerHTML = getVectorIcon(iconType);
+      document.getElementById("folderPageIcon").style.color = folder.color || "var(--accent)";
+
+      filterFolderProjects("all");
+      await loadFolderProjects(folderId);
+    }
+
+    async function loadFolderProjects(folderId) {
+      const grid = document.getElementById("folderProjectsGrid");
+      grid.innerHTML = `<div style="grid-column: 1 / -1; padding: 24px; color: var(--text-dim);">Loading projects...</div>`;
+
+      try {
+        const res = await fetch(`${API_URL}/folders/${folderId}/projects`);
+        if (res.ok) {
+          currentFolderProjects = await res.json();
+        }
+      } catch (e) {
+        currentFolderProjects = [];
+      }
+      renderFolderProjectsGrid();
+    }
+
+    function filterFolderProjects(filterType) {
+      currentFolderFilter = filterType;
+      document.getElementById("folderTabAll").classList.toggle("active", filterType === "all");
+      document.getElementById("folderTabActive").classList.toggle("active", filterType === "active");
+      document.getElementById("folderTabFinished").classList.toggle("active", filterType === "finished");
+      renderFolderProjectsGrid();
+    }
+
+    function renderFolderProjectsGrid() {
+      const grid = document.getElementById("folderProjectsGrid");
+      if (!grid) return;
+
+      let list = currentFolderProjects || [];
+      if (currentFolderFilter === "active") {
+        list = list.filter(p => p.status === "active" || !p.status);
+      } else if (currentFolderFilter === "finished") {
+        list = list.filter(p => p.status === "completed");
+      }
+
+      const folder = folders.find(f => f.id === currentFolderId);
+      const folderName = folder ? folder.name : "Field";
+
+      if (list.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: var(--card-bg); border: 1px dashed var(--border-subtle); border-radius: 18px;">
+            <div style="font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">No projects in this view</div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">Click the button below to add a project to this field.</div>
+            <button class="btn-pill btn-primary" onclick="openNewProjectInCurrentFolder()">+ Add Project</button>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = list.map(p => {
+        const isFinished = p.status === "completed";
+        return `
+          <div class="field-card ${isFinished ? 'finished-card' : ''}" onclick="openWorkspace('${p.id}', '${escapeHtml(folderName)}')">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                <span class="status-badge ${isFinished ? 'finished-badge' : 'active-badge'}">${isFinished ? '✓ FINISHED' : '⚡ ACTIVE'}</span>
+                <span style="font-family: var(--mono); font-size: 11px; color: var(--text-dim);">${formatDate(p.updated_at)}</span>
+              </div>
+              <h3 style="font-size: 18px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">${escapeHtml(p.title)}</h3>
+              <div class="stream-next">
+                <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                <span>${escapeHtml(p.next_action || (isFinished ? "Project completed" : "No open action"))}</span>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.04); padding-top: 14px; margin-top: 8px;">
+              <span style="font-family: var(--mono); font-size: 11px; color: var(--text-dim);">v${p.version || 1}</span>
+              <div style="display: flex; gap: 8px;" onclick="event.stopPropagation()">
+                <button class="stream-del-btn" style="opacity: 0.8;" onclick="deleteProjectFromStream('${p.id}', '${escapeHtml(p.title)}', event)">
+                  <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function openNewProjectInCurrentFolder() {
+      if (!currentFolderId) return openNewProjectModal();
+      openNewProjectModal();
+      const select = document.getElementById("modalProjFolder");
+      if (select) select.value = currentFolderId;
+    }
+
+    function openFolderFromWorkspace() {
+      if (activeProjectData && activeProjectData.folder_id) {
+        openFolderView(activeProjectData.folder_id);
+      } else {
+        showDashboard("streams");
+      }
     }
 
     /* In-Stream Quick Add Handlers */
@@ -1459,7 +1891,6 @@
         }
       } catch (e) {}
 
-      // Update local cache
       const targetFolder = folders.find(f => f.id === folderId);
       if (targetFolder) {
         targetFolder.project_count = (targetFolder.project_count || 0) + 1;
@@ -1486,8 +1917,12 @@
           }
         }
       });
+      allFinishedProjects = allFinishedProjects.filter(p => p.id !== projectId);
+      document.getElementById("finishedCountBadge").innerText = allFinishedProjects.length;
       saveCachedFolders(folders);
       renderBento(folders);
+      renderFinishedProjects();
+      if (currentFolderId) loadFolderProjects(currentFolderId);
 
       try {
         await fetch(`${API_URL}/projects/${projectId}`, { method: "DELETE" });
@@ -1499,11 +1934,13 @@
     /* Workspace Handlers */
     async function openWorkspace(projectId, folderName) {
       activeProjectId = projectId;
-      document.getElementById("bentoSection").style.display = "none";
-      document.getElementById("workspaceSection").style.display = "flex";
-      document.getElementById("bcFolder").innerText = (folderName || "STREAMS").toUpperCase();
+      window.location.hash = `#/project/${projectId}`;
 
-      // Reset
+      document.getElementById("bentoSection").style.display = "none";
+      document.getElementById("folderSection").style.display = "none";
+      document.getElementById("workspaceSection").style.display = "flex";
+      document.getElementById("bcFolder").innerText = (folderName || "FIELD").toUpperCase();
+
       document.getElementById("projectTitle").innerText = "Loading...";
       document.getElementById("stateTextarea").value = "";
       document.getElementById("actionsContainer").innerHTML = `<div style="font-size: 13px; color: var(--text-dim); padding: 12px 0;">Loading actions...</div>`;
@@ -1513,7 +1950,6 @@
         if (!res.ok) throw new Error("Could not fetch project");
         activeProjectData = await res.json();
       } catch (e) {
-        // Fallback local memory
         activeProjectData = {
           id: projectId,
           title: "Project Workspace",
@@ -1526,19 +1962,62 @@
         };
       }
 
+      const folder = folders.find(f => f.id === activeProjectData.folder_id);
+      if (folder) document.getElementById("bcFolder").innerText = folder.name.toUpperCase();
+
       document.getElementById("bcProject").innerText = activeProjectData.title.toUpperCase();
       document.getElementById("projectTitle").innerText = activeProjectData.title;
       document.getElementById("projectVersionTag").innerText = "v" + (activeProjectData.version || 1);
       document.getElementById("stateTextarea").value = activeProjectData.current_state || "";
 
+      updateProjectStatusUI();
       renderWorkspaceActions();
       renderArchive();
     }
 
+    function updateProjectStatusUI() {
+      const isFinished = activeProjectData.status === "completed";
+      const badge = document.getElementById("projectStatusBadge");
+      const btn = document.getElementById("toggleProjectStatusBtn");
+      const btnLabel = document.getElementById("finishProjectBtnLabel");
+
+      if (isFinished) {
+        badge.className = "status-badge finished-badge";
+        badge.innerText = "✓ FINISHED";
+        btn.className = "btn-pill btn-secondary";
+        btnLabel.innerText = "↺ Reopen Project";
+      } else {
+        badge.className = "status-badge active-badge";
+        badge.innerText = "⚡ ACTIVE";
+        btn.className = "btn-pill btn-success-subtle";
+        btnLabel.innerText = "✓ Mark Finished";
+      }
+    }
+
+    async function toggleProjectFinished() {
+      if (!activeProjectId || !activeProjectData) return;
+      const willFinish = activeProjectData.status !== "completed";
+      activeProjectData.status = willFinish ? "completed" : "active";
+      updateProjectStatusUI();
+
+      try {
+        await fetch(`${API_URL}/projects/${activeProjectId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: activeProjectData.status })
+        });
+      } catch (e) {}
+
+      showUndoToast(willFinish ? "Project marked finished!" : "Project reopened to active!");
+      fetchFinishedProjects();
+    }
+
     function closeWorkspace() {
-      document.getElementById("workspaceSection").style.display = "none";
-      document.getElementById("bentoSection").style.display = "block";
-      syncWithBackend();
+      if (currentFolderId) {
+        openFolderView(currentFolderId);
+      } else {
+        showDashboard("streams");
+      }
     }
 
     function renderWorkspaceActions() {
@@ -1749,8 +2228,11 @@
           }
         }
       });
+      allFinishedProjects = allFinishedProjects.filter(p => p.id !== pId);
+      document.getElementById("finishedCountBadge").innerText = allFinishedProjects.length;
       saveCachedFolders(folders);
       renderBento(folders);
+      renderFinishedProjects();
 
       try {
         await fetch(`${API_URL}/projects/${pId}`, { method: "DELETE" });
@@ -1836,7 +2318,7 @@
         saveCachedFolders(folders);
         renderBento(folders);
       }
-      openWorkspace(canonicalId, targetFolder ? targetFolder.name : "STREAM");
+      openWorkspace(canonicalId, targetFolder ? targetFolder.name : "FIELD");
     }
 
     function openNewFolderModal() {
@@ -1846,7 +2328,7 @@
 
     async function confirmCreateFolder() {
       const name = document.getElementById("modalFolderName").value.trim();
-      if (!name) return alert("Please enter a folder name");
+      if (!name) return alert("Please enter a field name");
       closeModals();
 
       let folderId = "f_" + Date.now();
