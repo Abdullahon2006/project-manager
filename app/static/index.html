@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="solar">
+<html lang="en" data-theme="daylight">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,98 +9,59 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     /* ============================================================
-       THEME PALETTES (Solar Amber / Emerald Growth / Sunset Coral / Daylight Paper)
+       THEMES: DAYLIGHT (White / Clean Canvas) & DARK (Obsidian)
+       Encouraging, balanced green accents (NOT monochromatic green)
        ============================================================ */
-    :root, [data-theme="solar"] {
-      --bg: #0c0d11;
-      --frame-bg: #14151b;
-      --card-bg: rgba(25, 27, 35, 0.78);
-      --card-hover: rgba(34, 37, 48, 0.92);
-      --border-subtle: rgba(255, 255, 255, 0.08);
-      --border-focus: rgba(245, 158, 11, 0.35);
-      --text-main: #f5f6fa;
-      --text-muted: #9ba3b8;
-      --text-dim: #5a6275;
-      --accent: #f59e0b;
-      --accent-hover: #fbbf24;
-      --accent-soft: rgba(245, 158, 11, 0.12);
-      --accent-glow: rgba(245, 158, 11, 0.25);
-      --glow-gradient: radial-gradient(circle at 50% -5%, rgba(245, 158, 11, 0.08) 0%, rgba(255, 107, 74, 0.03) 35%, transparent 70%);
-      --brand-gradient: linear-gradient(135deg, #f59e0b, #ff6b4a);
-      --btn-primary-bg: var(--accent);
-      --btn-primary-text: #0c0d11;
-      --success: #10b981;
+    :root, [data-theme="daylight"] {
+      --bg-color: #f1f5f9;
+      --frame-bg: rgba(255, 255, 255, 0.90);
+      --card-bg: rgba(255, 255, 255, 0.82);
+      --card-hover: rgba(255, 255, 255, 0.96);
+      --border-subtle: rgba(15, 23, 42, 0.09);
+      --border-focus: rgba(5, 150, 105, 0.45);
+      --text-main: #0f172a;       /* Deep slate ink - ultra sharp & readable */
+      --text-muted: #475569;      /* Slate 600 */
+      --text-dim: #94a3b8;        /* Slate 400 */
+      --accent: #059669;          /* Crisp Pine/Forest Emerald */
+      --accent-hover: #047857;
+      --accent-soft: rgba(5, 150, 105, 0.10);
+      --accent-glow: rgba(5, 150, 105, 0.20);
+      --checkbox-border: #64748b; /* Slate 500 - HIGH CONTRAST & CLEARLY VISIBLE */
+      --checkbox-bg: #ffffff;
+      --check-icon-color: #ffffff;
+      --btn-primary-bg: #059669;
+      --btn-primary-text: #ffffff;
+      --tag-bg: rgba(15, 23, 42, 0.05);
+      --tag-color: #334155;
       --danger: #ef4444;
-      --theme-dot: #f59e0b;
+      --success: #059669;
+      --wallpaper-overlay: rgba(241, 245, 249, 0.40);
     }
 
-    [data-theme="emerald"] {
-      --bg: #090d0b;
-      --frame-bg: #101813;
-      --card-bg: rgba(18, 28, 22, 0.78);
-      --card-hover: rgba(25, 38, 30, 0.92);
-      --border-subtle: rgba(255, 255, 255, 0.08);
-      --border-focus: rgba(16, 185, 129, 0.4);
-      --text-main: #f3f7f4;
-      --text-muted: #94a899;
-      --text-dim: #506154;
-      --accent: #10b981;
+    [data-theme="dark"] {
+      --bg-color: #0b0d13;
+      --frame-bg: rgba(16, 20, 29, 0.88);
+      --card-bg: rgba(24, 29, 43, 0.80);
+      --card-hover: rgba(33, 40, 60, 0.92);
+      --border-subtle: rgba(255, 255, 255, 0.09);
+      --border-focus: rgba(16, 185, 129, 0.40);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --accent: #10b981;          /* Luminous Emerald Green */
       --accent-hover: #34d399;
       --accent-soft: rgba(16, 185, 129, 0.14);
-      --accent-glow: rgba(16, 185, 129, 0.3);
-      --glow-gradient: radial-gradient(circle at 50% -5%, rgba(16, 185, 129, 0.09) 0%, rgba(52, 211, 153, 0.03) 35%, transparent 70%);
-      --brand-gradient: linear-gradient(135deg, #10b981, #06b6d4);
-      --btn-primary-bg: var(--accent);
-      --btn-primary-text: #090d0b;
-      --success: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.28);
+      --checkbox-border: rgba(255, 255, 255, 0.40);
+      --checkbox-bg: rgba(255, 255, 255, 0.05);
+      --check-icon-color: #0b0d13;
+      --btn-primary-bg: #10b981;
+      --btn-primary-text: #0b0d13;
+      --tag-bg: rgba(255, 255, 255, 0.06);
+      --tag-color: #cbd5e1;
       --danger: #ef4444;
-      --theme-dot: #10b981;
-    }
-
-    [data-theme="coral"] {
-      --bg: #0e0c0d;
-      --frame-bg: #191315;
-      --card-bg: rgba(30, 22, 26, 0.78);
-      --card-hover: rgba(42, 30, 36, 0.92);
-      --border-subtle: rgba(255, 255, 255, 0.08);
-      --border-focus: rgba(255, 107, 74, 0.4);
-      --text-main: #faf5f6;
-      --text-muted: #ab989e;
-      --text-dim: #66545a;
-      --accent: #ff6b4a;
-      --accent-hover: #ff856b;
-      --accent-soft: rgba(255, 107, 74, 0.14);
-      --accent-glow: rgba(255, 107, 74, 0.3);
-      --glow-gradient: radial-gradient(circle at 50% -5%, rgba(255, 107, 74, 0.09) 0%, rgba(245, 158, 11, 0.04) 35%, transparent 70%);
-      --brand-gradient: linear-gradient(135deg, #ff6b4a, #ec4899);
-      --btn-primary-bg: var(--accent);
-      --btn-primary-text: #0e0c0d;
       --success: #10b981;
-      --danger: #ef4444;
-      --theme-dot: #ff6b4a;
-    }
-
-    [data-theme="daylight"] {
-      --bg: #f4f3ed;
-      --frame-bg: #ffffff;
-      --card-bg: #faf9f6;
-      --card-hover: #f1efea;
-      --border-subtle: rgba(0, 0, 0, 0.09);
-      --border-focus: rgba(245, 158, 11, 0.5);
-      --text-main: #131418;
-      --text-muted: #5e6475;
-      --text-dim: #8b92a4;
-      --accent: #f59e0b;
-      --accent-hover: #d97706;
-      --accent-soft: rgba(245, 158, 11, 0.14);
-      --accent-glow: rgba(245, 158, 11, 0.25);
-      --glow-gradient: radial-gradient(circle at 50% -5%, rgba(245, 158, 11, 0.07) 0%, transparent 60%);
-      --brand-gradient: linear-gradient(135deg, #f59e0b, #ff6b4a);
-      --btn-primary-bg: #131418;
-      --btn-primary-text: #ffffff;
-      --success: #10b981;
-      --danger: #ef4444;
-      --theme-dot: #f59e0b;
+      --wallpaper-overlay: rgba(11, 13, 19, 0.55);
     }
 
     :root {
@@ -109,22 +70,31 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
     html, body {
-      background-color: var(--bg);
+      background-color: var(--bg-color);
       color: var(--text-main);
       font-family: var(--sans);
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
-      transition: background-color 0.2s ease, color 0.2s ease;
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      transition: background-image 0.4s ease, background-color 0.25s ease, color 0.2s ease;
     }
 
+    /* Trello-Style Atmospheric Wallpaper Backdrop Overlay */
     body::before {
       content: "";
       position: fixed;
       inset: 0;
-      background: var(--glow-gradient);
+      background: var(--wallpaper-overlay);
+      backdrop-filter: blur(var(--wallpaper-blur, 0px));
+      -webkit-backdrop-filter: blur(var(--wallpaper-blur, 0px));
       pointer-events: none;
       z-index: 1;
+      transition: background 0.3s ease;
     }
 
     .app-frame {
@@ -139,19 +109,22 @@
       position: relative;
       z-index: 2;
       overflow: hidden;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.30);
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
       transition: background-color 0.2s ease, border-color 0.2s ease;
     }
 
     /* Top Bar */
     header {
-      padding: 18px 30px;
+      padding: 16px 28px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid var(--border-subtle);
       background: var(--frame-bg);
-      backdrop-filter: blur(20px);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
     }
 
     .brand-group {
@@ -164,18 +137,18 @@
     .brand-mark {
       width: 32px;
       height: 32px;
-      background: var(--brand-gradient);
+      background: var(--accent);
       border-radius: 9px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #0c0d11;
-      box-shadow: 0 4px 14px var(--accent-glow);
+      color: #ffffff;
+      box-shadow: 0 4px 12px var(--accent-glow);
     }
     .brand-mark svg {
       width: 18px;
       height: 18px;
-      stroke: #0c0d11;
+      stroke: #ffffff;
       stroke-width: 2.4;
     }
 
@@ -194,21 +167,21 @@
       align-items: center;
       gap: 7px;
       padding: 5px 12px;
-      background: rgba(255, 255, 255, 0.04);
+      background: var(--tag-bg);
       border: 1px solid var(--border-subtle);
       border-radius: 999px;
       color: var(--text-muted);
     }
     .status-dot {
-      width: 6px;
-      height: 6px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
-      background: var(--success);
-      box-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent-glow);
     }
     .status-dot.offline {
-      background: var(--accent);
-      box-shadow: 0 0 8px var(--accent-glow);
+      background: #f59e0b;
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
     }
 
     .nav-actions {
@@ -217,37 +190,96 @@
       gap: 10px;
     }
 
-    /* Theme Picker Button */
-    .theme-picker-btn {
+    /* Header Action Buttons */
+    .header-btn {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 6px 12px;
+      gap: 7px;
+      padding: 6px 13px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.04);
+      background: var(--card-bg);
       border: 1px solid var(--border-subtle);
       color: var(--text-main);
       cursor: pointer;
-      font-family: var(--mono);
-      font-size: 11px;
+      font-family: var(--sans);
+      font-size: 12px;
+      font-weight: 600;
       transition: all 0.15s;
     }
-    .theme-picker-btn:hover {
+    .header-btn:hover {
       border-color: var(--border-focus);
-      background: rgba(255, 255, 255, 0.08);
+      background: var(--card-hover);
     }
-    .theme-color-bullet {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--theme-dot);
-      box-shadow: 0 0 6px var(--theme-dot);
+    .header-btn svg { width: 14px; height: 14px; }
+
+    /* Wallpaper Dropdown */
+    .wallpaper-menu-container {
+      position: relative;
+    }
+    .wallpaper-dropdown {
+      position: absolute;
+      top: 42px;
+      right: 0;
+      background: var(--frame-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 12px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+      z-index: 100;
+      width: 210px;
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+    }
+    .wallpaper-dropdown.active { display: flex; }
+    .wallpaper-opt {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-main);
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+    }
+    .wallpaper-opt::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 1;
+    }
+    .wallpaper-opt span {
+      position: relative;
+      z-index: 2;
+      color: #ffffff;
+      font-weight: 600;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    }
+    .wallpaper-opt.clean-opt::before { display: none; }
+    .wallpaper-opt.clean-opt span { color: var(--text-main); text-shadow: none; }
+    .wallpaper-opt:hover {
+      border-color: var(--accent);
+      transform: scale(1.02);
+    }
+    .wallpaper-opt.active-wp {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-glow);
     }
 
     /* Tabs & Filters */
     .tab-pills {
       display: inline-flex;
-      background: rgba(255, 255, 255, 0.04);
+      background: var(--tag-bg);
       border: 1px solid var(--border-subtle);
       border-radius: 999px;
       padding: 4px;
@@ -269,7 +301,7 @@
     .tab-pill.active {
       background: var(--card-bg);
       color: var(--text-main);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
     }
     .tab-pill:hover:not(.active) {
       color: var(--text-main);
@@ -303,23 +335,23 @@
     }
 
     .btn-secondary {
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--card-bg);
       color: var(--text-main);
       border: 1px solid var(--border-subtle);
     }
     .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.09);
+      background: var(--card-hover);
       border-color: var(--border-focus);
     }
 
     .btn-success-subtle {
-      background: rgba(16, 185, 129, 0.12);
-      color: #10b981;
-      border: 1px solid rgba(16, 185, 129, 0.3);
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid var(--accent-glow);
     }
     .btn-success-subtle:hover {
-      background: #10b981;
-      color: #0c0d11;
+      background: var(--accent);
+      color: #ffffff;
     }
 
     .btn-danger {
@@ -337,7 +369,7 @@
       width: 34px;
       height: 34px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.04);
+      background: var(--card-bg);
       border: 1px solid var(--border-subtle);
       color: var(--text-muted);
       cursor: pointer;
@@ -369,6 +401,7 @@
       text-transform: uppercase;
       color: var(--accent);
       margin-bottom: 6px;
+      font-weight: 600;
     }
     .display-h1 {
       font-size: clamp(24px, 2.8vw, 34px);
@@ -400,11 +433,13 @@
       justify-content: space-between;
       transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     }
     .bento-card:hover {
       background: var(--card-hover);
       border-color: var(--border-focus);
       transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
     }
 
     .bento-featured { grid-column: span 7; min-height: 380px; }
@@ -428,17 +463,16 @@
       cursor: pointer;
     }
     .card-icon-box {
-      width: 34px;
-      height: 34px;
-      border-radius: 9px;
-      background: rgba(255, 255, 255, 0.04);
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--tag-bg);
       border: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--accent);
     }
-    .card-icon-box svg { width: 17px; height: 17px; }
+    .card-icon-box svg { width: 18px; height: 18px; }
 
     .card-name {
       font-size: 18px;
@@ -449,7 +483,7 @@
       font-family: var(--mono);
       font-size: 11px;
       padding: 3px 9px;
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--tag-bg);
       border: 1px solid var(--border-subtle);
       border-radius: 999px;
       color: var(--text-muted);
@@ -471,7 +505,7 @@
     }
     .stream-add-btn:hover {
       background: var(--accent);
-      color: #0c0d11;
+      color: #ffffff;
       transform: scale(1.06);
     }
     .stream-add-btn svg { width: 14px; height: 14px; stroke-width: 2.4; }
@@ -515,7 +549,7 @@
     }
 
     .stream-item {
-      background: rgba(255, 255, 255, 0.02);
+      background: var(--card-bg);
       border: 1px solid var(--border-subtle);
       border-radius: 13px;
       padding: 11px 13px;
@@ -524,7 +558,7 @@
       position: relative;
     }
     .stream-item:hover {
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--card-hover);
       border-color: var(--border-focus);
       transform: translateX(2px);
     }
@@ -553,6 +587,7 @@
       align-items: center;
       gap: 6px;
       margin-top: 3px;
+      font-weight: 500;
     }
     .stream-next svg { width: 12px; height: 12px; }
 
@@ -582,7 +617,7 @@
       justify-content: space-between;
       align-items: center;
       padding-top: 12px;
-      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      border-top: 1px solid var(--border-subtle);
     }
 
     /* ============================================================
@@ -630,14 +665,16 @@
       gap: 14px;
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     }
     .field-card:hover {
       background: var(--card-hover);
       border-color: var(--border-focus);
       transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
     }
     .field-card.finished-card {
-      opacity: 0.85;
+      opacity: 0.88;
       border-style: dashed;
     }
 
@@ -718,6 +755,7 @@
       padding: 3px 8px;
       border-radius: 999px;
       text-transform: uppercase;
+      font-weight: 600;
     }
     .status-badge.active-badge {
       background: var(--accent-soft);
@@ -725,9 +763,9 @@
       border: 1px solid var(--accent-glow);
     }
     .status-badge.finished-badge {
-      background: rgba(16, 185, 129, 0.14);
-      color: #10b981;
-      border: 1px solid rgba(16, 185, 129, 0.35);
+      background: rgba(5, 150, 105, 0.14);
+      color: var(--accent);
+      border: 1px solid var(--accent-glow);
     }
 
     /* Two-Column Grid */
@@ -763,7 +801,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      font-weight: 600;
+      font-weight: 700;
     }
     .panel-title svg { width: 14px; height: 14px; }
     .save-badge {
@@ -782,6 +820,7 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     }
 
     .actions-list {
@@ -791,7 +830,7 @@
     }
 
     .action-card {
-      background: rgba(255, 255, 255, 0.02);
+      background: var(--card-bg);
       border: 1px solid var(--border-subtle);
       border-radius: 12px;
       padding: 12px 14px;
@@ -801,43 +840,49 @@
       transition: all 0.16s ease;
     }
     .action-card:hover {
-      border-color: rgba(255, 255, 255, 0.2);
-      background: rgba(255, 255, 255, 0.04);
+      border-color: var(--border-focus);
+      background: var(--card-hover);
     }
 
-    /* Custom Tactile Checkbox */
+    /* ============================================================
+       HIGH-CONTRAST TACTILE CHECKBOX (CRISP & BOLD TICKS)
+       ============================================================ */
     .action-check-btn {
       width: 22px;
       height: 22px;
       border-radius: 50%;
-      border: 1.6px solid rgba(255, 255, 255, 0.24);
-      background: rgba(255, 255, 255, 0.02);
+      border: 2px solid var(--checkbox-border);
+      background: var(--checkbox-bg);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 0;
       flex-shrink: 0;
-      transition: all 0.16s ease;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .action-check-btn:hover {
       border-color: var(--accent);
       background: var(--accent-soft);
-      box-shadow: 0 0 10px var(--accent-glow);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+      transform: scale(1.08);
     }
     .action-check-btn .check-svg {
       width: 12px;
       height: 12px;
-      stroke: #0c0d11;
-      stroke-width: 2.6;
+      stroke: #ffffff;
+      stroke-width: 3.2;
       fill: none;
       opacity: 0;
-      transform: scale(0.6);
+      transform: scale(0.4);
       transition: all 0.14s ease;
     }
+
+    /* Checked / Completing State: Solid rich emerald with bold white check */
     .action-card.completing .action-check-btn {
-      background: var(--success);
-      border-color: var(--success);
+      background: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 0 10px var(--accent-glow);
     }
     .action-card.completing .check-svg {
       opacity: 1;
@@ -879,7 +924,7 @@
     .add-action-box {
       display: flex;
       gap: 10px;
-      background: rgba(255, 255, 255, 0.02);
+      background: var(--tag-bg);
       border: 1px dashed var(--border-subtle);
       border-radius: 12px;
       padding: 6px 10px;
@@ -903,7 +948,7 @@
 
     /* Packed Archive Section */
     .archive-capsule {
-      background: rgba(255, 255, 255, 0.02);
+      background: var(--card-bg);
       border: 1px solid var(--border-subtle);
       border-radius: 16px;
       padding: 14px 18px;
@@ -924,6 +969,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      font-weight: 600;
     }
     .archive-tag svg { width: 14px; height: 14px; }
     .archive-toggle-label {
@@ -937,7 +983,7 @@
       flex-direction: column;
       gap: 8px;
       margin-top: 14px;
-      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      border-top: 1px solid var(--border-subtle);
       padding-top: 12px;
     }
     .archive-row {
@@ -947,16 +993,35 @@
       font-size: 13px;
       color: var(--text-dim);
       padding: 6px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border-subtle);
     }
     .archive-row-left {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       text-decoration: line-through;
       flex: 1;
     }
-    .archive-check { color: var(--success); font-size: 13px; font-weight: 700; }
+
+    /* Archive Check Circle: Solid visible green circle with white tick */
+    .archive-check-circle {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .archive-check-circle svg {
+      width: 10px;
+      height: 10px;
+      stroke: #ffffff;
+      stroke-width: 3.2;
+      fill: none;
+    }
+
     .archive-row-right {
       display: flex;
       align-items: center;
@@ -973,6 +1038,7 @@
       color: var(--accent);
       font-family: var(--mono);
       font-size: 11px;
+      font-weight: 600;
       padding: 3px 8px;
       border-radius: 6px;
       cursor: pointer;
@@ -983,7 +1049,7 @@
     }
     .btn-restore:hover {
       background: var(--accent);
-      color: #0c0d11;
+      color: #ffffff;
     }
     .btn-archive-del {
       background: transparent;
@@ -1006,6 +1072,7 @@
       gap: 12px;
       height: 100%;
       min-height: 380px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
     }
     .notes-editor {
       width: 100%;
@@ -1035,7 +1102,7 @@
       display: flex;
       align-items: center;
       gap: 14px;
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.25);
       z-index: 1000;
       opacity: 0;
       pointer-events: none;
@@ -1050,7 +1117,7 @@
     }
     .toast-undo-btn {
       background: var(--accent);
-      color: #0c0d11;
+      color: #ffffff;
       font-weight: 700;
       font-size: 11px;
       border: none;
@@ -1068,8 +1135,9 @@
     .modal-backdrop {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.8);
+      background: rgba(0, 0, 0, 0.55);
       backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       z-index: 100;
       display: none;
       align-items: center;
@@ -1087,7 +1155,7 @@
       display: flex;
       flex-direction: column;
       gap: 18px;
-      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.65);
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35);
       animation: modalPop 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
@@ -1098,9 +1166,9 @@
 
     .modal-title { font-size: 19px; font-weight: 700; }
     .form-field { display: flex; flex-direction: column; gap: 6px; }
-    .form-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; }
+    .form-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
     .form-input {
-      background: rgba(255, 255, 255, 0.04);
+      background: var(--card-bg);
       border: 1px solid var(--border-subtle);
       border-radius: 10px;
       padding: 11px 13px;
@@ -1140,10 +1208,35 @@
       </div>
 
       <div class="nav-actions">
-        <!-- Live Theme Switcher -->
-        <button class="theme-picker-btn" onclick="cycleTheme()" title="Click to cycle themes">
-          <span class="theme-color-bullet"></span>
-          <span id="themeNameLabel">SOLAR</span>
+        <!-- Trello-Style Wallpaper Dropdown Picker -->
+        <div class="wallpaper-menu-container">
+          <button class="header-btn" onclick="toggleWallpaperMenu(event)" title="Choose Trello Wallpaper">
+            <svg class="vector-icon" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+            <span style="font-family: var(--mono); font-size: 11px;">WALLPAPER</span>
+          </button>
+          <div class="wallpaper-dropdown" id="wallpaperDropdown">
+            <div class="wallpaper-opt active-wp" id="wp_forest" onclick="setWallpaper('forest')" style="background-image: url('https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=400&auto=format&fit=crop');">
+              <span>🌲 Pine Mist</span>
+            </div>
+            <div class="wallpaper-opt" id="wp_valley" onclick="setWallpaper('valley')" style="background-image: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=400&auto=format&fit=crop');">
+              <span>🏞️ River Valley</span>
+            </div>
+            <div class="wallpaper-opt" id="wp_mountain" onclick="setWallpaper('mountain')" style="background-image: url('https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=400&auto=format&fit=crop');">
+              <span>🌫️ Mountain Fog</span>
+            </div>
+            <div class="wallpaper-opt" id="wp_alpine" onclick="setWallpaper('alpine')" style="background-image: url('https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=400&auto=format&fit=crop');">
+              <span>🏔️ Alpine Peak</span>
+            </div>
+            <div class="wallpaper-opt clean-opt" id="wp_clean" onclick="setWallpaper('clean')" style="background: var(--tag-bg); border: 1px dashed var(--border-subtle);">
+              <span>◻️ Clean Canvas</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Clean Mode Toggle (Light / Dark) -->
+        <button class="header-btn" onclick="toggleTheme()" id="modeToggleBtn" title="Toggle Light / Dark Mode">
+          <span id="modeIcon">☀️</span>
+          <span id="modeLabel" style="font-family: var(--mono); font-size: 11px;">LIGHT</span>
         </button>
 
         <button class="btn-pill btn-secondary" onclick="openNewFolderModal()">+ New Field</button>
@@ -1269,7 +1362,7 @@
                 <span class="count-badge" id="openActionsCount">0 OPEN</span>
               </div>
 
-              <!-- Action Items -->
+              <!-- Action Items with High-Contrast Bold Checkboxes -->
               <div id="actionsContainer" class="actions-list"></div>
 
               <!-- Quick Add Action Input -->
@@ -1375,32 +1468,84 @@
   </div>
 
   <script>
-    const THEMES = [
-      { id: "solar", name: "SOLAR AMBER" },
-      { id: "emerald", name: "EMERALD" },
-      { id: "coral", name: "SUNSET CORAL" },
-      { id: "daylight", name: "DAYLIGHT" }
-    ];
-    let currentThemeIdx = 0;
+    /* ============================================================
+       TRELLO WALLPAPERS & THEMES
+       ============================================================ */
+    const WALLPAPERS = {
+      forest: "https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2000&auto=format&fit=crop",
+      valley: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2000&auto=format&fit=crop",
+      mountain: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=2000&auto=format&fit=crop",
+      alpine: "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2000&auto=format&fit=crop",
+      clean: ""
+    };
 
-    function applyTheme(themeId) {
-      document.documentElement.setAttribute("data-theme", themeId);
-      localStorage.setItem("state_next_theme", themeId);
-      const th = THEMES.find(t => t.id === themeId);
-      if (th) {
-        document.getElementById("themeNameLabel").innerText = th.name;
-        currentThemeIdx = THEMES.findIndex(t => t.id === themeId);
+    let currentWallpaper = localStorage.getItem("state_next_wallpaper") || "forest";
+    let currentTheme = localStorage.getItem("state_next_theme") || "daylight";
+
+    function applyWallpaper(wpKey) {
+      currentWallpaper = wpKey;
+      localStorage.setItem("state_next_wallpaper", wpKey);
+
+      const url = WALLPAPERS[wpKey];
+      if (url) {
+        document.body.style.backgroundImage = `url('${url}')`;
+      } else {
+        document.body.style.backgroundImage = "none";
+      }
+
+      document.querySelectorAll(".wallpaper-opt").forEach(el => el.classList.remove("active-wp"));
+      const activeEl = document.getElementById(`wp_${wpKey}`);
+      if (activeEl) activeEl.classList.add("active-wp");
+    }
+
+    function setWallpaper(wpKey) {
+      applyWallpaper(wpKey);
+      closeWallpaperMenu();
+    }
+
+    function toggleWallpaperMenu(event) {
+      if (event) event.stopPropagation();
+      const dd = document.getElementById("wallpaperDropdown");
+      if (dd) dd.classList.toggle("active");
+    }
+
+    function closeWallpaperMenu() {
+      const dd = document.getElementById("wallpaperDropdown");
+      if (dd) dd.classList.remove("active");
+    }
+
+    document.addEventListener("click", () => {
+      closeWallpaperMenu();
+    });
+
+    function applyTheme(themeName) {
+      currentTheme = themeName;
+      document.documentElement.setAttribute("data-theme", themeName);
+      localStorage.setItem("state_next_theme", themeName);
+
+      const icon = document.getElementById("modeIcon");
+      const label = document.getElementById("modeLabel");
+      if (themeName === "dark") {
+        icon.innerText = "🌙";
+        label.innerText = "DARK";
+      } else {
+        icon.innerText = "☀️";
+        label.innerText = "LIGHT";
       }
     }
 
-    function cycleTheme() {
-      currentThemeIdx = (currentThemeIdx + 1) % THEMES.length;
-      applyTheme(THEMES[currentThemeIdx].id);
+    function toggleTheme() {
+      const nextTheme = currentTheme === "daylight" ? "dark" : "daylight";
+      applyTheme(nextTheme);
     }
 
-    const savedTheme = localStorage.getItem("state_next_theme") || "solar";
-    applyTheme(savedTheme);
+    // Initialize Wallpaper and Theme
+    applyTheme(currentTheme);
+    applyWallpaper(currentWallpaper);
 
+    /* ============================================================
+       API & LOCAL DATA ENGINE
+       ============================================================ */
     const HEROKU_DEFAULT_URL = "https://project-manager-app-78c6297c8f8b.herokuapp.com/api";
 
     function getInitialApiUrl() {
@@ -1415,14 +1560,14 @@
     }
 
     let API_URL = getInitialApiUrl();
-    const CACHE_KEY = "state_next_bento_cache_v5";
+    const CACHE_KEY = "state_next_bento_cache_v6";
 
     const defaultSeedFolders = [
       {
         id: "f1",
         name: "Coding",
         icon: "code",
-        color: "#f59e0b",
+        color: "#2563eb", /* Royal Blue */
         project_count: 2,
         recent_projects: [
           { id: "p1", folder_id: "f1", title: "State & Next Monorepo", next_action: "Push frontend overhaul to Heroku", status: "active", version: 1 },
@@ -1433,17 +1578,17 @@
         id: "f2",
         name: "Creative & Design",
         icon: "creative",
-        color: "#ec4899",
+        color: "#7c3aed", /* Royal Violet */
         project_count: 1,
         recent_projects: [
-          { id: "p3", folder_id: "f2", title: "Solar Amber Design System", next_action: "Finalize encouraging color palette tokens", status: "active", version: 1 }
+          { id: "p3", folder_id: "f2", title: "Trello Board Aesthetics", next_action: "Refine wallpaper glass tokens", status: "active", version: 1 }
         ]
       },
       {
         id: "f3",
         name: "Operations & Life",
         icon: "life",
-        color: "#10b981",
+        color: "#059669", /* Fresh Pine */
         project_count: 1,
         recent_projects: [
           { id: "p4", folder_id: "f3", title: "Personal Setup", next_action: "Sync Xcode project to iPhone", status: "active", version: 1 }
@@ -1683,7 +1828,7 @@
       if (!allFinishedProjects || allFinishedProjects.length === 0) {
         grid.innerHTML = `
           <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: var(--card-bg); border: 1px dashed var(--border-subtle); border-radius: 18px;">
-            <div style="font-size: 24px; margin-bottom: 8px;">🌱</div>
+            <div style="font-size: 26px; margin-bottom: 8px;">🌱</div>
             <div style="font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">No Finished Projects Yet</div>
             <div style="font-size: 13px; color: var(--text-muted);">When you complete a project, click "Mark Finished" inside its workspace to store it here.</div>
           </div>
@@ -1698,14 +1843,14 @@
           <div class="field-card finished-card">
             <div>
               <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-                <span class="count-badge" style="background: rgba(16, 185, 129, 0.12); color: #10b981; border-color: rgba(16, 185, 129, 0.3);">✓ FINISHED</span>
+                <span class="count-badge" style="background: var(--accent-soft); color: var(--accent); border-color: var(--accent-glow);">✓ FINISHED</span>
                 <span style="font-family: var(--mono); font-size: 10px; color: var(--text-dim);">${formatDate(p.updated_at)}</span>
               </div>
               <h3 style="font-size: 17px; font-weight: 700; color: var(--text-main); margin-bottom: 6px;">${escapeHtml(p.title)}</h3>
               <div style="font-family: var(--mono); font-size: 11px; color: var(--text-dim);">${escapeHtml(folderName.toUpperCase())}</div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.04); padding-top: 12px; margin-top: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 12px; margin-top: 8px;">
               <button class="btn-restore" onclick="reopenFinishedProject('${p.id}', event)">↺ Reopen to Active</button>
               <div style="display: flex; gap: 8px;">
                 <button class="btn-pill btn-secondary" style="padding: 4px 10px; font-size: 11px;" onclick="openWorkspace('${p.id}', '${escapeHtml(folderName)}')">View</button>
@@ -1825,7 +1970,7 @@
               </div>
             </div>
 
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.04); padding-top: 14px; margin-top: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 14px; margin-top: 8px;">
               <span style="font-family: var(--mono); font-size: 11px; color: var(--text-dim);">v${p.version || 1}</span>
               <div style="display: flex; gap: 8px;" onclick="event.stopPropagation()">
                 <button class="stream-del-btn" style="opacity: 0.8;" onclick="deleteProjectFromStream('${p.id}', '${escapeHtml(p.title)}', event)">
@@ -2059,7 +2204,9 @@
       rows.innerHTML = items.map(a => `
         <div class="archive-row">
           <div class="archive-row-left">
-            <span class="archive-check">✓</span>
+            <div class="archive-check-circle">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
             <span>${escapeHtml(a.title)}</span>
           </div>
           <div class="archive-row-right">
@@ -2336,7 +2483,7 @@
         const res = await fetch(`${API_URL}/folders`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, icon: "folder", color: "#f59e0b" })
+          body: JSON.stringify({ name, icon: "folder", color: "#059669" })
         });
         if (res.ok) {
           const json = await res.json();
@@ -2348,7 +2495,7 @@
         id: folderId,
         name,
         icon: "folder",
-        color: "#f59e0b",
+        color: "#059669",
         project_count: 0,
         recent_projects: []
       });
