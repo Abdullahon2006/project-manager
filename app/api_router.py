@@ -217,6 +217,28 @@ def update_milestone(milestone_id: str, payload: schemas.MilestoneUpdate, db: Se
     db.commit()
     return {"status": "ok", "version": m.version, "completed_at": m.completed_at.isoformat() if m.completed_at else None}
 
+@api_router.delete("/milestones/{milestone_id}")
+def delete_milestone(milestone_id: str, db: Session = Depends(get_db)):
+    m = db.query(models.Milestone).filter(models.Milestone.id == milestone_id).first()
+    if not m:
+        raise HTTPException(status_code=404, detail="Milestone not found")
+    proj = m.project
+    if proj:
+        proj.version += 1
+    db.delete(m)
+    db.commit()
+    return {"status": "ok", "deleted_id": milestone_id}
+
+@api_router.delete("/projects/{project_id}")
+def delete_project(project_id: str, db: Session = Depends(get_db)):
+    proj = db.query(models.Project).filter(models.Project.id == project_id).first()
+    if not proj:
+        raise HTTPException(status_code=404, detail="Project not found")
+    db.query(models.Milestone).filter(models.Milestone.project_id == project_id).delete()
+    db.delete(proj)
+    db.commit()
+    return {"status": "ok", "deleted_id": project_id}
+
 # --- Staged Sync Endpoint ---
 @api_router.post("/sync", response_model=schemas.SyncResponse)
 def sync_data(req: schemas.SyncRequest, db: Session = Depends(get_db)):
