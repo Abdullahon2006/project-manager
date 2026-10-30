@@ -7,7 +7,17 @@ wheels/
 *.egg-info
 
 # Virtual environments
-.venv
+.venv/
 
-#iOS/Mac environmen
+# macOS
 .DS_Store
+
+# Xcode & Swift User State
+*.xcuserstate
+*.xcbkptlist
+xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+DerivedData/
+.build/
+.swiftpm/
