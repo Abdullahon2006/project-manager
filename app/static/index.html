@@ -6,7 +6,7 @@
   <title>State & Next — Bento Workspace</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     /* ============================================================
        THEMES: DAYLIGHT (White / Clean Canvas) & DARK (Obsidian)
@@ -64,9 +64,37 @@
       --wallpaper-overlay: transparent;
     }
 
+    /* ============================================================
+       ELEGANT TYPOGRAPHY ENGINE (Editorial Serif / Geometric Luxe)
+       ============================================================ */
+    :root, [data-font="editorial"] {
+      --font-display: 'Instrument Serif', Georgia, serif;
+      --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    [data-font="luxe"] {
+      --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    [data-font="heritage"] {
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-sans: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    [data-font="modern"] {
+      --font-display: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
     :root {
-      --sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-      --mono: 'JetBrains Mono', monospace;
+      --sans: var(--font-sans);
+      --mono: var(--font-mono);
+      --serif: var(--font-display);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -74,9 +102,11 @@
     html, body {
       background-color: var(--bg-color);
       color: var(--text-main);
-      font-family: var(--sans);
+      font-family: var(--font-sans);
+      letter-spacing: -0.012em;
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
@@ -159,8 +189,17 @@
     }
 
     .brand-title {
-      font-size: 16px;
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 400;
+      font-style: italic;
+      letter-spacing: 0.01em;
+      color: var(--text-main);
+    }
+    [data-font="luxe"] .brand-title, [data-font="modern"] .brand-title {
+      font-style: normal;
       font-weight: 700;
+      font-size: 16px;
       letter-spacing: -0.02em;
     }
 
@@ -360,6 +399,69 @@
       display: inline-block;
     }
 
+    /* Font Choice Styling */
+    .font-choice-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .font-choice-card {
+      border: 2px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 16px;
+      cursor: pointer;
+      background: var(--card-bg);
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .font-choice-card:hover {
+      border-color: var(--border-focus);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    }
+    .font-choice-card.active-font {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+    .font-choice-title {
+      font-size: 18px;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+    .font-choice-sub {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .font-choice-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-top: 4px;
+    }
+    .font-active-badge {
+      display: none;
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: var(--accent);
+      color: #ffffff;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 999px;
+      letter-spacing: 0.06em;
+    }
+    .font-choice-card.active-font .font-active-badge {
+      display: inline-block;
+    }
+
     /* Tabs & Filters */
     .tab-pills {
       display: inline-flex;
@@ -495,11 +597,17 @@
       font-weight: 600;
     }
     .display-h1 {
-      font-size: clamp(24px, 2.8vw, 34px);
-      font-weight: 700;
-      letter-spacing: -0.03em;
+      font-family: var(--font-display);
+      font-size: clamp(30px, 3.4vw, 42px);
+      font-weight: 400;
+      letter-spacing: -0.015em;
       color: var(--text-main);
-      line-height: 1.15;
+      line-height: 1.1;
+    }
+    [data-font="luxe"] .display-h1, [data-font="modern"] .display-h1 {
+      font-weight: 700;
+      font-size: clamp(24px, 2.8vw, 34px);
+      letter-spacing: -0.03em;
     }
     .display-sub {
       font-size: 14px;
@@ -1271,7 +1379,18 @@
       to { transform: scale(1); opacity: 1; }
     }
 
-    .modal-title { font-size: 19px; font-weight: 700; }
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      color: var(--text-main);
+    }
+    [data-font="luxe"] .modal-title, [data-font="modern"] .modal-title {
+      font-weight: 700;
+      font-size: 19px;
+      letter-spacing: -0.02em;
+    }
     .form-field { display: flex; flex-direction: column; gap: 6px; }
     .form-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
     .form-input {
@@ -1530,7 +1649,49 @@
             </div>
           </div>
 
-          <!-- Card 2: Appearance & Theme -->
+          <!-- Card: Typography & Font Elegance -->
+          <div class="settings-card" style="grid-column: 1 / -1;">
+            <div class="settings-card-header">
+              <div class="panel-title">
+                <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                <span>Typography & Font Elegance</span>
+              </div>
+              <span class="save-badge">INSTANT PREVIEW</span>
+            </div>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+              Select the typographical voice for headlines, titles, and workspace elements.
+            </p>
+
+            <div class="font-choice-grid">
+              <div class="font-choice-card active-font" id="fontOptEditorial" onclick="applyFontTheme('editorial')">
+                <div class="font-choice-title" style="font-family: 'Instrument Serif', serif; font-size: 21px; font-style: italic;">Modern Editorial</div>
+                <div class="font-choice-sub">Instrument Serif + Outfit</div>
+                <div class="font-choice-desc">Bespoke luxury editorial look with poetic, high-fashion display titles.</div>
+                <span class="font-active-badge">ACTIVE</span>
+              </div>
+
+              <div class="font-choice-card" id="fontOptLuxe" onclick="applyFontTheme('luxe')">
+                <div class="font-choice-title" style="font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700;">Geometric Luxury</div>
+                <div class="font-choice-sub">Pure Outfit Sans</div>
+                <div class="font-choice-desc">Airy, modern architectural sans for a sleek Apple/B&O design presence.</div>
+                <span class="font-active-badge">ACTIVE</span>
+              </div>
+
+              <div class="font-choice-card" id="fontOptHeritage" onclick="applyFontTheme('heritage')">
+                <div class="font-choice-title" style="font-family: 'Fraunces', serif; font-size: 18px; font-weight: 600;">Heritage Serif</div>
+                <div class="font-choice-sub">Fraunces + Outfit</div>
+                <div class="font-choice-desc">Warm, literary transitional serif with distinctive character and poise.</div>
+                <span class="font-active-badge">ACTIVE</span>
+              </div>
+
+              <div class="font-choice-card" id="fontOptModern" onclick="applyFontTheme('modern')">
+                <div class="font-choice-title" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 700;">Modern Clean</div>
+                <div class="font-choice-sub">Plus Jakarta Sans</div>
+                <div class="font-choice-desc">Tech-forward neo-grotesque sans for high information density.</div>
+                <span class="font-active-badge">ACTIVE</span>
+              </div>
+            </div>
+          </div>
           <div class="settings-card">
             <div class="settings-card-header">
               <div class="panel-title">
@@ -1778,6 +1939,25 @@
       }
     }
 
+    let currentFontTheme = localStorage.getItem("state_next_font_theme") || "editorial";
+
+    function applyFontTheme(fontKey) {
+      currentFontTheme = fontKey;
+      document.documentElement.setAttribute("data-font", fontKey);
+      localStorage.setItem("state_next_font_theme", fontKey);
+
+      // Update font option active states
+      document.querySelectorAll(".font-choice-card").forEach(el => el.classList.remove("active-font"));
+      const keyMap = {
+        editorial: "fontOptEditorial",
+        luxe: "fontOptLuxe",
+        heritage: "fontOptHeritage",
+        modern: "fontOptModern"
+      };
+      const activeEl = document.getElementById(keyMap[fontKey]);
+      if (activeEl) activeEl.classList.add("active-font");
+    }
+
     function toggleTheme() {
       const nextTheme = currentTheme === "daylight" ? "dark" : "daylight";
       applyTheme(nextTheme);
@@ -1834,6 +2014,17 @@
         optDark.classList.toggle("active-theme", currentTheme === "dark");
       }
 
+      // Font options
+      const keyMap = {
+        editorial: "fontOptEditorial",
+        luxe: "fontOptLuxe",
+        heritage: "fontOptHeritage",
+        modern: "fontOptModern"
+      };
+      document.querySelectorAll(".font-choice-card").forEach(el => el.classList.remove("active-font"));
+      const activeFontEl = document.getElementById(keyMap[currentFontTheme]);
+      if (activeFontEl) activeFontEl.classList.add("active-font");
+
       // Backend URL
       const bInput = document.getElementById("settingsBackendUrlInput");
       if (bInput && !bInput.value) bInput.value = API_URL;
@@ -1860,9 +2051,10 @@
       alert("Refreshed all project data and synced with cloud!");
     }
 
-    // Initialize Wallpaper and Theme
+    // Initialize Wallpaper, Theme, and Typography
     applyTheme(currentTheme);
     applyWallpaper(currentWallpaper);
+    applyFontTheme(currentFontTheme);
 
     /* ============================================================
        API & LOCAL DATA ENGINE
