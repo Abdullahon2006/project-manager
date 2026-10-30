@@ -2070,9 +2070,9 @@
         diagWp.innerText = WALLPAPERS[currentWallpaper] ? WALLPAPERS[currentWallpaper].name : (currentWallpaper === 'custom' ? 'Custom Photo' : currentWallpaper);
       }
       const diagF = document.getElementById("diagFolderCount");
-      if (diagF) diagF.innerText = (folders ? folders.length : 0);
+      if (diagF) diagF.innerText = (typeof folders !== 'undefined' && folders ? folders.length : 0);
       const diagP = document.getElementById("diagFinishedCount");
-      if (diagP) diagP.innerText = (allFinishedProjects ? allFinishedProjects.length : 0);
+      if (diagP) diagP.innerText = (typeof allFinishedProjects !== 'undefined' && allFinishedProjects ? allFinishedProjects.length : 0);
 
       // Theme options
       const optDay = document.getElementById("themeOptDaylight");
@@ -2084,10 +2084,10 @@
 
       // Font options
       const keyMap = {
-        editorial: "fontOptEditorial",
-        luxe: "fontOptLuxe",
-        heritage: "fontOptHeritage",
-        modern: "fontOptModern"
+        geist: "fontOptGeist",
+        outfit: "fontOptOutfit",
+        jakarta: "fontOptJakarta",
+        inter: "fontOptInter"
       };
       document.querySelectorAll(".font-choice-card").forEach(el => el.classList.remove("active-font"));
       const activeFontEl = document.getElementById(keyMap[currentFontTheme]);
@@ -2119,10 +2119,6 @@
       alert("Refreshed all project data and synced with cloud!");
     }
 
-    // Initialize Wallpaper, Theme, and Typography
-    applyTheme(currentTheme);
-    applyWallpaper(currentWallpaper);
-    applyFontTheme(currentFontTheme);
 
     /* ============================================================
        API & LOCAL DATA ENGINE
@@ -2174,6 +2170,16 @@
         recent_projects: [
           { id: "p4", folder_id: "f3", title: "Personal Setup", next_action: "Sync Xcode project to iPhone", status: "active", version: 1 }
         ]
+      },
+      {
+        id: "f4",
+        name: "Research",
+        icon: "folder",
+        color: "#0284c7", /* Ocean Blue */
+        project_count: 1,
+        recent_projects: [
+          { id: "p5", folder_id: "f4", title: "Competitive UX Benchmark", next_action: "Review Linear and Things 3 interaction loops", status: "active", version: 1 }
+        ]
       }
     ];
 
@@ -2213,6 +2219,9 @@
     }
 
     async function init() {
+      applyTheme(currentTheme);
+      applyWallpaper(currentWallpaper);
+      applyFontTheme(currentFontTheme);
       renderBento(folders);
       await syncWithBackend();
       await fetchFinishedProjects();
