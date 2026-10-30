@@ -1,5 +1,6 @@
 import os
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base, SessionLocal
 from .models import Folder, Project, Milestone
@@ -56,8 +57,21 @@ app.add_middleware(
 app.include_router(api_router)
 app.include_router(agent_router)
 
-@app.get("/")
-def root():
+STATIC_INDEX = os.path.join(os.path.dirname(__file__), "static", "index.html")
+
+@app.get("/", include_in_schema=False)
+def serve_root():
+    if os.path.exists(STATIC_INDEX):
+        return FileResponse(STATIC_INDEX)
+    return {
+        "app": "State & Next API",
+        "status": "online",
+        "docs": "/docs",
+        "endpoints": ["/api/bento", "/api/sync", "/api/agent/overview"]
+    }
+
+@app.get("/api")
+def api_info():
     return {
         "app": "State & Next API",
         "status": "online",

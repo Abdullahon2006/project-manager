@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>State & Next — Bento Workspace</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07080b;
+      --frame-bg: #0d0f15;
+      --card-bg: rgba(18, 21, 30, 0.7);
+      --card-hover: rgba(26, 30, 44, 0.85);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(255, 255, 255, 0.22);
+      --text-main: #f4f5f8;
+      --text-muted: #8b93a7;
+      --text-dim: #4d5467;
+      --accent: #3b82f6;
+      --accent-soft: rgba(59, 130, 246, 0.12);
+      --success: #10b981;
+      --warning: #f59e0b;
+      --sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: var(--sans);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.04) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .app-frame {
+      max-width: 1240px;
+      margin: 20px auto;
+      min-height: calc(100vh - 40px);
+      background: var(--frame-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 28px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      z-index: 2;
+      overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+    }
+
+    /* Top Bar */
+    header {
+      padding: 20px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(13, 15, 21, 0.85);
+      backdrop-filter: blur(20px);
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      background: #ffffff;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #07080b;
+    }
+    .brand-mark svg {
+      width: 18px;
+      height: 18px;
+      stroke: #07080b;
+      stroke-width: 2.2;
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .status-chip {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      color: var(--text-muted);
+    }
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+    }
+    .status-dot.offline {
+      background: var(--warning);
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Buttons */
+    .btn-pill {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 20px;
+      border-radius: 999px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      border: none;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: #ffffff;
+      color: #08090c;
+    }
+    .btn-primary:hover {
+      background: #e5e7eb;
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: var(--border-focus);
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .icon-btn:hover {
+      color: var(--text-main);
+      border-color: var(--border-focus);
+    }
+    .icon-btn svg { width: 16px; height: 16px; }
+
+    /* Main Stage */
+    main {
+      flex: 1;
+      padding: 36px 36px 50px;
+      overflow-y: auto;
+    }
+
+    .view-header { margin-bottom: 30px; }
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .display-h1 {
+      font-size: clamp(26px, 3vw, 36px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text-main);
+      line-height: 1.15;
+    }
+    .display-sub {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* Bento Grid */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 20px;
+    }
+
+    .bento-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 22px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .bento-card:hover {
+      background: var(--card-hover);
+      border-color: var(--border-focus);
+      transform: translateY(-2px);
+    }
+
+    .bento-featured { grid-column: span 7; min-height: 380px; }
+    .bento-companion { grid-column: span 5; min-height: 380px; }
+    .bento-regular { grid-column: span 4; min-height: 280px; }
+
+    @media (max-width: 900px) {
+      .bento-featured, .bento-companion, .bento-regular { grid-column: span 12; }
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+    .card-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .card-icon-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+    }
+    .card-icon-box svg { width: 18px; height: 18px; }
+
+    .card-name {
+      font-size: 19px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .count-badge {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      color: var(--text-muted);
+    }
+
+    /* Project Stream list */
+    .project-stream {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 14px 0 20px;
+    }
+
+    .stream-item {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .stream-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .stream-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .stream-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .stream-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+    .stream-next {
+      font-size: 12px;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .stream-next svg { width: 12px; height: 12px; }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    /* Project Workspace */
+    .workspace-view {
+      display: none;
+      flex-direction: column;
+      gap: 28px;
+      max-width: 860px;
+      margin: 0 auto;
+      animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .breadcrumbs {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .breadcrumb-link {
+      color: var(--text-muted);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .breadcrumb-link:hover { color: var(--text-main); }
+
+    .proj-headline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Living State Container */
+    .state-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .panel-title svg { width: 14px; height: 14px; }
+    .save-badge {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+    }
+
+    .state-editor {
+      width: 100%;
+      min-height: 140px;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-main);
+      font-size: 15px;
+      line-height: 1.6;
+      resize: vertical;
+      font-family: var(--sans);
+    }
+    .state-editor::placeholder { color: var(--text-dim); }
+
+    /* Packed Archive Section */
+    .archive-capsule {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 14px 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .archive-capsule:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: var(--border-focus);
+    }
+    .archive-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .archive-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .archive-tag svg { width: 14px; height: 14px; }
+    .archive-preview-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.04);
+      padding-top: 12px;
+    }
+    .archive-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--text-dim);
+      text-decoration: line-through;
+    }
+
+    /* Actions List */
+    .actions-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .action-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: all 0.15s;
+    }
+    .action-card:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      background: var(--card-hover);
+    }
+    .action-checkbox {
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+    .action-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-main);
+    }
+
+    .add-action-box {
+      display: flex;
+      gap: 10px;
+      background: var(--card-bg);
+      border: 1px dashed var(--border-subtle);
+      border-radius: 14px;
+      padding: 8px 12px;
+    }
+    .add-action-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-main);
+      font-size: 14px;
+      padding: 8px;
+    }
+
+    /* Modal Backdrop */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-backdrop.active { display: flex; }
+
+    .modal-dialog {
+      background: #11131a;
+      border: 1px solid var(--border-focus);
+      border-radius: 24px;
+      max-width: 480px;
+      width: 90%;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.6);
+      animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalPop {
+      from { transform: scale(0.96); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-title { font-size: 20px; font-weight: 700; }
+    .form-field { display: flex; flex-direction: column; gap: 6px; }
+    .form-label { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; }
+    .form-input {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--text-main);
+      font-size: 14px;
+      outline: none;
+    }
+    .form-input:focus { border-color: var(--accent); }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
+
+    /* Icons Utility */
+    .vector-icon {
+      display: inline-block;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      fill: none;
+      stroke: currentColor;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-frame">
+    <!-- Header -->
+    <header>
+      <div class="brand-group">
+        <div class="brand-mark">
+          <svg class="vector-icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <div class="brand-title">State & Next</div>
+        <div class="status-chip" id="syncStatusChip">
+          <span class="status-dot" id="statusDot"></span>
+          <span id="statusLabel">CONNECTING...</span>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <button class="btn-pill btn-secondary" onclick="openNewFolderModal()">+ New Folder</button>
+        <button class="btn-pill btn-primary" onclick="openNewProjectModal()">
+          <span>+ New Project</span>
+          <svg class="vector-icon" style="width:14px; height:14px;" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+        <button class="icon-btn" onclick="openSettingsModal()" title="Backend Connection Settings">
+          <svg class="vector-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+      <!-- 1. Bento Dashboard -->
+      <div id="bentoSection">
+        <div class="view-header">
+          <div class="eyebrow">01 // FOLDER STREAMS</div>
+          <div class="display-h1">Active Workspaces</div>
+          <div class="display-sub">Live state of projects, milestones, and next actions.</div>
+        </div>
+
+        <div class="bento-grid" id="bentoContainer"></div>
+      </div>
+
+      <!-- 2. Project Workspace View -->
+      <div class="workspace-view" id="workspaceSection">
+        <div class="breadcrumbs">
+          <span class="breadcrumb-link" onclick="closeWorkspace()">STREAMS</span>
+          <span>/</span>
+          <span class="breadcrumb-link" id="bcFolder">CODING</span>
+          <span>/</span>
+          <span style="color: var(--text-main);" id="bcProject">PROJECT</span>
+        </div>
+
+        <div class="proj-headline">
+          <h1 class="display-h1" id="projectTitle">Project Title</h1>
+          <button class="btn-pill btn-secondary" onclick="closeWorkspace()">
+            <svg class="vector-icon" style="width:14px; height:14px;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            <span>Back to Streams</span>
+          </button>
+        </div>
+
+        <!-- Panel 01: Living State of Affairs -->
+        <div class="state-panel">
+          <div class="panel-header">
+            <span class="panel-title">
+              <svg class="vector-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              <span>01 // Living State of Affairs</span>
+            </span>
+            <span class="save-badge" id="saveBadge">AUTO-SAVED</span>
+          </div>
+          <textarea class="state-editor" id="stateTextarea" placeholder="Where did you leave off? What is the current blocker or state?" oninput="handleStateInput()"></textarea>
+        </div>
+
+        <!-- Panel 02: Packed Archive Drawer -->
+        <div class="archive-capsule" onclick="toggleArchiveDrawer()">
+          <div class="archive-header">
+            <div class="archive-tag">
+              <svg class="vector-icon" viewBox="0 0 24 24"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></svg>
+              <span id="archiveTitleTag">PACKED ARCHIVE (0 COMPLETED)</span>
+            </div>
+            <span style="font-family: var(--mono); font-size: 11px; color: var(--text-muted);" id="archiveArrow">EXPAND ▾</span>
+          </div>
+          <div class="archive-preview-rows" id="archiveRows" style="display: none;"></div>
+        </div>
+
+        <!-- Panel 03: Active Actions -->
+        <div class="actions-panel">
+          <div class="panel-title">
+            <svg class="vector-icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>02 // Active Next Actions</span>
+          </div>
+          <div id="actionsContainer" style="display: flex; flex-direction: column; gap: 8px;"></div>
+
+          <div class="add-action-box">
+            <input type="text" class="add-action-input" id="newActionInput" placeholder="Add next action..." onkeydown="if(event.key==='Enter') submitNewAction()">
+            <button class="btn-pill btn-primary" style="padding: 6px 16px; font-size: 12px;" onclick="submitNewAction()">+ Add Action</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- New Project Modal -->
+  <div class="modal-backdrop" id="newProjectModal">
+    <div class="modal-dialog">
+      <div class="modal-title">Create New Project</div>
+      <div class="form-field">
+        <label class="form-label">Project Name</label>
+        <input type="text" class="form-input" id="modalProjName" placeholder="e.g. Portfolio Redesign" autofocus>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Assign To Folder</label>
+        <select class="form-input" id="modalProjFolder"></select>
+      </div>
+      <div class="form-field">
+        <label class="form-label">Initial Next Action (Optional)</label>
+        <input type="text" class="form-input" id="modalProjAction" placeholder="e.g. Initialize repository">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-pill btn-secondary" onclick="closeModals()">Cancel</button>
+        <button class="btn-pill btn-primary" onclick="confirmCreateProject()">Create Stream →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Folder Modal -->
+  <div class="modal-backdrop" id="newFolderModal">
+    <div class="modal-dialog">
+      <div class="modal-title">Create Folder</div>
+      <div class="form-field">
+        <label class="form-label">Folder Name</label>
+        <input type="text" class="form-input" id="modalFolderName" placeholder="e.g. Research, Operations">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-pill btn-secondary" onclick="closeModals()">Cancel</button>
+        <button class="btn-pill btn-primary" onclick="confirmCreateFolder()">Add Folder →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Modal (Backend URL) -->
+  <div class="modal-backdrop" id="settingsModal">
+    <div class="modal-dialog">
+      <div class="modal-title">Sync Settings</div>
+      <div class="form-field">
+        <label class="form-label">Backend API URL</label>
+        <input type="text" class="form-input" id="backendUrlInput" value="https://project-manager-app-78c6297c8f8b.herokuapp.com/api">
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <button type="button" class="btn-pill btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="document.getElementById('backendUrlInput').value='https://project-manager-app-78c6297c8f8b.herokuapp.com/api'">Heroku (Live)</button>
+          <button type="button" class="btn-pill btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="document.getElementById('backendUrlInput').value='http://127.0.0.1:8000/api'">Localhost (8000)</button>
+        </div>
+        <span style="font-size: 11px; color: var(--text-dim); margin-top: 6px; display: block;">Point to your local server or deployed Heroku app.</span>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-pill btn-secondary" onclick="closeModals()">Close</button>
+        <button class="btn-pill btn-primary" onclick="saveSettings()">Save & Reconnect</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const HEROKU_DEFAULT_URL = "https://project-manager-app-78c6297c8f8b.herokuapp.com/api";
+
+    function getInitialApiUrl() {
+      // If hosted on Heroku or web server, use same origin
+      if (window.location.origin && window.location.origin.startsWith("http") && !window.location.hostname.includes("127.0.0.1") && !window.location.hostname.includes("localhost")) {
+        return window.location.origin + "/api";
+      }
+      const saved = localStorage.getItem("state_next_api_url");
+      // If saved is localhost or empty, default to Heroku
+      if (saved && !saved.includes("127.0.0.1") && !saved.includes("localhost")) {
+        return saved;
+      }
+      return HEROKU_DEFAULT_URL;
+    }
+
+    let API_URL = getInitialApiUrl();
+    const CACHE_KEY = "state_next_bento_cache_v2";
+
+    const defaultSeedFolders = [
+      {
+        id: "f1",
+        name: "Coding",
+        icon: "code",
+        project_count: 2,
+        recent_projects: [
+          { id: "p1", folder_id: "f1", title: "State & Next Monorepo", next_action: "Deploy backend to Heroku", status: "active", version: 1 },
+          { id: "p2", folder_id: "f1", title: "Telegram Bridge Engine", next_action: "Test streaming responses", status: "active", version: 2 }
+        ]
+      },
+      {
+        id: "f2",
+        name: "Creative & Design",
+        icon: "creative",
+        project_count: 1,
+        recent_projects: [
+          { id: "p3", folder_id: "f2", title: "Brand Identity 2026", next_action: "Finalize monochrome typography tokens", status: "active", version: 1 }
+        ]
+      },
+      {
+        id: "f3",
+        name: "Operations & Life",
+        icon: "life",
+        project_count: 1,
+        recent_projects: [
+          { id: "p4", folder_id: "f3", title: "Personal Setup", next_action: "Sync Xcode project to iPhone", status: "active", version: 1 }
+        ]
+      }
+    ];
+
+    let folders = loadCachedFolders();
+    let activeProjectId = null;
+    let activeProjectData = null;
+    let saveDebounceTimer = null;
+
+    function getVectorIcon(iconType) {
+      if (iconType === "code") {
+        return `<svg class="vector-icon" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`;
+      } else if (iconType === "creative") {
+        return `<svg class="vector-icon" viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>`;
+      } else if (iconType === "life") {
+        return `<svg class="vector-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>`;
+      }
+      return `<svg class="vector-icon" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>`;
+    }
+
+    function loadCachedFolders() {
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        return raw ? JSON.parse(raw) : defaultSeedFolders;
+      } catch (e) {
+        return defaultSeedFolders;
+      }
+    }
+
+    function saveCachedFolders(data) {
+      localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    }
+
+    async function init() {
+      renderBento(folders);
+      await syncWithBackend();
+    }
+
+    async function syncWithBackend() {
+      const dot = document.getElementById("statusDot");
+      const label = document.getElementById("statusLabel");
+      let success = false;
+
+      try {
+        const res = await fetch(`${API_URL}/bento`, { signal: AbortSignal.timeout(4000) });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && data.length > 0) {
+            folders = data;
+            saveCachedFolders(data);
+            renderBento(folders);
+          }
+          dot.className = "status-dot";
+          label.innerText = "CLOUD SYNCED";
+          success = true;
+        }
+      } catch (e) {
+        console.warn("Primary API sync failed:", e);
+      }
+
+      if (!success && API_URL !== HEROKU_DEFAULT_URL) {
+        try {
+          const res = await fetch(`${HEROKU_DEFAULT_URL}/bento`, { signal: AbortSignal.timeout(4000) });
+          if (res.ok) {
+            const data = await res.json();
+            API_URL = HEROKU_DEFAULT_URL;
+            localStorage.setItem("state_next_api_url", HEROKU_DEFAULT_URL);
+            if (document.getElementById("backendUrlInput")) {
+              document.getElementById("backendUrlInput").value = HEROKU_DEFAULT_URL;
+            }
+            if (Array.isArray(data) && data.length > 0) {
+              folders = data;
+              saveCachedFolders(data);
+              renderBento(folders);
+            }
+            dot.className = "status-dot";
+            label.innerText = "CLOUD SYNCED";
+            success = true;
+          }
+        } catch (e) {
+          console.warn("Heroku fallback failed:", e);
+        }
+      }
+
+      if (!success) {
+        dot.className = "status-dot offline";
+        label.innerText = "LOCAL STANDALONE";
+      }
+    }
+
+    function renderBento(folderList) {
+      const container = document.getElementById("bentoContainer");
+      if (!folderList || folderList.length === 0) folderList = defaultSeedFolders;
+
+      container.innerHTML = folderList.map((f, idx) => {
+        const isFeatured = idx === 0;
+        const spanClass = isFeatured ? "bento-featured" : (idx === 1 ? "bento-companion" : "bento-regular");
+        const iconSvg = getVectorIcon(f.name.toLowerCase().includes("code") ? "code" : (f.name.toLowerCase().includes("creat") ? "creative" : (f.name.toLowerCase().includes("life") ? "life" : "folder")));
+
+        return `
+          <div class="bento-card ${spanClass}">
+            <div>
+              <div class="card-top">
+                <div class="card-title-group">
+                  <div class="card-icon-box">${iconSvg}</div>
+                  <span class="card-name">${escapeHtml(f.name)}</span>
+                </div>
+                <span class="count-badge">${f.project_count || 0} STREAMS</span>
+              </div>
+
+              <div class="project-stream">
+                ${(f.recent_projects && f.recent_projects.length > 0) ? f.recent_projects.map(p => `
+                  <div class="stream-item" onclick="openWorkspace('${p.id}', '${escapeHtml(f.name)}')">
+                    <div class="stream-header">
+                      <span class="stream-title">${escapeHtml(p.title)}</span>
+                      <span class="stream-dot"></span>
+                    </div>
+                    ${p.next_action ? `<div class="stream-next"><svg class="vector-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg><span>${escapeHtml(p.next_action)}</span></div>` : ''}
+                  </div>
+                `).join("") : '<div style="font-size: 13px; color: var(--text-dim); padding: 10px 0;">No active projects in this stream.</div>'}
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <span style="font-family: var(--mono); font-size: 11px; color: var(--text-dim);">STREAM // ${f.id.slice(0, 6)}</span>
+              <button class="btn-pill btn-secondary" style="padding: 6px 14px; font-size: 12px;" onclick="quickAddProject('${f.id}')">+ Add Project</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      // Update folder dropdown
+      const select = document.getElementById("modalProjFolder");
+      select.innerHTML = folderList.map(f => `<option value="${f.id}">${escapeHtml(f.name)}</option>`).join("");
+    }
+
+    async function openWorkspace(projectId, folderName) {
+      activeProjectId = projectId;
+      document.getElementById("bentoSection").style.display = "none";
+      const ws = document.getElementById("workspaceSection");
+      ws.style.display = "flex";
+
+      document.getElementById("bcFolder").innerText = (folderName || "STREAM").toUpperCase();
+
+      try {
+        const res = await fetch(`${API_URL}/projects/${projectId}`);
+        if (!res.ok) throw new Error("Could not fetch project");
+        activeProjectData = await res.json();
+      } catch (e) {
+        // Fallback local memory
+        activeProjectData = {
+          id: projectId,
+          title: "State & Next Monorepo",
+          current_state: "Backend running with SQLite/Postgres dual-engine. Ready to push to Heroku with student credits.",
+          status: "active",
+          version: 1,
+          active_milestones: [
+            { id: "m1", title: "Push backend to Heroku", is_completed: false },
+            { id: "m2", title: "Compile native iOS SwiftUI app in Xcode", is_completed: false }
+          ],
+          archived_count: 1,
+          archived_preview: [
+            { id: "m0", title: "Monorepo scaffolding & Bento views created", completed_at: new Date().toISOString() }
+          ]
+        };
+      }
+
+      document.getElementById("bcProject").innerText = activeProjectData.title.toUpperCase();
+      document.getElementById("projectTitle").innerText = activeProjectData.title;
+      document.getElementById("stateTextarea").value = activeProjectData.current_state || "";
+
+      renderWorkspaceActions();
+      renderArchive();
+    }
+
+    function closeWorkspace() {
+      document.getElementById("workspaceSection").style.display = "none";
+      document.getElementById("bentoSection").style.display = "block";
+      syncWithBackend();
+    }
+
+    function renderWorkspaceActions() {
+      const c = document.getElementById("actionsContainer");
+      const list = activeProjectData.active_milestones || [];
+      if (list.length === 0) {
+        c.innerHTML = `<div style="font-size: 13px; color: var(--text-dim); padding: 8px 0;">No active actions. Type one below to get started.</div>`;
+        return;
+      }
+
+      c.innerHTML = list.map(m => `
+        <div class="action-card">
+          <input type="checkbox" class="action-checkbox" onchange="markActionComplete('${m.id}')">
+          <span class="action-text">${escapeHtml(m.title)}</span>
+        </div>
+      `).join("");
+    }
+
+    function renderArchive() {
+      const count = activeProjectData.archived_count || 0;
+      document.getElementById("archiveTitleTag").innerText = `PACKED ARCHIVE (${count} COMPLETED)`;
+      const rows = document.getElementById("archiveRows");
+      rows.innerHTML = (activeProjectData.archived_preview || []).map(a => `
+        <div class="archive-row">
+          <span>✓ ${escapeHtml(a.title)}</span>
+          <span style="font-family: var(--mono); font-size: 11px;">${new Date(a.completed_at || Date.now()).toLocaleDateString()}</span>
+        </div>
+      `).join("");
+    }
+
+    async function markActionComplete(milestoneId) {
+      const mIdx = activeProjectData.active_milestones.findIndex(m => m.id === milestoneId);
+      if (mIdx !== -1) {
+        const item = activeProjectData.active_milestones.splice(mIdx, 1)[0];
+        activeProjectData.archived_count = (activeProjectData.archived_count || 0) + 1;
+        activeProjectData.archived_preview = activeProjectData.archived_preview || [];
+        activeProjectData.archived_preview.unshift({ ...item, completed_at: new Date().toISOString() });
+        renderWorkspaceActions();
+        renderArchive();
+      }
+
+      try {
+        await fetch(`${API_URL}/milestones/${milestoneId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ is_completed: true })
+        });
+      } catch (e) {}
+    }
+
+    async function submitNewAction() {
+      const input = document.getElementById("newActionInput");
+      const text = input.value.trim();
+      if (!text || !activeProjectId) return;
+
+      let createdId = "m_" + Date.now();
+      try {
+        const res = await fetch(`${API_URL}/milestones?project_id=${activeProjectId}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title: text })
+        });
+        if (res.ok) {
+          const json = await res.json();
+          createdId = json.id;
+        }
+      } catch (e) {}
+
+      activeProjectData.active_milestones = activeProjectData.active_milestones || [];
+      activeProjectData.active_milestones.push({ id: createdId, title: text, is_completed: false });
+      renderWorkspaceActions();
+      input.value = "";
+    }
+
+    function handleStateInput() {
+      const badge = document.getElementById("saveBadge");
+      badge.innerText = "SAVING...";
+      clearTimeout(saveDebounceTimer);
+      saveDebounceTimer = setTimeout(async () => {
+        const text = document.getElementById("stateTextarea").value;
+        try {
+          await fetch(`${API_URL}/projects/${activeProjectId}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ current_state: text })
+          });
+          badge.innerText = "AUTO-SAVED";
+        } catch (e) {
+          badge.innerText = "SAVED LOCALLY";
+        }
+      }, 500);
+    }
+
+    function toggleArchiveDrawer() {
+      const rows = document.getElementById("archiveRows");
+      const arrow = document.getElementById("archiveArrow");
+      if (rows.style.display === "none") {
+        rows.style.display = "flex";
+        arrow.innerText = "COLLAPSE ▴";
+      } else {
+        rows.style.display = "none";
+        arrow.innerText = "EXPAND ▾";
+      }
+    }
+
+    function openNewProjectModal() {
+      document.getElementById("modalProjName").value = "";
+      document.getElementById("modalProjAction").value = "";
+      document.getElementById("newProjectModal").classList.add("active");
+      setTimeout(() => document.getElementById("modalProjName").focus(), 50);
+    }
+
+    function quickAddProject(folderId) {
+      openNewProjectModal();
+      document.getElementById("modalProjFolder").value = folderId;
+    }
+
+    function openNewFolderModal() {
+      document.getElementById("modalFolderName").value = "";
+      document.getElementById("newFolderModal").classList.add("active");
+    }
+
+    function openSettingsModal() {
+      document.getElementById("backendUrlInput").value = API_URL;
+      document.getElementById("settingsModal").classList.add("active");
+    }
+
+    function closeModals() {
+      document.querySelectorAll(".modal-backdrop").forEach(m => m.classList.remove("active"));
+    }
+
+    async function confirmCreateProject() {
+      const title = document.getElementById("modalProjName").value.trim();
+      const folderId = document.getElementById("modalProjFolder").value;
+      const initialAction = document.getElementById("modalProjAction").value.trim();
+      if (!title) return alert("Please enter a project name");
+
+      closeModals();
+      let canonicalId = "p_" + Date.now();
+
+      try {
+        const res = await fetch(`${API_URL}/projects`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, folder_id: folderId, current_state: "" })
+        });
+        if (res.ok) {
+          const json = await res.json();
+          canonicalId = json.id;
+          if (initialAction) {
+            await fetch(`${API_URL}/milestones?project_id=${canonicalId}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ title: initialAction })
+            });
+          }
+        }
+      } catch (e) {}
+
+      // Reflect in local state
+      const targetFolder = folders.find(f => f.id === folderId);
+      if (targetFolder) {
+        targetFolder.project_count = (targetFolder.project_count || 0) + 1;
+        targetFolder.recent_projects = targetFolder.recent_projects || [];
+        targetFolder.recent_projects.unshift({ id: canonicalId, title, next_action: initialAction });
+        saveCachedFolders(folders);
+        renderBento(folders);
+      }
+      openWorkspace(canonicalId, targetFolder ? targetFolder.name : "STREAM");
+    }
+
+    async function confirmCreateFolder() {
+      const name = document.getElementById("modalFolderName").value.trim();
+      if (!name) return alert("Please enter a folder name");
+      closeModals();
+
+      let folderId = "f_" + Date.now();
+      try {
+        const res = await fetch(`${API_URL}/folders`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, icon: "folder", color: "#3b82f6" })
+        });
+        if (res.ok) {
+          const json = await res.json();
+          folderId = json.id;
+        }
+      } catch (e) {}
+
+      folders.push({
+        id: folderId,
+        name,
+        icon: "folder",
+        project_count: 0,
+        recent_projects: []
+      });
+      saveCachedFolders(folders);
+      renderBento(folders);
+    }
+
+    function saveSettings() {
+      API_URL = document.getElementById("backendUrlInput").value.trim();
+      localStorage.setItem("state_next_api_url", API_URL);
+      closeModals();
+      syncWithBackend();
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    init();
+  </script>
+</body>
+</html>
