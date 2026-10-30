@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="solar">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,12 +8,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    :root {
-      /* Warm, encouraging, high-momentum obsidian & solar amber palette */
+    /* ============================================================
+       THEME PALETTES (Solar Amber / Emerald Growth / Sunset Coral / Daylight Paper)
+       ============================================================ */
+    :root, [data-theme="solar"] {
       --bg: #0c0d11;
       --frame-bg: #14151b;
-      --card-bg: rgba(25, 27, 35, 0.75);
-      --card-hover: rgba(34, 37, 48, 0.9);
+      --card-bg: rgba(25, 27, 35, 0.78);
+      --card-hover: rgba(34, 37, 48, 0.92);
       --border-subtle: rgba(255, 255, 255, 0.08);
       --border-focus: rgba(245, 158, 11, 0.35);
       --text-main: #f5f6fa;
@@ -23,10 +25,85 @@
       --accent-hover: #fbbf24;
       --accent-soft: rgba(245, 158, 11, 0.12);
       --accent-glow: rgba(245, 158, 11, 0.25);
-      --coral: #ff6b4a;
+      --glow-gradient: radial-gradient(circle at 50% -5%, rgba(245, 158, 11, 0.08) 0%, rgba(255, 107, 74, 0.03) 35%, transparent 70%);
+      --brand-gradient: linear-gradient(135deg, #f59e0b, #ff6b4a);
+      --btn-primary-bg: var(--accent);
+      --btn-primary-text: #0c0d11;
       --success: #10b981;
-      --success-soft: rgba(16, 185, 129, 0.12);
       --danger: #ef4444;
+      --theme-dot: #f59e0b;
+    }
+
+    [data-theme="emerald"] {
+      --bg: #090d0b;
+      --frame-bg: #101813;
+      --card-bg: rgba(18, 28, 22, 0.78);
+      --card-hover: rgba(25, 38, 30, 0.92);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(16, 185, 129, 0.4);
+      --text-main: #f3f7f4;
+      --text-muted: #94a899;
+      --text-dim: #506154;
+      --accent: #10b981;
+      --accent-hover: #34d399;
+      --accent-soft: rgba(16, 185, 129, 0.14);
+      --accent-glow: rgba(16, 185, 129, 0.3);
+      --glow-gradient: radial-gradient(circle at 50% -5%, rgba(16, 185, 129, 0.09) 0%, rgba(52, 211, 153, 0.03) 35%, transparent 70%);
+      --brand-gradient: linear-gradient(135deg, #10b981, #06b6d4);
+      --btn-primary-bg: var(--accent);
+      --btn-primary-text: #090d0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --theme-dot: #10b981;
+    }
+
+    [data-theme="coral"] {
+      --bg: #0e0c0d;
+      --frame-bg: #191315;
+      --card-bg: rgba(30, 22, 26, 0.78);
+      --card-hover: rgba(42, 30, 36, 0.92);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-focus: rgba(255, 107, 74, 0.4);
+      --text-main: #faf5f6;
+      --text-muted: #ab989e;
+      --text-dim: #66545a;
+      --accent: #ff6b4a;
+      --accent-hover: #ff856b;
+      --accent-soft: rgba(255, 107, 74, 0.14);
+      --accent-glow: rgba(255, 107, 74, 0.3);
+      --glow-gradient: radial-gradient(circle at 50% -5%, rgba(255, 107, 74, 0.09) 0%, rgba(245, 158, 11, 0.04) 35%, transparent 70%);
+      --brand-gradient: linear-gradient(135deg, #ff6b4a, #ec4899);
+      --btn-primary-bg: var(--accent);
+      --btn-primary-text: #0e0c0d;
+      --success: #10b981;
+      --danger: #ef4444;
+      --theme-dot: #ff6b4a;
+    }
+
+    [data-theme="daylight"] {
+      --bg: #f4f3ed;
+      --frame-bg: #ffffff;
+      --card-bg: #faf9f6;
+      --card-hover: #f1efea;
+      --border-subtle: rgba(0, 0, 0, 0.09);
+      --border-focus: rgba(245, 158, 11, 0.5);
+      --text-main: #131418;
+      --text-muted: #5e6475;
+      --text-dim: #8b92a4;
+      --accent: #f59e0b;
+      --accent-hover: #d97706;
+      --accent-soft: rgba(245, 158, 11, 0.14);
+      --accent-glow: rgba(245, 158, 11, 0.25);
+      --glow-gradient: radial-gradient(circle at 50% -5%, rgba(245, 158, 11, 0.07) 0%, transparent 60%);
+      --brand-gradient: linear-gradient(135deg, #f59e0b, #ff6b4a);
+      --btn-primary-bg: #131418;
+      --btn-primary-text: #ffffff;
+      --success: #10b981;
+      --danger: #ef4444;
+      --theme-dot: #f59e0b;
+    }
+
+    :root {
       --sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       --mono: 'JetBrains Mono', monospace;
     }
@@ -38,13 +115,14 @@
       font-family: var(--sans);
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
 
     body::before {
       content: "";
       position: fixed;
       inset: 0;
-      background: radial-gradient(circle at 50% -5%, rgba(245, 158, 11, 0.07) 0%, rgba(255, 107, 74, 0.03) 35%, transparent 70%);
+      background: var(--glow-gradient);
       pointer-events: none;
       z-index: 1;
     }
@@ -62,6 +140,7 @@
       z-index: 2;
       overflow: hidden;
       box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+      transition: background-color 0.2s ease, border-color 0.2s ease;
     }
 
     /* Top Bar */
@@ -71,7 +150,7 @@
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid var(--border-subtle);
-      background: rgba(20, 21, 27, 0.88);
+      background: var(--frame-bg);
       backdrop-filter: blur(20px);
     }
 
@@ -84,13 +163,13 @@
     .brand-mark {
       width: 32px;
       height: 32px;
-      background: linear-gradient(135deg, #f59e0b, #ff6b4a);
+      background: var(--brand-gradient);
       border-radius: 9px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #0c0d11;
-      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.28);
+      box-shadow: 0 4px 14px var(--accent-glow);
     }
     .brand-mark svg {
       width: 18px;
@@ -128,13 +207,40 @@
     }
     .status-dot.offline {
       background: var(--accent);
-      box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+      box-shadow: 0 0 8px var(--accent-glow);
     }
 
     .nav-actions {
       display: flex;
       align-items: center;
       gap: 10px;
+    }
+
+    /* Theme Picker Button */
+    .theme-picker-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      cursor: pointer;
+      font-family: var(--mono);
+      font-size: 11px;
+      transition: all 0.15s;
+    }
+    .theme-picker-btn:hover {
+      border-color: var(--border-focus);
+      background: rgba(255, 255, 255, 0.08);
+    }
+    .theme-color-bullet {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--theme-dot);
+      box-shadow: 0 0 6px var(--theme-dot);
     }
 
     /* Buttons */
@@ -154,12 +260,12 @@
     }
 
     .btn-primary {
-      background: var(--accent);
-      color: #0c0d11;
+      background: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
       font-weight: 700;
     }
     .btn-primary:hover {
-      background: var(--accent-hover);
+      opacity: 0.92;
       transform: translateY(-1px);
       box-shadow: 0 4px 14px var(--accent-glow);
     }
@@ -172,6 +278,17 @@
     .btn-secondary:hover {
       background: rgba(255, 255, 255, 0.09);
       border-color: var(--border-focus);
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.12);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.28);
+    }
+    .btn-danger:hover {
+      background: #ef4444;
+      color: #ffffff;
+      border-color: #ef4444;
     }
 
     .icon-btn {
@@ -242,7 +359,7 @@
     }
     .bento-card:hover {
       background: var(--card-hover);
-      border-color: rgba(245, 158, 11, 0.28);
+      border-color: var(--border-focus);
       transform: translateY(-2px);
     }
 
@@ -298,8 +415,8 @@
       width: 28px;
       height: 28px;
       border-radius: 7px;
-      background: rgba(245, 158, 11, 0.08);
-      border: 1px solid rgba(245, 158, 11, 0.2);
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-glow);
       color: var(--accent);
       cursor: pointer;
       display: flex;
@@ -318,8 +435,8 @@
       display: none;
       flex-direction: column;
       gap: 8px;
-      background: rgba(245, 158, 11, 0.05);
-      border: 1px dashed rgba(245, 158, 11, 0.3);
+      background: var(--accent-soft);
+      border: 1px dashed var(--accent-glow);
       border-radius: 12px;
       padding: 10px 12px;
       margin-bottom: 12px;
@@ -359,10 +476,11 @@
       padding: 11px 13px;
       cursor: pointer;
       transition: all 0.15s;
+      position: relative;
     }
     .stream-item:hover {
       background: rgba(255, 255, 255, 0.05);
-      border-color: rgba(245, 158, 11, 0.35);
+      border-color: var(--border-focus);
       transform: translateX(2px);
     }
     .stream-header {
@@ -392,6 +510,27 @@
       margin-top: 3px;
     }
     .stream-next svg { width: 12px; height: 12px; }
+
+    /* Dashboard Stream Item Delete Button */
+    .stream-del-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      padding: 2px 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: all 0.15s;
+    }
+    .stream-item:hover .stream-del-btn { opacity: 0.7; }
+    .stream-del-btn:hover {
+      opacity: 1 !important;
+      color: var(--danger);
+      transform: scale(1.15);
+    }
+    .stream-del-btn svg { width: 13px; height: 13px; }
 
     .card-footer {
       display: flex;
@@ -455,7 +594,7 @@
       font-size: 11px;
       color: var(--accent);
       background: var(--accent-soft);
-      border: 1px solid rgba(245, 158, 11, 0.25);
+      border: 1px solid var(--accent-glow);
       border-radius: 999px;
       padding: 2px 8px;
     }
@@ -617,7 +756,7 @@
     }
     .add-action-box:focus-within {
       border-color: var(--accent);
-      background: rgba(245, 158, 11, 0.03);
+      background: var(--accent-soft);
     }
     .add-action-input {
       flex: 1;
@@ -698,8 +837,8 @@
       color: var(--text-dim);
     }
     .btn-restore {
-      background: rgba(245, 158, 11, 0.08);
-      border: 1px solid rgba(245, 158, 11, 0.2);
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-glow);
       color: var(--accent);
       font-family: var(--mono);
       font-size: 11px;
@@ -758,7 +897,7 @@
       bottom: 28px;
       left: 50%;
       transform: translateX(-50%) translateY(120px);
-      background: #181a22;
+      background: var(--frame-bg);
       border: 1px solid var(--border-focus);
       padding: 10px 18px;
       border-radius: 999px;
@@ -808,7 +947,7 @@
     .modal-backdrop.active { display: flex; }
 
     .modal-dialog {
-      background: #161820;
+      background: var(--frame-bg);
       border: 1px solid var(--border-focus);
       border-radius: 22px;
       max-width: 480px;
@@ -870,6 +1009,12 @@
       </div>
 
       <div class="nav-actions">
+        <!-- Live Theme Switcher -->
+        <button class="theme-picker-btn" onclick="cycleTheme()" title="Click to cycle themes (Solar Amber / Emerald Growth / Sunset Coral / Daylight Paper)">
+          <span class="theme-color-bullet"></span>
+          <span id="themeNameLabel">SOLAR</span>
+        </button>
+
         <button class="btn-pill btn-secondary" onclick="openNewFolderModal()">+ New Folder</button>
         <button class="btn-pill btn-primary" onclick="openNewProjectModal()">
           <span>+ New Project</span>
@@ -911,8 +1056,10 @@
               <span class="version-tag" id="projectVersionTag">v1</span>
             </div>
             <div style="display: flex; gap: 10px; align-items: center;">
-              <button class="icon-btn" onclick="deleteCurrentProject()" title="Delete Project" style="color: var(--danger);">
-                <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              <!-- Prominent Delete Project Button inside Workspace -->
+              <button class="btn-pill btn-danger" onclick="deleteCurrentProject()" title="Delete Project">
+                <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                <span>Delete Project</span>
               </button>
               <button class="btn-pill btn-secondary" onclick="closeWorkspace()">
                 <svg class="vector-icon" style="width:14px; height:14px;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -1041,6 +1188,33 @@
   </div>
 
   <script>
+    const THEMES = [
+      { id: "solar", name: "SOLAR AMBER" },
+      { id: "emerald", name: "EMERALD" },
+      { id: "coral", name: "SUNSET CORAL" },
+      { id: "daylight", name: "DAYLIGHT" }
+    ];
+    let currentThemeIdx = 0;
+
+    function applyTheme(themeId) {
+      document.documentElement.setAttribute("data-theme", themeId);
+      localStorage.setItem("state_next_theme", themeId);
+      const th = THEMES.find(t => t.id === themeId);
+      if (th) {
+        document.getElementById("themeNameLabel").innerText = th.name;
+        currentThemeIdx = THEMES.findIndex(t => t.id === themeId);
+      }
+    }
+
+    function cycleTheme() {
+      currentThemeIdx = (currentThemeIdx + 1) % THEMES.length;
+      applyTheme(THEMES[currentThemeIdx].id);
+    }
+
+    // Init theme
+    const savedTheme = localStorage.getItem("state_next_theme") || "solar";
+    applyTheme(savedTheme);
+
     const HEROKU_DEFAULT_URL = "https://project-manager-app-78c6297c8f8b.herokuapp.com/api";
 
     function getInitialApiUrl() {
@@ -1055,7 +1229,7 @@
     }
 
     let API_URL = getInitialApiUrl();
-    const CACHE_KEY = "state_next_bento_cache_v3";
+    const CACHE_KEY = "state_next_bento_cache_v4";
 
     const defaultSeedFolders = [
       {
@@ -1220,7 +1394,12 @@
                       <div class="stream-item" onclick="openWorkspace('${p.id}', '${escapeHtml(f.name)}')">
                         <div class="stream-header">
                           <span class="stream-title">${escapeHtml(p.title)}</span>
-                          <span class="stream-dot"></span>
+                          <div style="display:flex; align-items:center; gap:8px;">
+                            <button class="stream-del-btn" onclick="deleteProjectFromStream('${p.id}', '${escapeHtml(p.title)}', event)" title="Delete project">
+                              <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                            </button>
+                            <span class="stream-dot"></span>
+                          </div>
                         </div>
                         <div class="stream-next">
                           <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
@@ -1291,6 +1470,30 @@
       }
 
       openWorkspace(canonicalId, targetFolder ? targetFolder.name : "STREAM");
+    }
+
+    /* Delete Project directly from Dashboard */
+    async function deleteProjectFromStream(projectId, projectTitle, event) {
+      if (event) event.stopPropagation();
+      if (!confirm(`Are you sure you want to delete project "${projectTitle}"?`)) return;
+
+      folders.forEach(f => {
+        if (f.recent_projects) {
+          const before = f.recent_projects.length;
+          f.recent_projects = f.recent_projects.filter(p => p.id !== projectId);
+          if (f.recent_projects.length < before) {
+            f.project_count = Math.max(0, (f.project_count || 1) - 1);
+          }
+        }
+      });
+      saveCachedFolders(folders);
+      renderBento(folders);
+
+      try {
+        await fetch(`${API_URL}/projects/${projectId}`, { method: "DELETE" });
+      } catch (e) {
+        console.warn("Delete project failed:", e);
+      }
     }
 
     /* Workspace Handlers */
@@ -1408,7 +1611,6 @@
       const card = document.getElementById(`action_${milestoneId}`);
       if (card) card.classList.add("completing");
 
-      // Give tactile visual feedback before removing
       setTimeout(async () => {
         const mIdx = (activeProjectData.active_milestones || []).findIndex(m => m.id === milestoneId);
         if (mIdx !== -1) {
@@ -1513,11 +1715,9 @@
     }
 
     async function deleteMilestone(milestoneId) {
-      // Remove from active
       if (activeProjectData.active_milestones) {
         activeProjectData.active_milestones = activeProjectData.active_milestones.filter(m => m.id !== milestoneId);
       }
-      // Remove from archive
       if (activeProjectData.archived_preview) {
         const before = activeProjectData.archived_preview.length;
         activeProjectData.archived_preview = activeProjectData.archived_preview.filter(m => m.id !== milestoneId);
@@ -1535,12 +1735,11 @@
 
     async function deleteCurrentProject() {
       if (!activeProjectId) return;
-      if (!confirm(`Are you sure you want to delete "${activeProjectData.title}"?`)) return;
+      if (!confirm(`Are you sure you want to delete project "${activeProjectData.title}" and all its actions?`)) return;
 
       const pId = activeProjectId;
       closeWorkspace();
 
-      // Remove from local cache
       folders.forEach(f => {
         if (f.recent_projects) {
           const before = f.recent_projects.length;
