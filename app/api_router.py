@@ -92,10 +92,6 @@ def delete_folder(folder_id: str, db: Session = Depends(get_db)):
     folder = db.query(models.Folder).filter(models.Folder.id == folder_id).first()
     if not folder:
         raise HTTPException(status_code=404, detail="Folder not found")
-    projects = db.query(models.Project).filter(models.Project.folder_id == folder_id).all()
-    for p in projects:
-        db.query(models.Milestone).filter(models.Milestone.project_id == p.id).delete()
-        db.delete(p)
     db.delete(folder)
     db.commit()
     return {"status": "ok", "deleted_id": folder_id}

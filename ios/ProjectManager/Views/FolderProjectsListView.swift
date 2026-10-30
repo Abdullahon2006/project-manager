@@ -4,9 +4,10 @@ import UIKit
 #endif
 
 struct FolderProjectsListView: View {
-    let folder: FolderBento
+    @Environment(\.dismiss) private var dismiss
     @ObservedObject var sync = SyncService.shared
 
+    @State private var folder: FolderBento
     @State private var projects: [ProjectSummary] = []
     @State private var isLoading: Bool = true
     @State private var selectedStatus: ProjectFilter = .active
@@ -14,7 +15,12 @@ struct FolderProjectsListView: View {
     @State private var searchQuery: String = ""
     @State private var showingAddProjectSheet: Bool = false
     @State private var showingEditFolderSheet: Bool = false
+    @State private var showDeleteFolderConfirmation: Bool = false
     @State private var errorMessage: String? = nil
+
+    init(folder: FolderBento) {
+        _folder = State(initialValue: folder)
+    }
 
     enum ProjectFilter: String, CaseIterable, Identifiable {
         case active = "Active"
@@ -142,31 +148,59 @@ struct FolderProjectsListView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
-                HStack(spacing: 10) {
-                    Button {
-                        showingEditFolderSheet = true
-                    } label: {
-                        Image(systemName: "pencil.circle")
-                    }
-
+                HStack(spacing: 8) {
                     Button {
                         showingAddProjectSheet = true
                     } label: {
                         Image(systemName: "plus")
                             .fontWeight(.semibold)
                     }
+
+                    Menu {
+                        Button {
+                            showingEditFolderSheet = true
+                        } label: {
+                            Label("Edit Field", systemImage: "pencil")
+                        }
+
+                        Divider()
+
+                        Button(role: .destructive) {
+                            showDeleteFolderConfirmation = true
+                        } label: {
+                            Label("Delete Field", systemImage: "trash")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                            .font(.body)
+                    }
                 }
             }
         }
         .sheet(isPresented: $showingEditFolderSheet) {
-            FieldEditModalView(folderToEdit: folder) {
-                Task { await loadProjects() }
-            }
+            FieldEditModalView(
+                folderToEdit: folder,
+                onSaved: { updatedFolder in
+                    self.folder = updatedFolder
+                    Task { await loadProjects() }
+                },
+                onDeleted: {
+                    dismiss()
+                }
+            )
         }
         .sheet(isPresented: $showingAddProjectSheet) {
             QuickNewProjectView(presetFolderId: folder.id, folderName: folder.name) {
                 Task { await loadProjects() }
             }
+        }
+        .confirmationDialog("Delete Field?", isPresented: $showDeleteFolderConfirmation, titleVisibility: .visible) {
+            Button("Delete Field & All Projects", role: .destructive) {
+                deleteEntireFolder()
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: {
+            Text("Deleting '\(folder.name)' will remove all projects inside it. This cannot be undone.")
         }
         .refreshable {
             await loadProjects()
@@ -200,6 +234,18 @@ struct FolderProjectsListView: View {
         }
         Task {
             try? await sync.deleteProject(id: project.id)
+        }
+    }
+
+    private func deleteEntireFolder() {
+        #if os(iOS)
+        UINotificationFeedbackGenerator().notificationOccurred(.warning)
+        #endif
+        Task {
+            try? await sync.deleteFolder(id: folder.id)
+            await MainActor.run {
+                dismiss()
+            }
         }
     }
 

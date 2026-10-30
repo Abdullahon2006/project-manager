@@ -16,6 +16,7 @@ struct BentoDashboardView: View {
     @State private var showingNewProjectSheet = false
     @State private var showingNewFieldSheet = false
     @State private var folderToEdit: FolderBento? = nil
+    @State private var folderToDelete: FolderBento? = nil
     @State private var showingSettingsSheet = false
 
     enum DashboardTab: String, CaseIterable, Identifiable {
@@ -188,12 +189,40 @@ struct BentoDashboardView: View {
                 }
             }
             .sheet(item: $folderToEdit) { folder in
-                FieldEditModalView(folderToEdit: folder) {
-                    Task { await loadBento() }
-                }
+                FieldEditModalView(
+                    folderToEdit: folder,
+                    onSaved: { _ in
+                        Task { await loadBento() }
+                    },
+                    onDeleted: {
+                        withAnimation {
+                            folders.removeAll { $0.id == folder.id }
+                        }
+                    }
+                )
             }
             .sheet(isPresented: $showingSettingsSheet) {
                 SettingsSheetView(sync: sync)
+            }
+            .confirmationDialog(
+                "Delete Field?",
+                isPresented: Binding(
+                    get: { folderToDelete != nil },
+                    set: { if !$0 { folderToDelete = nil } }
+                ),
+                titleVisibility: .visible
+            ) {
+                Button("Delete Field & Projects", role: .destructive) {
+                    if let f = folderToDelete {
+                        deleteField(f)
+                    }
+                    folderToDelete = nil
+                }
+                Button("Cancel", role: .cancel) {
+                    folderToDelete = nil
+                }
+            } message: {
+                Text("Deleting '\(folderToDelete?.name ?? "this field")' will permanently remove all projects inside it. This cannot be undone.")
             }
             .alert("Sync Conflict Detected", isPresented: Binding(
                 get: { sync.syncConflictAlert != nil },
@@ -269,7 +298,15 @@ struct BentoDashboardView: View {
                             LazyVGrid(columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible(), spacing: 14)], spacing: 14) {
                                 ForEach(folders) { folder in
                                     NavigationLink(destination: FolderProjectsListView(folder: folder)) {
-                                        BentoFolderCard(folder: folder)
+                                        BentoFolderCard(
+                                            folder: folder,
+                                            onEdit: {
+                                                folderToEdit = folder
+                                            },
+                                            onDelete: {
+                                                folderToDelete = folder
+                                            }
+                                        )
                                     }
                                     .buttonStyle(.plain)
                                     .contextMenu {
@@ -280,7 +317,7 @@ struct BentoDashboardView: View {
                                         }
 
                                         Button(role: .destructive) {
-                                            deleteField(folder)
+                                            folderToDelete = folder
                                         } label: {
                                             Label("Delete Field", systemImage: "trash")
                                         }
@@ -506,14 +543,18 @@ struct MetricPill: View {
 // MARK: - Bento Card Component
 struct BentoFolderCard: View {
     let folder: FolderBento
+    var onEdit: (() -> Void)? = nil
+    var onDelete: (() -> Void)? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             // Folder header
-            HStack {
+            HStack(spacing: 6) {
                 Text(folder.icon)
                     .font(.title2)
+                
                 Spacer()
+
                 Text("\(folder.projectCount)")
                     .font(.caption2)
                     .fontWeight(.bold)
@@ -522,6 +563,29 @@ struct BentoFolderCard: View {
                     .padding(.vertical, 3)
                     .background(Color(.tertiarySystemBackground))
                     .clipShape(Capsule())
+
+                if onEdit != nil || onDelete != nil {
+                    Menu {
+                        if let edit = onEdit {
+                            Button(action: edit) {
+                                Label("Edit Field", systemImage: "pencil")
+                            }
+                        }
+                        if let del = onDelete {
+                            Button(role: .destructive, action: del) {
+                                Label("Delete Field", systemImage: "trash")
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .font(.caption2.weight(.bold))
+                            .foregroundColor(.secondary)
+                            .padding(6)
+                            .background(Color(.tertiarySystemBackground))
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                }
             }
 
             Text(folder.name)

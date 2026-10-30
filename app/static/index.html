@@ -1494,6 +1494,62 @@
     .form-input:focus { border-color: var(--accent); }
     .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
 
+    /* Field Preset Pickers */
+    .icon-preset-picker, .color-preset-picker {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+    .icon-preset-btn {
+      font-size: 18px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      background: var(--tag-bg);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .icon-preset-btn:hover, .icon-preset-btn.active {
+      background: var(--card-hover);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+    .color-preset-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .color-preset-btn:hover {
+      transform: scale(1.1);
+    }
+    .color-preset-btn.active {
+      box-shadow: 0 0 0 2px var(--card-bg), 0 0 0 4px var(--accent);
+    }
+    .stream-action-icon-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 6px;
+      color: var(--text-dim);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+    .stream-action-icon-btn:hover {
+      background: var(--tag-bg);
+      color: var(--text-main);
+    }
+    .stream-delete-icon-btn:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+
     /* Icons Utility */
     .vector-icon {
       display: inline-block;
@@ -1583,13 +1639,21 @@
               </div>
             </div>
 
-            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
               <div class="tab-pills">
                 <button class="tab-pill active" id="folderTabAll" onclick="filterFolderProjects('all')">All</button>
                 <button class="tab-pill" id="folderTabActive" onclick="filterFolderProjects('active')">Active</button>
                 <button class="tab-pill" id="folderTabFinished" onclick="filterFolderProjects('finished')">Finished</button>
               </div>
               <button class="btn-pill btn-primary" onclick="openNewProjectInCurrentFolder()">+ New Project</button>
+              <button class="btn-pill btn-secondary" onclick="openEditFolderModal(currentFolderId)">
+                <svg class="vector-icon" style="width:13px; height:13px; vertical-align:-2px;" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <span>Edit Field</span>
+              </button>
+              <button class="btn-pill btn-secondary" style="color: var(--danger);" onclick="confirmDeleteFolder(currentFolderId)">
+                <svg class="vector-icon" style="width:13px; height:13px; vertical-align:-2px;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                <span>Delete Field</span>
+              </button>
               <button class="btn-pill btn-secondary" onclick="showDashboard('streams')">
                 <svg class="vector-icon" style="width:14px; height:14px;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
                 <span>Back</span>
@@ -1896,11 +1960,90 @@
       <div class="modal-title">Create Project Field</div>
       <div class="form-field">
         <label class="form-label">Field Name</label>
-        <input type="text" class="form-input" id="modalFolderName" placeholder="e.g. Research, Operations, Writing">
+        <input type="text" class="form-input" id="modalFolderName" placeholder="e.g. Research, Operations, Writing" autofocus>
       </div>
+
+      <div class="form-field">
+        <label class="form-label">Icon</label>
+        <div class="icon-preset-picker" id="newFolderIconPicker">
+          <button type="button" class="icon-preset-btn active" data-icon="folder" onclick="selectFolderIcon(this, 'new')">📁</button>
+          <button type="button" class="icon-preset-btn" data-icon="code" onclick="selectFolderIcon(this, 'new')">⚡</button>
+          <button type="button" class="icon-preset-btn" data-icon="creative" onclick="selectFolderIcon(this, 'new')">🎨</button>
+          <button type="button" class="icon-preset-btn" data-icon="life" onclick="selectFolderIcon(this, 'new')">🌱</button>
+          <button type="button" class="icon-preset-btn" data-icon="research" onclick="selectFolderIcon(this, 'new')">🔬</button>
+          <button type="button" class="icon-preset-btn" data-icon="rocket" onclick="selectFolderIcon(this, 'new')">🚀</button>
+          <button type="button" class="icon-preset-btn" data-icon="tools" onclick="selectFolderIcon(this, 'new')">🛠️</button>
+          <button type="button" class="icon-preset-btn" data-icon="briefcase" onclick="selectFolderIcon(this, 'new')">💼</button>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Color Accent</label>
+        <div class="color-preset-picker" id="newFolderColorPicker">
+          <button type="button" class="color-preset-btn active" data-color="#059669" style="background:#059669;" onclick="selectFolderColor(this, 'new')"></button>
+          <button type="button" class="color-preset-btn" data-color="#3b82f6" style="background:#3b82f6;" onclick="selectFolderColor(this, 'new')"></button>
+          <button type="button" class="color-preset-btn" data-color="#8b5cf6" style="background:#8b5cf6;" onclick="selectFolderColor(this, 'new')"></button>
+          <button type="button" class="color-preset-btn" data-color="#f59e0b" style="background:#f59e0b;" onclick="selectFolderColor(this, 'new')"></button>
+          <button type="button" class="color-preset-btn" data-color="#ef4444" style="background:#ef4444;" onclick="selectFolderColor(this, 'new')"></button>
+          <button type="button" class="color-preset-btn" data-color="#06b6d4" style="background:#06b6d4;" onclick="selectFolderColor(this, 'new')"></button>
+          <button type="button" class="color-preset-btn" data-color="#64748b" style="background:#64748b;" onclick="selectFolderColor(this, 'new')"></button>
+        </div>
+      </div>
+
       <div class="modal-actions">
         <button class="btn-pill btn-secondary" onclick="closeModals()">Cancel</button>
         <button class="btn-pill btn-primary" onclick="confirmCreateFolder()">Add Field →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Folder Modal -->
+  <div class="modal-backdrop" id="editFolderModal">
+    <div class="modal-dialog">
+      <div class="modal-title">Edit Project Field</div>
+      <input type="hidden" id="editModalFolderId">
+      
+      <div class="form-field">
+        <label class="form-label">Field Name</label>
+        <input type="text" class="form-input" id="editModalFolderName" placeholder="Field name">
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Icon</label>
+        <div class="icon-preset-picker" id="editFolderIconPicker">
+          <button type="button" class="icon-preset-btn active" data-icon="folder" onclick="selectFolderIcon(this, 'edit')">📁</button>
+          <button type="button" class="icon-preset-btn" data-icon="code" onclick="selectFolderIcon(this, 'edit')">⚡</button>
+          <button type="button" class="icon-preset-btn" data-icon="creative" onclick="selectFolderIcon(this, 'edit')">🎨</button>
+          <button type="button" class="icon-preset-btn" data-icon="life" onclick="selectFolderIcon(this, 'edit')">🌱</button>
+          <button type="button" class="icon-preset-btn" data-icon="research" onclick="selectFolderIcon(this, 'edit')">🔬</button>
+          <button type="button" class="icon-preset-btn" data-icon="rocket" onclick="selectFolderIcon(this, 'edit')">🚀</button>
+          <button type="button" class="icon-preset-btn" data-icon="tools" onclick="selectFolderIcon(this, 'edit')">🛠️</button>
+          <button type="button" class="icon-preset-btn" data-icon="briefcase" onclick="selectFolderIcon(this, 'edit')">💼</button>
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label class="form-label">Color Accent</label>
+        <div class="color-preset-picker" id="editFolderColorPicker">
+          <button type="button" class="color-preset-btn active" data-color="#059669" style="background:#059669;" onclick="selectFolderColor(this, 'edit')"></button>
+          <button type="button" class="color-preset-btn" data-color="#3b82f6" style="background:#3b82f6;" onclick="selectFolderColor(this, 'edit')"></button>
+          <button type="button" class="color-preset-btn" data-color="#8b5cf6" style="background:#8b5cf6;" onclick="selectFolderColor(this, 'edit')"></button>
+          <button type="button" class="color-preset-btn" data-color="#f59e0b" style="background:#f59e0b;" onclick="selectFolderColor(this, 'edit')"></button>
+          <button type="button" class="color-preset-btn" data-color="#ef4444" style="background:#ef4444;" onclick="selectFolderColor(this, 'edit')"></button>
+          <button type="button" class="color-preset-btn" data-color="#06b6d4" style="background:#06b6d4;" onclick="selectFolderColor(this, 'edit')"></button>
+          <button type="button" class="color-preset-btn" data-color="#64748b" style="background:#64748b;" onclick="selectFolderColor(this, 'edit')"></button>
+        </div>
+      </div>
+
+      <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+        <button type="button" class="btn-pill" style="background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.25);" onclick="confirmDeleteFolder(document.getElementById('editModalFolderId').value)">
+          <svg class="vector-icon" style="width:13px; height:13px; vertical-align:-2px; margin-right:4px;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Delete Field
+        </button>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-pill btn-secondary" onclick="closeModals()">Cancel</button>
+          <button class="btn-pill btn-primary" onclick="confirmEditFolder()">Save Changes →</button>
+        </div>
       </div>
     </div>
   </div>
@@ -2221,12 +2364,23 @@
     let currentDashboardTab = "streams";
 
     function getVectorIcon(iconType) {
-      if (iconType === "code") {
-        return `<svg class="vector-icon" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`;
-      } else if (iconType === "creative") {
+      if (!iconType) iconType = "folder";
+      if (iconType === "code" || iconType === "⚡") {
+        return `<svg class="vector-icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
+      } else if (iconType === "creative" || iconType === "🎨") {
         return `<svg class="vector-icon" viewBox="0 0 24 24"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>`;
-      } else if (iconType === "life") {
+      } else if (iconType === "life" || iconType === "🌱") {
         return `<svg class="vector-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>`;
+      } else if (iconType === "research" || iconType === "🔬") {
+        return `<svg class="vector-icon" viewBox="0 0 24 24"><path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0-7-7"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/></svg>`;
+      } else if (iconType === "rocket" || iconType === "🚀") {
+        return `<svg class="vector-icon" viewBox="0 0 24 24"><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>`;
+      } else if (iconType === "tools" || iconType === "🛠️") {
+        return `<svg class="vector-icon" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`;
+      } else if (iconType === "briefcase" || iconType === "💼") {
+        return `<svg class="vector-icon" viewBox="0 0 24 24"><rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>`;
+      } else if (iconType.length <= 4 && !iconType.match(/^[a-z0-9_-]+$/i)) {
+        return `<span style="font-size: 19px; line-height: 1;">${iconType}</span>`;
       }
       return `<svg class="vector-icon" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>`;
     }
@@ -2392,7 +2546,13 @@
                   <div class="card-icon-box" style="color: ${f.color || 'var(--accent)'}">${iconSvg}</div>
                   <span class="card-name">${escapeHtml(f.name)}</span>
                 </div>
-                <div style="display:flex; align-items:center; gap:8px;">
+                <div style="display:flex; align-items:center; gap:5px;">
+                  <button class="stream-action-icon-btn" onclick="openEditFolderModal('${f.id}', event)" title="Edit ${escapeHtml(f.name)} Field">
+                    <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  </button>
+                  <button class="stream-action-icon-btn stream-delete-icon-btn" onclick="confirmDeleteFolder('${f.id}', event)" title="Delete ${escapeHtml(f.name)} Field">
+                    <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  </button>
                   <button class="stream-add-btn" onclick="openInlineProjectAdd('${f.id}', event)" title="Quick-add project to ${escapeHtml(f.name)}">
                     <svg class="vector-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                   </button>
@@ -2434,8 +2594,11 @@
             </div>
 
             <div class="card-footer">
-              <span style="font-family: var(--mono); font-size: 11px; color: var(--text-dim);">FIELD STREAM</span>
-              <button class="btn-pill btn-secondary" style="padding: 5px 12px; font-size: 11px;" onclick="openFolderView('${f.id}')">Open Field →</button>
+              <span style="font-family: var(--mono); font-size: 11px; color: var(--text-dim);">FIELD DOMAIN</span>
+              <div style="display:flex; gap:6px;">
+                <button class="btn-pill btn-secondary" style="padding: 5px 10px; font-size: 11px;" onclick="openEditFolderModal('${f.id}', event)">Edit</button>
+                <button class="btn-pill btn-secondary" style="padding: 5px 12px; font-size: 11px;" onclick="openFolderView('${f.id}')">Open Field →</button>
+              </div>
             </div>
           </div>
         `;
@@ -3093,8 +3256,33 @@
       openWorkspace(canonicalId, targetFolder ? targetFolder.name : "FIELD");
     }
 
+    let selectedNewFolderIcon = "folder";
+    let selectedNewFolderColor = "#059669";
+    let selectedEditFolderIcon = "folder";
+    let selectedEditFolderColor = "#059669";
+
+    function selectFolderIcon(btn, mode) {
+      const parent = btn.parentElement;
+      parent.querySelectorAll(".icon-preset-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      if (mode === "new") selectedNewFolderIcon = btn.dataset.icon;
+      else selectedEditFolderIcon = btn.dataset.icon;
+    }
+
+    function selectFolderColor(btn, mode) {
+      const parent = btn.parentElement;
+      parent.querySelectorAll(".color-preset-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      if (mode === "new") selectedNewFolderColor = btn.dataset.color;
+      else selectedEditFolderColor = btn.dataset.color;
+    }
+
     function openNewFolderModal() {
       document.getElementById("modalFolderName").value = "";
+      selectedNewFolderIcon = "folder";
+      selectedNewFolderColor = "#059669";
+      document.querySelectorAll("#newFolderIconPicker .icon-preset-btn").forEach(b => b.classList.toggle("active", b.dataset.icon === "folder"));
+      document.querySelectorAll("#newFolderColorPicker .color-preset-btn").forEach(b => b.classList.toggle("active", b.dataset.color === "#059669"));
       document.getElementById("newFolderModal").classList.add("active");
     }
 
@@ -3108,7 +3296,11 @@
         const res = await fetch(`${API_URL}/folders`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, icon: "folder", color: "#059669" })
+          body: JSON.stringify({
+            name,
+            icon: selectedNewFolderIcon,
+            color: selectedNewFolderColor
+          })
         });
         if (res.ok) {
           const json = await res.json();
@@ -3119,13 +3311,99 @@
       folders.push({
         id: folderId,
         name,
-        icon: "folder",
-        color: "#059669",
+        icon: selectedNewFolderIcon,
+        color: selectedNewFolderColor,
         project_count: 0,
         recent_projects: []
       });
       saveCachedFolders(folders);
       renderBento(folders);
+    }
+
+    function openEditFolderModal(folderId, event) {
+      if (event) event.stopPropagation();
+      const folder = folders.find(f => f.id === folderId);
+      if (!folder) return;
+
+      document.getElementById("editModalFolderId").value = folder.id;
+      document.getElementById("editModalFolderName").value = folder.name;
+
+      selectedEditFolderIcon = folder.icon || "folder";
+      selectedEditFolderColor = folder.color || "#059669";
+
+      document.querySelectorAll("#editFolderIconPicker .icon-preset-btn").forEach(b => {
+        b.classList.toggle("active", b.dataset.icon === selectedEditFolderIcon);
+      });
+      document.querySelectorAll("#editFolderColorPicker .color-preset-btn").forEach(b => {
+        b.classList.toggle("active", b.dataset.color === selectedEditFolderColor);
+      });
+
+      document.getElementById("editFolderModal").classList.add("active");
+    }
+
+    async function confirmEditFolder() {
+      const folderId = document.getElementById("editModalFolderId").value;
+      const name = document.getElementById("editModalFolderName").value.trim();
+      if (!name) return alert("Please enter a field name");
+      closeModals();
+
+      const folder = folders.find(f => f.id === folderId);
+      if (folder) {
+        folder.name = name;
+        folder.icon = selectedEditFolderIcon;
+        folder.color = selectedEditFolderColor;
+      }
+
+      saveCachedFolders(folders);
+      renderBento(folders);
+
+      // If currently inside this folder view, update the header immediately
+      if (currentFolderId === folderId) {
+        document.getElementById("folderBcName").innerText = name.toUpperCase();
+        document.getElementById("folderPageTitle").innerText = `${name} Field`;
+        const iconSvg = getVectorIcon(selectedEditFolderIcon);
+        document.getElementById("folderPageIcon").innerHTML = iconSvg;
+        document.getElementById("folderPageIcon").style.color = selectedEditFolderColor;
+      }
+
+      try {
+        await fetch(`${API_URL}/folders/${folderId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            icon: selectedEditFolderIcon,
+            color: selectedEditFolderColor
+          })
+        });
+      } catch (e) {}
+    }
+
+    async function confirmDeleteFolder(folderId, event) {
+      if (event) event.stopPropagation();
+      closeModals();
+
+      const folder = folders.find(f => f.id === folderId);
+      const folderName = folder ? folder.name : "Field";
+      const projectCount = folder ? (folder.project_count || 0) : 0;
+
+      const confirmed = confirm(`Are you sure you want to delete the "${folderName}" field?\n\nThis will permanently delete this field and all ${projectCount} projects inside it.`);
+      if (!confirmed) return;
+
+      folders = folders.filter(f => f.id !== folderId);
+      saveCachedFolders(folders);
+      renderBento(folders);
+
+      // If viewing this folder, navigate back to dashboard
+      if (currentFolderId === folderId) {
+        showDashboard("streams");
+      }
+
+      try {
+        await fetch(`${API_URL}/folders/${folderId}`, {
+          method: "DELETE"
+        });
+      } catch (e) {}
     }
 
     function openSettingsModal() {

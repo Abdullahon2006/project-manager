@@ -8,7 +8,8 @@ struct FieldEditModalView: View {
     @ObservedObject var sync = SyncService.shared
 
     var folderToEdit: FolderBento? = nil
-    var onSaved: (() -> Void)? = nil
+    var onSaved: ((FolderBento) -> Void)? = nil
+    var onDeleted: (() -> Void)? = nil
 
     @State private var name: String = ""
     @State private var selectedIcon: String = "⚡"
@@ -33,11 +34,35 @@ struct FieldEditModalView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section("Field Identity") {
-                    TextField("Field Name (e.g. Operations, Mobile, Health)", text: $name)
+                // Section 0: Live Card Preview
+                Section("Preview") {
+                    HStack(spacing: 12) {
+                        Text(selectedIcon)
+                            .font(.title)
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(name.trimmingCharacters(in: .whitespaces).isEmpty ? "Field Name" : name)
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .foregroundColor(name.trimmingCharacters(in: .whitespaces).isEmpty ? .secondary : .primary)
+                            Text("\(folderToEdit?.projectCount ?? 0) Active Streams")
+                                .font(.caption2)
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
+                        Circle()
+                            .fill(Color(hex: selectedColor))
+                            .frame(width: 16, height: 16)
+                    }
+                    .padding(.vertical, 4)
+                }
+
+                // Section 1: Field Name
+                Section("Field Name") {
+                    TextField("e.g. Research, Operations, Writing", text: $name)
                         .font(.body)
                 }
 
+                // Section 2: Icon Preset Grid
                 Section("Icon") {
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 5), spacing: 10) {
                         ForEach(iconPresets, id: \.self) { icon in
@@ -63,6 +88,7 @@ struct FieldEditModalView: View {
                     .padding(.vertical, 6)
                 }
 
+                // Section 3: Color Preset Grid
                 Section("Accent Color") {
                     LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 12) {
                         ForEach(colorPresets, id: \.0) { hex, label in
@@ -92,6 +118,7 @@ struct FieldEditModalView: View {
                     .padding(.vertical, 6)
                 }
 
+                // Section 4: Destructive Delete Option (Edit Mode Only)
                 if isEditMode {
                     Section {
                         Button(role: .destructive, action: { showDeleteConfirmation = true }) {
@@ -101,6 +128,8 @@ struct FieldEditModalView: View {
                                 Spacer()
                             }
                         }
+                    } footer: {
+                        Text("Deleting this field will permanently remove all projects and actions inside it.")
                     }
                 }
             }
@@ -125,12 +154,12 @@ struct FieldEditModalView: View {
                 }
             }
             .confirmationDialog("Delete Field?", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
-                Button("Delete Field & Projects", role: .destructive) {
+                Button("Delete Field & All Projects", role: .destructive) {
                     deleteField()
                 }
                 Button("Cancel", role: .cancel) { }
             } message: {
-                Text("Deleting '\(name)' will remove all projects inside it.")
+                Text("Deleting '\(name)' will permanently remove all projects inside it. This cannot be undone.")
             }
         }
     }
@@ -146,6 +175,7 @@ struct FieldEditModalView: View {
 
         Task {
             do {
+                var resultFolder: FolderBento
                 if let existing = folderToEdit {
                     try await sync.updateFolder(
                         id: existing.id,
@@ -153,8 +183,17 @@ struct FieldEditModalView: View {
                         icon: selectedIcon,
                         color: selectedColor
                     )
+                    resultFolder = FolderBento(
+                        id: existing.id,
+                        name: trimmed,
+                        icon: selectedIcon,
+                        color: selectedColor,
+                        order: existing.order,
+                        projectCount: existing.projectCount,
+                        recentProjects: existing.recentProjects
+                    )
                 } else {
-                    _ = try await sync.createFolder(
+                    resultFolder = try await sync.createFolder(
                         name: trimmed,
                         icon: selectedIcon,
                         color: selectedColor
@@ -163,13 +202,12 @@ struct FieldEditModalView: View {
                 await MainActor.run {
                     isSaving = false
                     dismiss()
-                    onSaved?()
+                    onSaved?(resultFolder)
                 }
             } catch {
                 await MainActor.run {
                     isSaving = false
                     dismiss()
-                    onSaved?()
                 }
             }
         }
@@ -177,11 +215,14 @@ struct FieldEditModalView: View {
 
     private func deleteField() {
         guard let existing = folderToEdit else { return }
+        #if os(iOS)
+        UINotificationFeedbackGenerator().notificationOccurred(.warning)
+        #endif
         Task {
             try? await sync.deleteFolder(id: existing.id)
             await MainActor.run {
                 dismiss()
-                onSaved?()
+                onDeleted?()
             }
         }
     }
