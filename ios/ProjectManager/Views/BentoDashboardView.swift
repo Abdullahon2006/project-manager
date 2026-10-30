@@ -11,6 +11,7 @@ struct BentoDashboardView: View {
     @State private var isLoading: Bool = true
     @State private var searchQuery: String = ""
     @State private var activeTab: DashboardTab = .active
+    @State private var fieldFilter: FieldFilter = .all
 
     @State private var showingNewProjectSheet = false
     @State private var showingNewFieldSheet = false
@@ -23,6 +24,12 @@ struct BentoDashboardView: View {
         var id: String { rawValue }
     }
 
+    enum FieldFilter: String, CaseIterable, Identifiable {
+        case all = "All Fields"
+        case needsAction = "Needs Next Action"
+        var id: String { rawValue }
+    }
+
     // Computed Stats
     var totalProjectsCount: Int {
         folders.reduce(0) { $0 + $1.projectCount }
@@ -31,6 +38,13 @@ struct BentoDashboardView: View {
     var totalNextActionsCount: Int {
         folders.reduce(0) { sum, folder in
             sum + folder.recentProjects.filter { $0.nextAction != nil && !$0.nextAction!.isEmpty }.count
+        }
+    }
+
+    // Projects with no next actions set
+    var projectsNeedingActions: [ProjectSummary] {
+        folders.flatMap { $0.recentProjects }.filter {
+            $0.nextAction == nil || $0.nextAction!.trimmingCharacters(in: .whitespaces).isEmpty
         }
     }
 
@@ -218,41 +232,63 @@ struct BentoDashboardView: View {
                         .padding(.horizontal)
                         .padding(.top, 4)
 
-                    // Bento Grid
-                    if isLoading && folders.isEmpty {
-                        VStack(spacing: 12) {
-                            ProgressView()
-                            Text("Loading Workspaces...")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
+                    // Quick Filter Chips
+                    HStack(spacing: 8) {
+                        DashboardFilterChip(
+                            title: "All Fields (\(folders.count))",
+                            isSelected: fieldFilter == .all
+                        ) {
+                            fieldFilter = .all
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 60)
-                    } else if folders.isEmpty {
-                        emptyStateView
-                    } else {
-                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible(), spacing: 14)], spacing: 14) {
-                            ForEach(folders) { folder in
-                                NavigationLink(destination: FolderProjectsListView(folder: folder)) {
-                                    BentoFolderCard(folder: folder)
-                                }
-                                .buttonStyle(.plain)
-                                .contextMenu {
-                                    Button {
-                                        folderToEdit = folder
-                                    } label: {
-                                        Label("Edit Field", systemImage: "pencil")
-                                    }
 
-                                    Button(role: .destructive) {
-                                        deleteField(folder)
-                                    } label: {
-                                        Label("Delete Field", systemImage: "trash")
+                        DashboardFilterChip(
+                            title: "Needs Action (\(projectsNeedingActions.count))",
+                            isSelected: fieldFilter == .needsAction
+                        ) {
+                            fieldFilter = .needsAction
+                        }
+                    }
+                    .padding(.horizontal)
+
+                    if fieldFilter == .needsAction {
+                        needsActionProjectsSection
+                    } else {
+                        // Bento Grid
+                        if isLoading && folders.isEmpty {
+                            VStack(spacing: 12) {
+                                ProgressView()
+                                Text("Loading Workspaces...")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.top, 60)
+                        } else if folders.isEmpty {
+                            emptyStateView
+                        } else {
+                            LazyVGrid(columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible(), spacing: 14)], spacing: 14) {
+                                ForEach(folders) { folder in
+                                    NavigationLink(destination: FolderProjectsListView(folder: folder)) {
+                                        BentoFolderCard(folder: folder)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .contextMenu {
+                                        Button {
+                                            folderToEdit = folder
+                                        } label: {
+                                            Label("Edit Field", systemImage: "pencil")
+                                        }
+
+                                        Button(role: .destructive) {
+                                            deleteField(folder)
+                                        } label: {
+                                            Label("Delete Field", systemImage: "trash")
+                                        }
                                     }
                                 }
                             }
+                            .padding(.horizontal)
                         }
-                        .padding(.horizontal)
                     }
                 }
             }
@@ -266,6 +302,56 @@ struct BentoDashboardView: View {
             MetricPill(icon: "⚡", label: "Fields", value: "\(folders.count)")
             MetricPill(icon: "📂", label: "Projects", value: "\(totalProjectsCount)")
             MetricPill(icon: "🎯", label: "Next Actions", value: "\(totalNextActionsCount)")
+        }
+    }
+
+    // MARK: - Needs Action Projects View
+    private var needsActionProjectsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Projects Needing Next Actions")
+                .font(.subheadline)
+                .fontWeight(.bold)
+                .foregroundColor(.secondary)
+                .padding(.horizontal)
+
+            if projectsNeedingActions.isEmpty {
+                VStack(spacing: 10) {
+                    Image(systemName: "checkmark.seal.fill")
+                        .font(.largeTitle)
+                        .foregroundColor(.green)
+                    Text("All projects have defined next actions!")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.top, 40)
+            } else {
+                VStack(spacing: 8) {
+                    ForEach(projectsNeedingActions) { proj in
+                        NavigationLink(destination: ProjectDetailView(projectId: proj.id, initialTitle: proj.title)) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(proj.title)
+                                        .font(.headline)
+                                        .foregroundColor(.primary)
+                                    Text("⚠️ No active next action")
+                                        .font(.caption)
+                                        .foregroundColor(.orange)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
+                            .padding(14)
+                            .background(.ultraThinMaterial)
+                            .clipShape(RoundedRectangle(cornerRadius: 14))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal)
+            }
         }
     }
 
@@ -362,6 +448,31 @@ struct BentoDashboardView: View {
         Task {
             try? await sync.deleteFolder(id: folder.id)
         }
+    }
+}
+
+// MARK: - Dashboard Filter Chip
+struct DashboardFilterChip: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: {
+            #if os(iOS)
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            #endif
+            action()
+        }) {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(isSelected ? Color.blue : Color.primary.opacity(0.06))
+                .foregroundColor(isSelected ? .white : .primary)
+                .clipShape(Capsule())
+        }
+        .buttonStyle(.plain)
     }
 }
 

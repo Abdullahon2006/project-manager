@@ -320,6 +320,27 @@ public class SyncService: ObservableObject {
         }
     }
 
+    /// Reorders active milestones by updating their sequential orders
+    public func reorderMilestones(milestones: [MilestoneItem]) async {
+        for (index, m) in milestones.enumerated() {
+            try? await updateMilestone(milestoneId: m.id, order: index)
+        }
+    }
+
+    /// Duplicates an existing project with its active milestones
+    public func duplicateProject(projectId: String) async throws -> ProjectDetail {
+        let source = try await fetchProject(id: projectId)
+        let newProject = try await createProject(
+            folderId: source.folderId,
+            title: "\(source.title) (Copy)",
+            currentState: source.currentState
+        )
+        for m in source.activeMilestones {
+            _ = try? await createMilestone(projectId: newProject.id, title: m.title)
+        }
+        return try await fetchProject(id: newProject.id)
+    }
+
     // MARK: - Offline Staged Queue & Conflict Engine
 
     private func saveStagedQueue() {

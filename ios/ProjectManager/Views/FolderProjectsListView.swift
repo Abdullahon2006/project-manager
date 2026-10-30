@@ -10,6 +10,7 @@ struct FolderProjectsListView: View {
     @State private var projects: [ProjectSummary] = []
     @State private var isLoading: Bool = true
     @State private var selectedStatus: ProjectFilter = .active
+    @State private var selectedSort: SortOrder = .recent
     @State private var searchQuery: String = ""
     @State private var showingAddProjectSheet: Bool = false
     @State private var showingEditFolderSheet: Bool = false
@@ -18,6 +19,13 @@ struct FolderProjectsListView: View {
     enum ProjectFilter: String, CaseIterable, Identifiable {
         case active = "Active"
         case completed = "Finished"
+        var id: String { rawValue }
+    }
+
+    enum SortOrder: String, CaseIterable, Identifiable {
+        case recent = "Recent"
+        case alphabetical = "Name (A-Z)"
+        case nextAction = "Has Action"
         var id: String { rawValue }
     }
 
@@ -30,22 +38,54 @@ struct FolderProjectsListView: View {
         }
 
         if !searchQuery.trimmingCharacters(in: .whitespaces).isEmpty {
-            list = list.filter { $0.title.localizedCaseInsensitiveContains(searchQuery) || ($0.nextAction?.localizedCaseInsensitiveContains(searchQuery) ?? false) }
+            list = list.filter {
+                $0.title.localizedCaseInsensitiveContains(searchQuery) ||
+                ($0.nextAction?.localizedCaseInsensitiveContains(searchQuery) ?? false)
+            }
         }
-        return list
+
+        switch selectedSort {
+        case .recent:
+            return list.sorted { ($0.updatedAt ?? Date.distantPast) > ($1.updatedAt ?? Date.distantPast) }
+        case .alphabetical:
+            return list.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending }
+        case .nextAction:
+            return list.sorted {
+                let hasA = ($0.nextAction != nil && !$0.nextAction!.isEmpty) ? 1 : 0
+                let hasB = ($1.nextAction != nil && !$1.nextAction!.isEmpty) ? 1 : 0
+                return hasA > hasB
+            }
+        }
     }
 
     var body: some View {
         VStack(spacing: 0) {
-            // Filter Picker
-            Picker("Filter", selection: $selectedStatus) {
-                ForEach(ProjectFilter.allCases) { filter in
-                    Text(filter.rawValue).tag(filter)
+            // Filter & Sort Control Bar
+            HStack(spacing: 10) {
+                Picker("Filter", selection: $selectedStatus) {
+                    ForEach(ProjectFilter.allCases) { filter in
+                        Text(filter.rawValue).tag(filter)
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                Menu {
+                    Picker("Sort By", selection: $selectedSort) {
+                        ForEach(SortOrder.allCases) { order in
+                            Text(order.rawValue).tag(order)
+                        }
+                    }
+                } label: {
+                    Image(systemName: "arrow.up.arrow.down.circle")
+                        .font(.body)
+                        .foregroundColor(.primary)
+                        .padding(8)
+                        .background(.ultraThinMaterial)
+                        .clipShape(Circle())
                 }
             }
-            .pickerStyle(.segmented)
             .padding(.horizontal)
-            .padding(.vertical, 10)
+            .padding(.vertical, 8)
 
             if isLoading && projects.isEmpty {
                 VStack(spacing: 12) {
@@ -82,6 +122,13 @@ struct FolderProjectsListView: View {
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
+
+                            Button {
+                                duplicateProject(project)
+                            } label: {
+                                Label("Duplicate", systemImage: "plus.square.on.square")
+                            }
+                            .tint(.blue)
                         }
                     }
                 }
@@ -155,6 +202,30 @@ struct FolderProjectsListView: View {
             try? await sync.deleteProject(id: project.id)
         }
     }
+
+    private func duplicateProject(_ project: ProjectSummary) {
+        #if os(iOS)
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        #endif
+        Task {
+            if let dup = try? await sync.duplicateProject(projectId: project.id) {
+                await MainActor.run {
+                    self.projects.insert(
+                        ProjectSummary(
+                            id: dup.id,
+                            folderId: dup.folderId,
+                            title: dup.title,
+                            status: dup.status,
+                            version: dup.version,
+                            nextAction: dup.activeMilestones.first?.title,
+                            updatedAt: Date()
+                        ),
+                        at: 0
+                    )
+                }
+            }
+        }
+    }
 }
 
 // MARK: - Project Row Component
@@ -174,7 +245,12 @@ struct ProjectRowView: View {
 
                 Text("v\(project.version)")
                     .font(.caption2)
+                    .fontWeight(.medium)
                     .foregroundColor(.secondary)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color.primary.opacity(0.06))
+                    .clipShape(Capsule())
             }
 
             if let next = project.nextAction, !next.isEmpty {
@@ -187,13 +263,22 @@ struct ProjectRowView: View {
                         .foregroundColor(.secondary)
                         .lineLimit(1)
                 }
+            } else {
+                HStack(spacing: 5) {
+                    Image(systemName: "exclamationmark.circle")
+                        .font(.caption2)
+                        .foregroundColor(.orange)
+                    Text("Needs next action")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
             }
         }
         .padding(.vertical, 4)
     }
 }
 
-// MARK: - Quick New Project Modal
+// MARK: - Quick New Project Modal (Multi-Step Creation)
 
 struct QuickNewProjectView: View {
     @Environment(\.dismiss) private var dismiss
@@ -205,7 +290,7 @@ struct QuickNewProjectView: View {
 
     @State private var title: String = ""
     @State private var currentState: String = ""
-    @State private var firstMilestone: String = ""
+    @State private var milestones: [String] = [""]
     @State private var selectedFolderId: String = ""
     @State private var availableFolders: [FolderBento] = []
     @State private var isCreating: Bool = false
@@ -213,6 +298,7 @@ struct QuickNewProjectView: View {
     var body: some View {
         NavigationStack {
             Form {
+                // Section 1: Project Identity
                 Section("Project Details") {
                     TextField("Project Title (e.g. Redesign Landing)", text: $title)
                         .autocapitalization(.sentences)
@@ -232,13 +318,63 @@ struct QuickNewProjectView: View {
                     }
                 }
 
+                // Section 2: Quick Workflow Templates
+                Section("Workflow Starter Template") {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            Button("🚀 Feature Sprint") {
+                                applyTemplate(["Design architecture", "Implement backend logic", "Build user interface", "Test & deploy"])
+                            }
+                            .buttonStyle(.bordered)
+                            .font(.caption2)
+
+                            Button("🐛 Bug Fix") {
+                                applyTemplate(["Reproduce issue", "Write regression test", "Apply fix", "Verify in staging"])
+                            }
+                            .buttonStyle(.bordered)
+                            .font(.caption2)
+
+                            Button("📋 General Task") {
+                                applyTemplate(["Scope requirements", "Execute plan", "Review outcome"])
+                            }
+                            .buttonStyle(.bordered)
+                            .font(.caption2)
+                        }
+                    }
+                }
+
+                // Section 3: Current State of Affairs
                 Section("Current State of Affairs (Optional)") {
                     TextField("What is the current situation?", text: $currentState, axis: .vertical)
                         .lineLimit(3...5)
                 }
 
-                Section("First Next Action (Optional)") {
-                    TextField("Immediate first step to take", text: $firstMilestone)
+                // Section 4: Next Actions (Multi-step)
+                Section(header: Text("Next Actions (Sequential)")) {
+                    ForEach(0..<milestones.count, id: \.self) { i in
+                        HStack {
+                            Text("\(i + 1).")
+                                .font(.caption.weight(.bold))
+                                .foregroundColor(.secondary)
+                            TextField("Step \(i + 1) description", text: $milestones[i])
+                            if milestones.count > 1 {
+                                Button(action: {
+                                    milestones.remove(at: i)
+                                }) {
+                                    Image(systemName: "xmark.circle")
+                                        .foregroundColor(.secondary)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+
+                    Button(action: {
+                        milestones.append("")
+                    }) {
+                        Label("Add Another Step", systemImage: "plus.circle")
+                            .font(.subheadline.weight(.semibold))
+                    }
                 }
             }
             .navigationTitle("New Project")
@@ -269,6 +405,13 @@ struct QuickNewProjectView: View {
         }
     }
 
+    private func applyTemplate(_ steps: [String]) {
+        #if os(iOS)
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        #endif
+        self.milestones = steps
+    }
+
     private func createProject() {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedTitle.isEmpty else { return }
@@ -290,9 +433,12 @@ struct QuickNewProjectView: View {
                     currentState: currentState.trimmingCharacters(in: .whitespacesAndNewlines)
                 )
 
-                let trimmedM = firstMilestone.trimmingCharacters(in: .whitespacesAndNewlines)
-                if !trimmedM.isEmpty {
-                    _ = try? await sync.createMilestone(projectId: newProj.id, title: trimmedM)
+                // Create all non-empty milestones sequentially
+                for step in milestones {
+                    let trimmed = step.trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !trimmed.isEmpty {
+                        _ = try? await sync.createMilestone(projectId: newProj.id, title: trimmed)
+                    }
                 }
 
                 await MainActor.run {
