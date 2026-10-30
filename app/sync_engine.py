@@ -89,8 +89,9 @@ def process_sync_batch(db: Session, sync_req: schemas.SyncRequest) -> schemas.Sy
                 if milestone:
                     for k, v in change.payload.items():
                         if k == "is_completed":
-                            milestone.is_completed = v
-                            milestone.completed_at = datetime.utcnow() if v else None
+                            is_comp = v if isinstance(v, bool) else (str(v).lower() in ("true", "1"))
+                            milestone.is_completed = is_comp
+                            milestone.completed_at = datetime.utcnow() if is_comp else None
                         elif hasattr(milestone, k):
                             setattr(milestone, k, v)
                     milestone.version += 1
