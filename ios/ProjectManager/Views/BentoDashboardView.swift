@@ -105,14 +105,17 @@ struct BentoDashboardView: View {
                         // Sync status pill
                         Button(action: { showingSettingsSheet = true }) {
                             HStack(spacing: 5) {
-                                if sync.isSyncing {
-                                    ProgressView()
-                                        .scaleEffect(0.6)
-                                } else {
-                                    Circle()
-                                        .fill(sync.isOnline ? (sync.pendingSyncCount > 0 ? Color.orange : Color.green) : Color.gray)
-                                        .frame(width: 7, height: 7)
+                                ZStack {
+                                    if sync.isSyncing {
+                                        ProgressView()
+                                            .scaleEffect(0.55)
+                                    } else {
+                                        Circle()
+                                            .fill(statusColor)
+                                            .frame(width: 7, height: 7)
+                                    }
                                 }
+                                .frame(width: 9, height: 9)
 
                                 Text(statusText)
                                     .font(.caption2.weight(.bold))
@@ -216,10 +219,16 @@ struct BentoDashboardView: View {
     }
 
     private var statusText: String {
-        if sync.isSyncing { return "Syncing" }
         if !sync.isOnline { return "Offline" }
+        if sync.isSyncing { return "Syncing" }
         if sync.pendingSyncCount > 0 { return "Staged (\(sync.pendingSyncCount))" }
         return "Synced"
+    }
+
+    private var statusColor: Color {
+        if !sync.isOnline { return .gray }
+        if sync.pendingSyncCount > 0 { return .orange }
+        return .green
     }
 
     // MARK: - Custom Glass Dashboard Mode Picker

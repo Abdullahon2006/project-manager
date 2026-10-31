@@ -102,30 +102,38 @@ public struct AppWallpaperBackground: ViewModifier {
     @ObservedObject private var theme = ThemeManager.shared
     
     public func body(content: Content) -> some View {
-        ZStack {
-            if let url = theme.activeWallpaperURL {
+        content
+            .background {
+                wallpaperView
+            }
+    }
+
+    @ViewBuilder
+    private var wallpaperView: some View {
+        if let url = theme.activeWallpaperURL {
+            GeometryReader { geo in
                 AsyncImage(url: url) { phase in
                     switch phase {
                     case .success(let image):
                         image
                             .resizable()
                             .aspectRatio(contentMode: .fill)
-                            .ignoresSafeArea()
+                            .frame(width: geo.size.width, height: geo.size.height)
+                            .clipped()
+                    case .empty:
+                        Color.black.opacity(0.85)
                     default:
                         Color(.systemGroupedBackground)
-                            .ignoresSafeArea()
                     }
                 }
-                
-                // Dimming & contrast overlay
-                Color.black.opacity(theme.wallpaperDimming)
-                    .ignoresSafeArea()
-            } else {
-                Color(.systemGroupedBackground)
-                    .ignoresSafeArea()
+                .overlay(
+                    Color.black.opacity(theme.wallpaperDimming)
+                )
             }
-            
-            content
+            .ignoresSafeArea()
+        } else {
+            Color(.systemGroupedBackground)
+                .ignoresSafeArea()
         }
     }
 }

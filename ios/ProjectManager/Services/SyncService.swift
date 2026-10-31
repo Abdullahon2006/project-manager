@@ -1,10 +1,13 @@
 import Foundation
 import Combine
+import Network
 
 public class SyncService: ObservableObject {
     public static let shared = SyncService()
     
     private let cacheKey = "state_next_ios_bento_cache"
+    private let networkMonitor = NWPathMonitor()
+    private let monitorQueue = DispatchQueue(label: "SyncService.NetworkMonitor")
     
     @Published public var serverBaseURL: String {
         didSet {
@@ -25,6 +28,20 @@ public class SyncService: ObservableObject {
         let savedUrl = UserDefaults.standard.string(forKey: "state_next_server_url")
         self.serverBaseURL = savedUrl ?? "https://project-manager-app-78c6297c8f8b.herokuapp.com"
         loadStagedQueue()
+        setupNetworkMonitoring()
+    }
+
+    private func setupNetworkMonitoring() {
+        networkMonitor.pathUpdateHandler = { [weak self] path in
+            DispatchQueue.main.async {
+                self?.isOnline = (path.status == .satisfied)
+            }
+        }
+        networkMonitor.start(queue: monitorQueue)
+    }
+
+    deinit {
+        networkMonitor.cancel()
     }
 
     // MARK: - Live API Calls
@@ -40,13 +57,14 @@ public class SyncService: ObservableObject {
         }
         
         do {
-            let (data, response) = try await URLSession.shared.data(from: url)
+            var request = URLRequest(url: url)
+            request.timeoutInterval = 12
+            let (data, response) = try await URLSession.shared.data(for: request)
             guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
                 throw URLError(.badServerResponse)
             }
             
             let folders = try JSONDecoder.apiDecoder.decode([FolderBento].self, from: data)
-            self.isOnline = true
             self.lastSyncTime = Date()
             
             // Cache locally for offline availability
@@ -56,8 +74,7 @@ public class SyncService: ObservableObject {
             
             return folders
         } catch {
-            self.isOnline = false
-            // Fallback to local cache if offline
+            // Fallback to local cache if offline or cold start
             if let cachedData = UserDefaults.standard.data(forKey: cacheKey),
                let cachedFolders = try? JSONDecoder.apiDecoder.decode([FolderBento].self, from: cachedData) {
                 return cachedFolders
@@ -439,11 +456,9 @@ public class SyncService: ObservableObject {
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 if let _ = error {
-                    self.isOnline = false
                     return
                 }
 
-                self.isOnline = true
                 guard let data = data else { return }
 
                 if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
