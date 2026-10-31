@@ -88,6 +88,8 @@ struct FolderProjectsListView: View {
                     }) {
                         Text("Active (\(activeCount))")
                             .font(.caption.weight(.semibold))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.85)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 7)
                             .background(selectedStatus == .active ? Color(.systemBackground).opacity(0.85) : Color.clear)
@@ -107,6 +109,8 @@ struct FolderProjectsListView: View {
                     }) {
                         Text("Completed (\(completedCount))")
                             .font(.caption.weight(.semibold))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.85)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 7)
                             .background(selectedStatus == .completed ? Color(.systemBackground).opacity(0.85) : Color.clear)
@@ -394,7 +398,7 @@ struct ProjectRowCard: View {
                         .font(.system(size: 9, weight: .bold))
                     Text(next)
                         .font(.caption.weight(.medium))
-                        .lineLimit(2)
+                        .lineLimit(1)
                 }
                 .foregroundColor(.blue)
                 .padding(.horizontal, 10)
@@ -416,6 +420,7 @@ struct ProjectRowCard: View {
             }
         }
         .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground).opacity(0.72))
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
@@ -493,15 +498,20 @@ struct QuickNewProjectView: View {
 
                 // Section 4: Next Actions (Multi-step)
                 Section(header: Text("Next Actions (Sequential)")) {
-                    ForEach(0..<milestones.count, id: \.self) { i in
+                    ForEach(Array(milestones.indices), id: \.self) { i in
                         HStack {
                             Text("\(i + 1).")
                                 .font(.caption.weight(.bold))
                                 .foregroundColor(.secondary)
-                            TextField("Step \(i + 1) description", text: $milestones[i])
+                            TextField("Step \(i + 1) description", text: Binding(
+                                get: { milestones.indices.contains(i) ? milestones[i] : "" },
+                                set: { if milestones.indices.contains(i) { milestones[i] = $0 } }
+                            ))
                             if milestones.count > 1 {
                                 Button(action: {
-                                    milestones.remove(at: i)
+                                    if milestones.indices.contains(i) {
+                                        milestones.remove(at: i)
+                                    }
                                 }) {
                                     Image(systemName: "xmark.circle.fill")
                                         .foregroundColor(.secondary.opacity(0.6))

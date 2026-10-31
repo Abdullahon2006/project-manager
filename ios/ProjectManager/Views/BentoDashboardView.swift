@@ -88,6 +88,18 @@ struct BentoDashboardView: View {
             .navigationTitle("Project Manager")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "bolt.fill")
+                            .font(.subheadline)
+                            .foregroundColor(.blue)
+                        Text("Project Manager")
+                            .font(.headline.weight(.bold))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.85)
+                    }
+                }
+
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack(spacing: 8) {
                         // Sync status pill
@@ -106,7 +118,7 @@ struct BentoDashboardView: View {
                                     .font(.caption2.weight(.bold))
                                     .foregroundColor(.primary)
                             }
-                            .padding(.horizontal, 9)
+                            .padding(.horizontal, 8)
                             .padding(.vertical, 5)
                             .background(Color(.systemBackground).opacity(0.65))
                             .background(.ultraThinMaterial)
@@ -226,6 +238,8 @@ struct BentoDashboardView: View {
                         .font(.caption2)
                     Text("Workspaces (\(folders.count))")
                         .font(.caption.weight(.semibold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 7)
@@ -249,6 +263,8 @@ struct BentoDashboardView: View {
                         .font(.caption2)
                     Text("Archive")
                         .font(.caption.weight(.semibold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 7)
@@ -282,23 +298,25 @@ struct BentoDashboardView: View {
                     quickMetricsRow
                         .padding(.horizontal, 16)
 
-                    // Quick Filter Chips
-                    HStack(spacing: 8) {
-                        DashboardFilterChip(
-                            title: "All Fields (\(folders.count))",
-                            isSelected: fieldFilter == .all
-                        ) {
-                            fieldFilter = .all
-                        }
+                    // Quick Filter Chips (Safe on all device widths)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            DashboardFilterChip(
+                                title: "All Fields (\(folders.count))",
+                                isSelected: fieldFilter == .all
+                            ) {
+                                fieldFilter = .all
+                            }
 
-                        DashboardFilterChip(
-                            title: "Needs Action (\(projectsNeedingActions.count))",
-                            isSelected: fieldFilter == .needsAction
-                        ) {
-                            fieldFilter = .needsAction
+                            DashboardFilterChip(
+                                title: "Needs Action (\(projectsNeedingActions.count))",
+                                isSelected: fieldFilter == .needsAction
+                            ) {
+                                fieldFilter = .needsAction
+                            }
                         }
+                        .padding(.horizontal, 16)
                     }
-                    .padding(.horizontal, 16)
 
                     if fieldFilter == .needsAction {
                         needsActionProjectsSection
@@ -379,7 +397,7 @@ struct BentoDashboardView: View {
     }
 
     private func metricItem(icon: String, value: String, label: String) -> some View {
-        HStack(spacing: 6) {
+        HStack(spacing: 5) {
             Text(icon)
                 .font(.subheadline)
             Text(value)
@@ -389,6 +407,8 @@ struct BentoDashboardView: View {
                 .font(.caption2.weight(.medium))
                 .foregroundColor(.secondary)
         }
+        .lineLimit(1)
+        .minimumScaleFactor(0.85)
     }
 
     // MARK: - Floating New Button
@@ -680,8 +700,9 @@ struct BentoFolderCard: View {
                                 .fontWeight(.medium)
                                 .lineLimit(1)
                                 .foregroundColor(.primary)
+                                .layoutPriority(1)
 
-                            Spacer()
+                            Spacer(minLength: 6)
 
                             if let next = proj.nextAction, !next.isEmpty {
                                 HStack(spacing: 4) {
@@ -696,6 +717,7 @@ struct BentoFolderCard: View {
                                 .padding(.vertical, 3)
                                 .background(Color.blue.opacity(0.12))
                                 .clipShape(Capsule())
+                                .frame(maxWidth: 160, alignment: .trailing)
                             }
                         }
                         .padding(.horizontal, 10)
@@ -707,6 +729,7 @@ struct BentoFolderCard: View {
             }
         }
         .padding(14)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color(.systemBackground).opacity(0.74))
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
