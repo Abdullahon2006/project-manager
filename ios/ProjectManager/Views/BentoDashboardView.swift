@@ -70,11 +70,16 @@ struct BentoDashboardView: View {
                         .padding(.top, 8)
                         .padding(.bottom, 10)
 
-                    if activeTab == .active {
+                    ZStack(alignment: .top) {
                         activeBentoView
-                    } else {
-                        FinishedArchiveView(sync: sync, searchQuery: searchQuery)
+                            .opacity(activeTab == .active ? 1 : 0)
+                            .allowsHitTesting(activeTab == .active)
+
+                        FinishedArchiveView(sync: sync, searchQuery: searchQuery, isActiveTab: activeTab == .archive)
+                            .opacity(activeTab == .archive ? 1 : 0)
+                            .allowsHitTesting(activeTab == .archive)
                     }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
 
                 // Global Floating Action Button (Active Tab Only)
@@ -82,6 +87,7 @@ struct BentoDashboardView: View {
                     floatingNewButton
                         .padding(.trailing, 20)
                         .padding(.bottom, 24)
+                        .transition(.scale.combined(with: .opacity))
                 }
             }
             .withAppWallpaper()
@@ -379,6 +385,7 @@ struct BentoDashboardView: View {
             }
             .padding(.bottom, 96)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     // MARK: - Unified Metrics Banner (No Overflow)

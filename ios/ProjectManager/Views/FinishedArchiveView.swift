@@ -3,9 +3,25 @@ import SwiftUI
 struct FinishedArchiveView: View {
     var sync: SyncService = SyncService.shared
     var searchQuery: String = ""
+    var isActiveTab: Bool = false
+
     @State private var finishedProjects: [ProjectSummary] = []
     @State private var isLoading: Bool = false
     @State private var errorMessage: String? = nil
+
+    private let cacheKey = "state_next_ios_archive_cache"
+
+    public init(sync: SyncService = SyncService.shared, searchQuery: String = "", isActiveTab: Bool = false) {
+        self.sync = sync
+        self.searchQuery = searchQuery
+        self.isActiveTab = isActiveTab
+
+        // Instant restore from local cache to prevent empty/glitch state
+        if let cachedData = UserDefaults.standard.data(forKey: "state_next_ios_archive_cache"),
+           let cached = try? JSONDecoder.apiDecoder.decode([ProjectSummary].self, from: cachedData) {
+            _finishedProjects = State(initialValue: cached)
+        }
+    }
 
     var filteredProjects: [ProjectSummary] {
         if searchQuery.trimmingCharacters(in: .whitespaces).isEmpty {
@@ -15,7 +31,7 @@ struct FinishedArchiveView: View {
     }
 
     var body: some View {
-        Group {
+        ScrollView {
             if isLoading && finishedProjects.isEmpty {
                 VStack(spacing: 12) {
                     ProgressView()
@@ -42,78 +58,87 @@ struct FinishedArchiveView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.top, 60)
             } else {
-                ScrollView {
-                    LazyVStack(spacing: 10) {
-                        ForEach(filteredProjects) { project in
-                            NavigationLink(destination: ProjectDetailView(projectId: project.id, initialTitle: project.title)) {
-                                HStack(alignment: .center, spacing: 12) {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .font(.title3)
-                                        .foregroundColor(.green)
+                LazyVStack(spacing: 10) {
+                    ForEach(filteredProjects) { project in
+                        NavigationLink(destination: ProjectDetailView(projectId: project.id, initialTitle: project.title)) {
+                            HStack(alignment: .center, spacing: 12) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.title3)
+                                    .foregroundColor(.green)
 
-                                    VStack(alignment: .leading, spacing: 3) {
-                                        Text(project.title)
-                                            .font(.headline)
-                                            .fontWeight(.semibold)
-                                            .lineLimit(1)
-                                            .foregroundColor(.primary)
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(project.title)
+                                        .font(.headline)
+                                        .fontWeight(.semibold)
+                                        .lineLimit(1)
+                                        .foregroundColor(.primary)
 
-                                        if let updated = project.updatedAt {
-                                            Text("Completed \(updated, format: .dateTime.month().day().year())")
-                                                .font(.caption2)
-                                                .foregroundColor(.secondary)
-                                        }
+                                    if let updated = project.updatedAt {
+                                        Text("Completed \(updated, format: .dateTime.month().day().year())")
+                                            .font(.caption2)
+                                            .foregroundColor(.secondary)
                                     }
-
-                                    Spacer()
-
-                                    Button(action: { reopenProject(project) }) {
-                                        Text("Reopen")
-                                            .font(.caption2.weight(.bold))
-                                            .padding(.horizontal, 10)
-                                            .padding(.vertical, 5)
-                                            .background(Color.blue.opacity(0.12))
-                                            .foregroundColor(.blue)
-                                            .clipShape(Capsule())
-                                    }
-                                    .buttonStyle(.plain)
                                 }
-                                .padding(14)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .background(Color(.systemBackground).opacity(0.72))
-                                .background(.ultraThinMaterial)
-                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
-                                )
+
+                                Spacer()
+
+                                Button(action: { reopenProject(project) }) {
+                                    Text("Reopen")
+                                        .font(.caption2.weight(.bold))
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 5)
+                                        .background(Color.blue.opacity(0.12))
+                                        .foregroundColor(.blue)
+                                        .clipShape(Capsule())
+                                }
+                                .buttonStyle(.plain)
                             }
-                            .buttonStyle(.plain)
+                            .padding(14)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color(.systemBackground).opacity(0.72))
+                            .background(.ultraThinMaterial)
+                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                            )
                         }
+                        .buttonStyle(.plain)
                     }
-                    .padding(.horizontal, 16)
-                    .padding(.top, 4)
-                    .padding(.bottom, 96)
                 }
-                .scrollDismissesKeyboard(.interactively)
+                .padding(.horizontal, 16)
+                .padding(.top, 4)
+                .padding(.bottom, 96)
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .scrollDismissesKeyboard(.interactively)
         .refreshable {
             await loadFinishedProjects()
         }
         .task {
             await loadFinishedProjects()
         }
+        .onChange(of: isActiveTab) { active in
+            if active {
+                Task { await loadFinishedProjects() }
+            }
+        }
     }
 
     private func loadFinishedProjects() async {
-        isLoading = true
+        if finishedProjects.isEmpty {
+            isLoading = true
+        }
         errorMessage = nil
         do {
             let projects = try await sync.fetchProjects(status: "completed")
             await MainActor.run {
                 self.finishedProjects = projects
                 self.isLoading = false
+                if let encoded = try? JSONEncoder.apiEncoder.encode(projects) {
+                    UserDefaults.standard.set(encoded, forKey: cacheKey)
+                }
             }
         } catch {
             await MainActor.run {
@@ -129,6 +154,9 @@ struct FinishedArchiveView: View {
         #endif
         withAnimation {
             finishedProjects.removeAll { $0.id == project.id }
+        }
+        if let encoded = try? JSONEncoder.apiEncoder.encode(finishedProjects) {
+            UserDefaults.standard.set(encoded, forKey: cacheKey)
         }
         Task {
             do {
