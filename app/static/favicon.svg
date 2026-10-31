@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Background Gradients -->
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1024" y2="1024" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#090d16" />
+      <stop offset="50%" stop-color="#0b1120" />
+      <stop offset="100%" stop-color="#020617" />
+    </linearGradient>
+
+    <radialGradient id="ambientGlow" cx="512" cy="460" r="480" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2563eb" stop-opacity="0.28" />
+      <stop offset="45%" stop-color="#10b981" stop-opacity="0.12" />
+      <stop offset="100%" stop-color="#020617" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Glass Card Gradient -->
+    <linearGradient id="cardGrad" x1="200" y1="180" x2="824" y2="844" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.10" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0.02" />
+    </linearGradient>
+
+    <linearGradient id="cardBorder" x1="180" y1="160" x2="844" y2="864" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25" />
+      <stop offset="40%" stop-color="#38bdf8" stop-opacity="0.20" />
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0.10" />
+    </linearGradient>
+
+    <!-- Lightning Core Gradient -->
+    <linearGradient id="boltGrad" x1="280" y1="220" x2="744" y2="800" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#67e8f9" />
+      <stop offset="35%" stop-color="#38bdf8" />
+      <stop offset="70%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#10b981" />
+    </linearGradient>
+
+    <!-- Specular Highlight -->
+    <linearGradient id="specular" x1="380" y1="240" x2="560" y2="520" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85" />
+      <stop offset="40%" stop-color="#ffffff" stop-opacity="0.30" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+    </linearGradient>
+
+    <!-- Filter for Glow -->
+    <filter id="coreGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="32" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="24" stdDeviation="36" flood-color="#000000" flood-opacity="0.65" />
+    </filter>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="1024" height="1024" fill="url(#bgGrad)" />
+
+  <!-- Ambient Radial Glow -->
+  <circle cx="512" cy="460" r="480" fill="url(#ambientGlow)" />
+
+  <!-- Subtle Blueprint Tech Grid Grid Dots -->
+  <g opacity="0.15">
+    <circle cx="212" cy="212" r="3" fill="#94a3b8" />
+    <circle cx="362" cy="212" r="3" fill="#94a3b8" />
+    <circle cx="512" cy="212" r="3" fill="#94a3b8" />
+    <circle cx="662" cy="212" r="3" fill="#94a3b8" />
+    <circle cx="812" cy="212" r="3" fill="#94a3b8" />
+
+    <circle cx="212" cy="362" r="3" fill="#94a3b8" />
+    <circle cx="812" cy="362" r="3" fill="#94a3b8" />
+
+    <circle cx="212" cy="512" r="3" fill="#94a3b8" />
+    <circle cx="812" cy="512" r="3" fill="#94a3b8" />
+
+    <circle cx="212" cy="662" r="3" fill="#94a3b8" />
+    <circle cx="812" cy="662" r="3" fill="#94a3b8" />
+
+    <circle cx="212" cy="812" r="3" fill="#94a3b8" />
+    <circle cx="362" cy="812" r="3" fill="#94a3b8" />
+    <circle cx="512" cy="812" r="3" fill="#94a3b8" />
+    <circle cx="662" cy="812" r="3" fill="#94a3b8" />
+    <circle cx="812" cy="812" r="3" fill="#94a3b8" />
+  </g>
+
+  <!-- Inner Glass Rounded Card (Squircle) -->
+  <rect x="180" y="160" width="664" height="704" rx="160" fill="url(#cardGrad)" stroke="url(#cardBorder)" stroke-width="2.5" filter="url(#softShadow)" />
+
+  <!-- Inner Concentric Stream Track (Subtle Flow Ring) -->
+  <rect x="220" y="200" width="584" height="624" rx="130" fill="none" stroke="rgba(255, 255, 255, 0.05)" stroke-width="1.5" stroke-dasharray="12 10" />
+
+  <!-- Glowing Shadow Duplicate of Lightning Glyph -->
+  <path d="M555 240 L345 530 L505 530 L485 784 L705 470 L540 470 Z"
+        fill="url(#boltGrad)"
+        opacity="0.45"
+        filter="url(#coreGlow)" />
+
+  <!-- The Sharp Foreground Lightning Bolt (State & Next Action Glyph) -->
+  <path d="M555 240 L345 530 L505 530 L485 784 L705 470 L540 470 Z"
+        fill="url(#boltGrad)"
+        stroke="rgba(255, 255, 255, 0.3)"
+        stroke-width="3"
+        stroke-linejoin="round" />
+
+  <!-- Specular Shimmer Layer across Top-Left Edge -->
+  <path d="M555 240 L345 530 L505 530 L485 784 L505 520 L370 520 L540 255 Z"
+        fill="url(#specular)" />
+
+  <!-- Dynamic Next Energy Spark at Crest -->
+  <circle cx="555" cy="240" r="10" fill="#ffffff" filter="url(#coreGlow)" />
+  <circle cx="555" cy="240" r="5" fill="#e0f2fe" />
+
+  <!-- Dynamic Next Energy Spark at Base Anchor -->
+  <circle cx="485" cy="784" r="8" fill="#34d399" filter="url(#coreGlow)" />
+  <circle cx="485" cy="784" r="4" fill="#ecfdf5" />
+</svg>

@@ -70,7 +70,8 @@ async def add_security_headers(request, call_next):
 app.include_router(api_router)
 app.include_router(agent_router)
 
-STATIC_INDEX = os.path.join(os.path.dirname(__file__), "static", "index.html")
+STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
+STATIC_INDEX = os.path.join(STATIC_DIR, "index.html")
 
 @app.get("/", include_in_schema=False)
 def serve_root():
@@ -82,6 +83,50 @@ def serve_root():
         "docs": "/docs",
         "endpoints": ["/api/bento", "/api/sync", "/api/agent/overview"]
     }
+
+@app.get("/apple-touch-icon.png", include_in_schema=False)
+@app.get("/apple-touch-icon-precomposed.png", include_in_schema=False)
+def serve_apple_touch_icon():
+    path = os.path.join(STATIC_DIR, "apple-touch-icon.png")
+    if os.path.exists(path):
+        return FileResponse(path, media_type="image/png")
+    return FileResponse(STATIC_INDEX)
+
+@app.get("/manifest.json", include_in_schema=False)
+def serve_manifest():
+    path = os.path.join(STATIC_DIR, "manifest.json")
+    if os.path.exists(path):
+        return FileResponse(path, media_type="application/manifest+json")
+    return {}
+
+@app.get("/favicon.svg", include_in_schema=False)
+def serve_favicon_svg():
+    path = os.path.join(STATIC_DIR, "favicon.svg")
+    if os.path.exists(path):
+        return FileResponse(path, media_type="image/svg+xml")
+    return FileResponse(STATIC_INDEX)
+
+@app.get("/favicon.png", include_in_schema=False)
+@app.get("/favicon.ico", include_in_schema=False)
+def serve_favicon():
+    path = os.path.join(STATIC_DIR, "favicon.png")
+    if os.path.exists(path):
+        return FileResponse(path, media_type="image/png")
+    return FileResponse(STATIC_INDEX)
+
+@app.get("/icon-192.png", include_in_schema=False)
+def serve_icon_192():
+    path = os.path.join(STATIC_DIR, "icon-192.png")
+    if os.path.exists(path):
+        return FileResponse(path, media_type="image/png")
+    return FileResponse(STATIC_INDEX)
+
+@app.get("/icon-512.png", include_in_schema=False)
+def serve_icon_512():
+    path = os.path.join(STATIC_DIR, "icon-512.png")
+    if os.path.exists(path):
+        return FileResponse(path, media_type="image/png")
+    return FileResponse(STATIC_INDEX)
 
 @app.get("/api")
 def api_info():

@@ -2,8 +2,25 @@
 <html lang="en" data-theme="daylight">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Project Manager — Bento Workspace</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Projects — Bento Workspace</title>
+
+  <!-- iOS Safari PWA & Standalone Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Projects">
+  <meta name="theme-color" content="#0b0d13" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f1f5f9" media="(prefers-color-scheme: light)">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="Projects">
+
+  <!-- App Icons & Manifest -->
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="64x64" href="/favicon.png">
+  <link rel="manifest" href="/manifest.json">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -105,8 +122,11 @@
       font-family: var(--font-sans);
       letter-spacing: normal;
       min-height: 100vh;
+      min-height: -webkit-fill-available;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
@@ -130,6 +150,7 @@
       max-width: 1440px;
       margin: 0 auto;
       min-height: 100vh;
+      min-height: -webkit-fill-available;
       background: transparent;
       border: none;
       border-radius: 0;
@@ -144,7 +165,7 @@
 
     /* Floating Island Header (ZERO rectangular edge-to-edge bar; seamless wallpaper) */
     header {
-      padding: 18px 32px 10px;
+      padding: max(18px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right)) 10px max(24px, env(safe-area-inset-left));
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -681,8 +702,9 @@
     /* Main Stage */
     main {
       flex: 1;
-      padding: 32px 32px 48px;
+      padding: 24px max(24px, env(safe-area-inset-right)) max(48px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .view-header {
@@ -1566,6 +1588,42 @@
       stroke-linejoin: round;
       fill: none;
       stroke: currentColor;
+    }
+
+    /* Mobile & iOS PWA Polish */
+    @media (max-width: 640px) {
+      header {
+        padding: max(12px, env(safe-area-inset-top)) 14px 8px;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .brand-group {
+        padding: 4px 10px 4px 4px;
+        gap: 8px;
+      }
+      .brand-title {
+        font-size: 14px;
+      }
+      .nav-actions {
+        gap: 6px;
+      }
+      .nav-actions .btn-pill {
+        padding: 5px 10px;
+        font-size: 11px;
+      }
+      main {
+        padding: 16px max(14px, env(safe-area-inset-right)) max(36px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+      }
+      /* Prevent iOS Safari 16px auto-zoom */
+      .form-input, input, textarea, select {
+        font-size: 16px !important;
+      }
+      .modal-dialog {
+        width: 94% !important;
+        max-width: 94% !important;
+        margin: 12px auto;
+        padding: 22px 18px;
+      }
     }
   </style>
 </head>
