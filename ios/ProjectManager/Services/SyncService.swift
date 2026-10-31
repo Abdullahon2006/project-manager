@@ -147,7 +147,7 @@ public class SyncService: ObservableObject {
     }
 
     /// Creates a new project in a folder
-    public func createProject(folderId: String, title: String, currentState: String = "") async throws -> ProjectDetail {
+    public func createProject(folderId: String, title: String, currentState: String = "", milestones: [String] = []) async throws -> ProjectDetail {
         guard let url = URL(string: "\(serverBaseURL)/api/projects") else {
             throw URLError(.badURL)
         }
@@ -169,7 +169,17 @@ public class SyncService: ObservableObject {
             throw URLError(.badServerResponse)
         }
         
-        return try JSONDecoder.apiDecoder.decode(ProjectDetail.self, from: data)
+        let proj = try JSONDecoder.apiDecoder.decode(ProjectDetail.self, from: data)
+        
+        // Sequentially create any initial milestones if provided
+        for step in milestones {
+            let trimmed = step.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmed.isEmpty {
+                _ = try? await createMilestone(projectId: proj.id, title: trimmed)
+            }
+        }
+        
+        return proj
     }
 
     /// Updates project properties (title, current_state, folder_id, status)
