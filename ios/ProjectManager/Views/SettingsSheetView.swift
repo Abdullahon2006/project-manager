@@ -6,6 +6,7 @@ struct SettingsSheetView: View {
     @ObservedObject var theme = ThemeManager.shared
 
     @State private var serverURL: String = ""
+    @State private var apiToken: String = ""
     @State private var testStatusMessage: String? = nil
     @State private var isTesting: Bool = false
     @State private var customUrlText: String = ""
@@ -95,11 +96,15 @@ struct SettingsSheetView: View {
                 }
 
                 // Section 3: Cloud Server Configuration
-                Section(header: Text("Cloud Server Configuration"), footer: Text("Enter the base URL of your FastAPI backend. Production is hosted on Heroku.")) {
+                Section(header: Text("Cloud Server Configuration"), footer: Text("Enter the base URL of your FastAPI backend and the pre-shared Access Token (APP_SECRET_KEY).")) {
                     TextField("Server URL", text: $serverURL)
                         .autocapitalization(.none)
                         .disableAutocorrection(true)
                         .keyboardType(.URL)
+
+                    SecureField("Access Token (X-App-Token)", text: $apiToken)
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
                     
                     Button(action: testConnection) {
                         HStack {
@@ -176,6 +181,7 @@ struct SettingsSheetView: View {
                         if let sanitized = sanitizeServerURL(serverURL) {
                             sync.serverBaseURL = sanitized
                         }
+                        sync.apiToken = apiToken.trimmingCharacters(in: .whitespacesAndNewlines)
                         if theme.selectedWallpaperId == "custom" {
                             theme.customWallpaperUrl = customUrlText.trimmingCharacters(in: .whitespacesAndNewlines)
                         }
@@ -185,6 +191,7 @@ struct SettingsSheetView: View {
             }
             .onAppear {
                 serverURL = sync.serverBaseURL
+                apiToken = sync.apiToken
                 customUrlText = theme.customWallpaperUrl
             }
         }
@@ -213,13 +220,22 @@ struct SettingsSheetView: View {
 
         Task {
             do {
-                let (_, response) = try await URLSession.shared.data(from: url)
+                var request = URLRequest(url: url)
+                let token = apiToken.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !token.isEmpty {
+                    request.setValue(token, forHTTPHeaderField: "X-App-Token")
+                }
+                let (_, response) = try await URLSession.shared.data(for: request)
                 await MainActor.run {
                     isTesting = false
-                    if let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) {
-                        testStatusMessage = "Success! Server is reachable (HTTP \(http.statusCode))."
-                    } else {
-                        testStatusMessage = "Server returned error status."
+                    if let http = response as? HTTPURLResponse {
+                        if (200...299).contains(http.statusCode) {
+                            testStatusMessage = "Success! Server connected and authenticated (HTTP \(http.statusCode))."
+                        } else if http.statusCode == 401 {
+                            testStatusMessage = "Authentication failed (HTTP 401): Invalid or missing Access Token."
+                        } else {
+                            testStatusMessage = "Server returned error status: HTTP \(http.statusCode)."
+                        }
                     }
                 }
             } catch {

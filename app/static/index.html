@@ -1886,6 +1886,12 @@
               <input type="text" class="form-input" id="settingsBackendUrlInput">
             </div>
 
+            <div class="form-field" style="margin-top: 10px;">
+              <label class="form-label">Secret Access Token (X-App-Token)</label>
+              <input type="password" class="form-input" id="settingsApiTokenInput" placeholder="Enter pre-shared APP_SECRET_KEY">
+              <span style="font-size: 11px; color: var(--text-dim); margin-top: 4px; display: block;">Required when the server has APP_SECRET_KEY configured.</span>
+            </div>
+
             <div style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
               <button type="button" class="btn-pill btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="document.getElementById('settingsBackendUrlInput').value='https://project-manager-app-78c6297c8f8b.herokuapp.com/api'">Heroku (Live)</button>
               <button type="button" class="btn-pill btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="document.getElementById('settingsBackendUrlInput').value='http://127.0.0.1:8000/api'">Localhost (8000)</button>
@@ -2060,6 +2066,11 @@
           <button type="button" class="btn-pill btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="document.getElementById('backendUrlInput').value='http://127.0.0.1:8000/api'">Localhost (8000)</button>
         </div>
         <span style="font-size: 11px; color: var(--text-dim); margin-top: 6px; display: block;">Point to your deployed Heroku app or local development server.</span>
+      </div>
+      <div class="form-field" style="margin-top: 10px;">
+        <label class="form-label">Secret Access Token (X-App-Token)</label>
+        <input type="password" class="form-input" id="backendTokenInput" placeholder="Enter pre-shared APP_SECRET_KEY">
+        <span style="font-size: 11px; color: var(--text-dim); margin-top: 4px; display: block;">Required when the server has APP_SECRET_KEY configured.</span>
       </div>
       <div class="modal-actions">
         <button class="btn-pill btn-secondary" onclick="closeModals()">Close</button>
@@ -2262,9 +2273,12 @@
       const activeFontEl = document.getElementById(keyMap[currentFontTheme]);
       if (activeFontEl) activeFontEl.classList.add("active-font");
 
-      // Backend URL
+      // Backend URL & Token
       const bInput = document.getElementById("settingsBackendUrlInput");
       if (bInput && !bInput.value) bInput.value = API_URL;
+
+      const tInput = document.getElementById("settingsApiTokenInput");
+      if (tInput && !tInput.value) tInput.value = API_TOKEN;
 
       const customInput = document.getElementById("customWpInput");
       if (customInput && !customInput.value && savedCustomWp) customInput.value = savedCustomWp;
@@ -2272,9 +2286,15 @@
 
     async function saveBackendSettingsFromPage() {
       const input = document.getElementById("settingsBackendUrlInput");
-      if (!input) return;
-      API_URL = input.value.trim();
-      localStorage.setItem("state_next_api_url", API_URL);
+      if (input) {
+        API_URL = input.value.trim();
+        localStorage.setItem("state_next_api_url", API_URL);
+      }
+      const tInput = document.getElementById("settingsApiTokenInput");
+      if (tInput) {
+        API_TOKEN = tInput.value.trim();
+        localStorage.setItem("state_next_api_token", API_TOKEN);
+      }
       const ping = document.getElementById("settingsPingStatus");
       if (ping) ping.innerText = "CONNECTING...";
       await syncWithBackend();
@@ -2306,6 +2326,24 @@
     }
 
     let API_URL = getInitialApiUrl();
+    let API_TOKEN = localStorage.getItem("state_next_api_token") || "";
+
+    // Transparent fetch interceptor: Attach X-App-Token to all backend API calls
+    const _nativeFetch = window.fetch;
+    window.fetch = function(resource, init = {}) {
+      let url = typeof resource === "string" ? resource : (resource && resource.url ? resource.url : "");
+      if (API_TOKEN && (url.includes("/api/") || url.includes("/bento") || (API_URL && url.startsWith(API_URL)))) {
+        const options = { ...init };
+        const headers = new Headers(options.headers || {});
+        if (!headers.has("X-App-Token")) {
+          headers.set("X-App-Token", API_TOKEN);
+        }
+        options.headers = headers;
+        return _nativeFetch(resource, options);
+      }
+      return _nativeFetch(resource, init);
+    };
+
     const CACHE_KEY = "state_next_bento_cache_v7";
 
     const defaultSeedFolders = [
@@ -2445,6 +2483,10 @@
           dot.className = "status-dot";
           label.innerText = "CLOUD SYNCED";
           success = true;
+        } else if (res.status === 401) {
+          dot.className = "status-dot offline";
+          label.innerText = "AUTH REQUIRED (401)";
+          return;
         }
       } catch (e) {
         console.warn("Primary API sync failed:", e);
@@ -3408,6 +3450,8 @@
 
     function openSettingsModal() {
       document.getElementById("backendUrlInput").value = API_URL;
+      const bToken = document.getElementById("backendTokenInput");
+      if (bToken) bToken.value = API_TOKEN;
       document.getElementById("settingsModal").classList.add("active");
     }
 
@@ -3418,6 +3462,11 @@
     function saveSettings() {
       API_URL = document.getElementById("backendUrlInput").value.trim();
       localStorage.setItem("state_next_api_url", API_URL);
+      const bToken = document.getElementById("backendTokenInput");
+      if (bToken) {
+        API_TOKEN = bToken.value.trim();
+        localStorage.setItem("state_next_api_token", API_TOKEN);
+      }
       closeModals();
       syncWithBackend();
     }

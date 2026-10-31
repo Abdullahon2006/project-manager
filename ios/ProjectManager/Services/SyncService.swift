@@ -21,6 +21,12 @@ public class SyncService: ObservableObject {
     @Published public var syncConflictAlert: String? = nil
     @Published public var lastSyncTime: Date? = nil
 
+    @Published public var apiToken: String {
+        didSet {
+            UserDefaults.standard.set(apiToken, forKey: "state_next_api_token")
+        }
+    }
+
     private let stagedQueueKey = "state_next_staged_queue"
     private var stagedQueue: [StagedSyncChange] = []
     private var isSyncingQueue: Bool = false
@@ -28,8 +34,20 @@ public class SyncService: ObservableObject {
     public init() {
         let savedUrl = UserDefaults.standard.string(forKey: "state_next_server_url")
         self.serverBaseURL = savedUrl ?? "https://project-manager-app-78c6297c8f8b.herokuapp.com"
+        self.apiToken = UserDefaults.standard.string(forKey: "state_next_api_token") ?? ""
         loadStagedQueue()
         setupNetworkMonitoring()
+    }
+
+    /// Constructs an authorized URLRequest with the pre-shared X-App-Token header attached
+    public func authorizedRequest(url: URL, method: String = "GET") -> URLRequest {
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        let token = apiToken.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !token.isEmpty {
+            request.setValue(token, forHTTPHeaderField: "X-App-Token")
+        }
+        return request
     }
 
     private func setupNetworkMonitoring() {
@@ -64,10 +82,17 @@ public class SyncService: ObservableObject {
         }
         
         do {
-            var request = URLRequest(url: url)
+            var request = authorizedRequest(url: url)
             request.timeoutInterval = 12
             let (data, response) = try await URLSession.shared.data(for: request)
-            guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            guard let http = response as? HTTPURLResponse else {
+                throw URLError(.badServerResponse)
+            }
+            if http.statusCode == 401 {
+                self.syncConflictAlert = "Authentication Failed: Invalid or missing Access Token. Please configure it in Settings."
+                throw URLError(.userAuthenticationRequired)
+            }
+            guard (200...299).contains(http.statusCode) else {
                 throw URLError(.badServerResponse)
             }
             
@@ -95,8 +120,7 @@ public class SyncService: ObservableObject {
     /// Creates a new Field/Folder
     public func createFolder(name: String, icon: String, color: String, order: Int = 0) async throws -> FolderBento {
         guard let url = URL(string: "\(serverBaseURL)/api/folders") else { throw URLError(.badURL) }
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
+        var request = authorizedRequest(url: url, method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         let body: [String: Any] = ["name": name, "icon": icon, "color": color, "order": order]
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
@@ -110,8 +134,7 @@ public class SyncService: ObservableObject {
     /// Updates existing Field/Folder
     public func updateFolder(id: String, name: String? = nil, icon: String? = nil, color: String? = nil, order: Int? = nil) async throws {
         guard let url = URL(string: "\(serverBaseURL)/api/folders/\(id)") else { throw URLError(.badURL) }
-        var request = URLRequest(url: url)
-        request.httpMethod = "PATCH"
+        var request = authorizedRequest(url: url, method: "PATCH")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         var body: [String: Any] = [:]
         if let n = name { body["name"] = n }
@@ -128,8 +151,7 @@ public class SyncService: ObservableObject {
     /// Deletes a Field/Folder
     public func deleteFolder(id: String) async throws {
         guard let url = URL(string: "\(serverBaseURL)/api/folders/\(id)") else { throw URLError(.badURL) }
-        var request = URLRequest(url: url)
-        request.httpMethod = "DELETE"
+        let request = authorizedRequest(url: url, method: "DELETE")
         let (_, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
             throw URLError(.badServerResponse)
@@ -144,7 +166,8 @@ public class SyncService: ObservableObject {
             throw URLError(.badURL)
         }
         
-        let (data, response) = try await URLSession.shared.data(from: url)
+        let request = authorizedRequest(url: url)
+        let (data, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
             throw URLError(.badServerResponse)
         }
@@ -162,7 +185,8 @@ public class SyncService: ObservableObject {
         
         guard let url = components?.url else { throw URLError(.badURL) }
         
-        let (data, response) = try await URLSession.shared.data(from: url)
+        let request = authorizedRequest(url: url)
+        let (data, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
             throw URLError(.badServerResponse)
         }
@@ -176,8 +200,7 @@ public class SyncService: ObservableObject {
             throw URLError(.badURL)
         }
         
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
+        var request = authorizedRequest(url: url, method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         let body: [String: Any] = [
@@ -212,8 +235,7 @@ public class SyncService: ObservableObject {
             throw URLError(.badURL)
         }
         
-        var request = URLRequest(url: url)
-        request.httpMethod = "PATCH"
+        var request = authorizedRequest(url: url, method: "PATCH")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         var body: [String: Any] = [:]
@@ -240,8 +262,7 @@ public class SyncService: ObservableObject {
             throw URLError(.badURL)
         }
         
-        var request = URLRequest(url: url)
-        request.httpMethod = "PATCH"
+        var request = authorizedRequest(url: url, method: "PATCH")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         let body = ["status": status]
@@ -259,8 +280,7 @@ public class SyncService: ObservableObject {
             throw URLError(.badURL)
         }
         
-        var request = URLRequest(url: url)
-        request.httpMethod = "DELETE"
+        let request = authorizedRequest(url: url, method: "DELETE")
         
         let (_, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
@@ -276,8 +296,7 @@ public class SyncService: ObservableObject {
         components.queryItems = [URLQueryItem(name: "project_id", value: projectId)]
         guard let url = components.url else { throw URLError(.badURL) }
         
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
+        var request = authorizedRequest(url: url, method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         let body: [String: Any] = [
@@ -301,8 +320,7 @@ public class SyncService: ObservableObject {
             throw URLError(.badURL)
         }
         
-        var request = URLRequest(url: url)
-        request.httpMethod = "PATCH"
+        var request = authorizedRequest(url: url, method: "PATCH")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         let body: [String: Any] = [
@@ -324,8 +342,7 @@ public class SyncService: ObservableObject {
             throw URLError(.badURL)
         }
         
-        var request = URLRequest(url: url)
-        request.httpMethod = "PATCH"
+        var request = authorizedRequest(url: url, method: "PATCH")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
         var body: [String: Any] = [:]
@@ -345,8 +362,7 @@ public class SyncService: ObservableObject {
             throw URLError(.badURL)
         }
         
-        var request = URLRequest(url: url)
-        request.httpMethod = "DELETE"
+        let request = authorizedRequest(url: url, method: "DELETE")
         
         let (_, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
@@ -452,8 +468,7 @@ public class SyncService: ObservableObject {
             return
         }
 
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
+        var request = authorizedRequest(url: url, method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.timeoutInterval = 15
         request.httpBody = httpBody

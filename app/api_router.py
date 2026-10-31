@@ -1,11 +1,35 @@
+import os
+import secrets
 from datetime import datetime
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Header, status
 from sqlalchemy.orm import Session
 from . import models, schemas, sync_engine
 from .database import get_db
 
-api_router = APIRouter(prefix="/api", tags=["Application API"])
+APP_SECRET_KEY = os.getenv("APP_SECRET_KEY")
+
+def verify_app_token(
+    x_app_token: Optional[str] = Header(None),
+    authorization: Optional[str] = Header(None)
+):
+    """Verifies that requests to the application API contain the pre-shared APP_SECRET_KEY.
+    If APP_SECRET_KEY is not configured in environment, the API runs open for local development."""
+    if APP_SECRET_KEY:
+        token = x_app_token
+        if not token and authorization:
+            if authorization.lower().startswith("bearer "):
+                token = authorization[7:].strip()
+            else:
+                token = authorization.strip()
+        if not token or not secrets.compare_digest(token, APP_SECRET_KEY):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Unauthorized: Invalid or missing X-App-Token header."
+            )
+    return True
+
+api_router = APIRouter(prefix="/api", tags=["Application API"], dependencies=[Depends(verify_app_token)])
 
 # --- Bento Home Screen ---
 @api_router.get("/bento", response_model=List[schemas.FolderBentoOut])
