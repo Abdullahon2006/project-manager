@@ -4,16 +4,16 @@ from pydantic import BaseModel, Field
 
 # --- Milestone Schemas ---
 class MilestoneBase(BaseModel):
-    title: str
+    title: str = Field(..., min_length=1, max_length=500)
     is_completed: bool = False
     completed_at: Optional[datetime] = None
     order: int = 0
 
 class MilestoneCreate(MilestoneBase):
-    id: Optional[str] = None
+    id: Optional[str] = Field(None, max_length=100)
 
 class MilestoneUpdate(BaseModel):
-    title: Optional[str] = None
+    title: Optional[str] = Field(None, min_length=1, max_length=500)
     is_completed: Optional[bool] = None
     completed_at: Optional[datetime] = None
     order: Optional[int] = None
@@ -31,19 +31,19 @@ class MilestoneOut(MilestoneBase):
 
 # --- Project Schemas ---
 class ProjectBase(BaseModel):
-    title: str
-    current_state: str = ""
-    status: str = "active"
+    title: str = Field(..., min_length=1, max_length=255)
+    current_state: str = Field(default="", max_length=50000)
+    status: str = Field(default="active", max_length=30)
 
 class ProjectCreate(ProjectBase):
-    id: Optional[str] = None
-    folder_id: str
+    id: Optional[str] = Field(None, max_length=100)
+    folder_id: str = Field(..., max_length=100)
 
 class ProjectUpdate(BaseModel):
-    title: Optional[str] = None
-    current_state: Optional[str] = None
-    status: Optional[str] = None
-    folder_id: Optional[str] = None
+    title: Optional[str] = Field(None, min_length=1, max_length=255)
+    current_state: Optional[str] = Field(None, max_length=50000)
+    status: Optional[str] = Field(None, max_length=30)
+    folder_id: Optional[str] = Field(None, max_length=100)
     version: Optional[int] = None
 
 class ProjectSummary(BaseModel):
@@ -71,18 +71,18 @@ class ProjectDetailOut(ProjectBase):
 
 # --- Folder Schemas (Bento View) ---
 class FolderBase(BaseModel):
-    name: str
-    icon: str = "📁"
-    color: str = "#3b82f6"
+    name: str = Field(..., min_length=1, max_length=100)
+    icon: str = Field(default="📁", max_length=50)
+    color: str = Field(default="#3b82f6", max_length=50)
     order: int = 0
 
 class FolderCreate(FolderBase):
-    id: Optional[str] = None
+    id: Optional[str] = Field(None, max_length=100)
 
 class FolderUpdate(BaseModel):
-    name: Optional[str] = None
-    icon: Optional[str] = None
-    color: Optional[str] = None
+    name: Optional[str] = Field(None, min_length=1, max_length=100)
+    icon: Optional[str] = Field(None, max_length=50)
+    color: Optional[str] = Field(None, max_length=50)
     order: Optional[int] = None
 
 class FolderBentoOut(FolderBase):
@@ -97,17 +97,17 @@ class FolderBentoOut(FolderBase):
 
 # --- Staged Sync Engine Schemas ---
 class StagedChange(BaseModel):
-    id: Optional[str] = None
-    entity_type: str # "folder", "project", "milestone"
-    entity_id: str
-    action: str      # "create", "update", "delete"
+    id: Optional[str] = Field(None, max_length=100)
+    entity_type: str = Field(..., max_length=50) # "folder", "project", "milestone"
+    entity_id: str = Field(..., max_length=100)
+    action: str = Field(..., max_length=50)      # "create", "update", "delete"
     base_version: Optional[int] = None
-    payload: dict    # Fields changed
+    payload: dict = Field(default_factory=dict)
     client_timestamp: datetime = Field(default_factory=datetime.utcnow)
 
 class SyncRequest(BaseModel):
-    client_id: str
-    changes: List[StagedChange] = []
+    client_id: str = Field(default="ios_device_app", max_length=100)
+    changes: List[StagedChange] = Field(default_factory=list)
     since: Optional[datetime] = None
 
 class ConflictItem(BaseModel):

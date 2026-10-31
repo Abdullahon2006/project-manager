@@ -1,4 +1,5 @@
 import os
+import secrets
 from datetime import datetime
 from typing import List, Optional
 from fastapi import APIRouter, Depends, Header, HTTPException, status
@@ -8,10 +9,15 @@ from .database import get_db
 
 agent_router = APIRouter(prefix="/api/agent", tags=["Agent Integration"])
 
-AGENT_KEY = os.getenv("AGENT_API_KEY", "state-next-agent-secret-2026")
+AGENT_KEY = os.getenv("AGENT_API_KEY")
 
 def verify_agent_token(x_agent_key: Optional[str] = Header(None)):
-    if not x_agent_key or x_agent_key != AGENT_KEY:
+    if not AGENT_KEY:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Agent API is disabled: AGENT_API_KEY environment variable is not configured on the server."
+        )
+    if not x_agent_key or not secrets.compare_digest(x_agent_key, AGENT_KEY):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or missing X-Agent-Key header."

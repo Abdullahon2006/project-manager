@@ -82,7 +82,12 @@ public class ThemeManager: ObservableObject {
     public var activeWallpaperURL: URL? {
         if selectedWallpaperId == "custom" {
             let trimmed = customWallpaperUrl.trimmingCharacters(in: .whitespacesAndNewlines)
-            return URL(string: trimmed)
+            guard let url = URL(string: trimmed),
+                  let scheme = url.scheme?.lowercased(),
+                  scheme == "http" || scheme == "https" else {
+                return nil
+            }
+            return url
         }
         if selectedWallpaperId == "none" {
             return nil

@@ -181,6 +181,10 @@ def get_project_detail(project_id: str, db: Session = Depends(get_db)):
 
 @api_router.post("/projects", response_model=schemas.ProjectDetailOut)
 def create_project(payload: schemas.ProjectCreate, db: Session = Depends(get_db)):
+    folder = db.query(models.Folder).filter(models.Folder.id == payload.folder_id).first()
+    if not folder:
+        raise HTTPException(status_code=400, detail="Invalid folder_id: Field does not exist")
+
     proj = models.Project(
         folder_id=payload.folder_id,
         title=payload.title,
@@ -225,6 +229,10 @@ def update_project(project_id: str, payload: schemas.ProjectUpdate, db: Session 
 # --- Milestones ---
 @api_router.post("/milestones", response_model=schemas.MilestoneOut)
 def create_milestone(payload: schemas.MilestoneCreate, project_id: str = Query(...), db: Session = Depends(get_db)):
+    proj = db.query(models.Project).filter(models.Project.id == project_id).first()
+    if not proj:
+        raise HTTPException(status_code=404, detail="Project not found")
+
     m = models.Milestone(
         project_id=project_id,
         title=payload.title,
@@ -237,11 +245,7 @@ def create_milestone(payload: schemas.MilestoneCreate, project_id: str = Query(.
         m.id = payload.id
     db.add(m)
     
-    # Bump project version
-    proj = db.query(models.Project).filter(models.Project.id == project_id).first()
-    if proj:
-        proj.version += 1
-
+    proj.version += 1
     db.commit()
     db.refresh(m)
     return m
