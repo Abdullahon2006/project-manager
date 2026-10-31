@@ -24,7 +24,7 @@ struct FolderProjectsListView: View {
 
     enum ProjectFilter: String, CaseIterable, Identifiable {
         case active = "Active"
-        case completed = "Finished"
+        case completed = "Completed"
         var id: String { rawValue }
     }
 
@@ -33,6 +33,14 @@ struct FolderProjectsListView: View {
         case alphabetical = "Name (A-Z)"
         case nextAction = "Has Action"
         var id: String { rawValue }
+    }
+
+    var activeCount: Int {
+        projects.filter { $0.status == "active" }.count
+    }
+
+    var completedCount: Int {
+        projects.filter { $0.status == "completed" }.count
     }
 
     var filteredProjects: [ProjectSummary] {
@@ -66,15 +74,55 @@ struct FolderProjectsListView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Filter & Sort Control Bar
+            // Top Custom Glass Filter & Sort Control Bar
             HStack(spacing: 10) {
-                Picker("Filter", selection: $selectedStatus) {
-                    ForEach(ProjectFilter.allCases) { filter in
-                        Text(filter.rawValue).tag(filter)
+                // Custom Glass Mode Switcher
+                HStack(spacing: 0) {
+                    Button(action: {
+                        #if os(iOS)
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        #endif
+                        withAnimation(.easeInOut(duration: 0.18)) {
+                            selectedStatus = .active
+                        }
+                    }) {
+                        Text("Active (\(activeCount))")
+                            .font(.caption.weight(.semibold))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 7)
+                            .background(selectedStatus == .active ? Color(.systemBackground).opacity(0.85) : Color.clear)
+                            .foregroundColor(selectedStatus == .active ? .primary : .secondary)
+                            .clipShape(Capsule())
+                            .shadow(color: selectedStatus == .active ? Color.black.opacity(0.08) : Color.clear, radius: 4, y: 1)
                     }
-                }
-                .pickerStyle(.segmented)
+                    .buttonStyle(.plain)
 
+                    Button(action: {
+                        #if os(iOS)
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        #endif
+                        withAnimation(.easeInOut(duration: 0.18)) {
+                            selectedStatus = .completed
+                        }
+                    }) {
+                        Text("Completed (\(completedCount))")
+                            .font(.caption.weight(.semibold))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 7)
+                            .background(selectedStatus == .completed ? Color(.systemBackground).opacity(0.85) : Color.clear)
+                            .foregroundColor(selectedStatus == .completed ? .primary : .secondary)
+                            .clipShape(Capsule())
+                            .shadow(color: selectedStatus == .completed ? Color.black.opacity(0.08) : Color.clear, radius: 4, y: 1)
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(3)
+                .background(Color(.systemBackground).opacity(0.45))
+                .background(.ultraThinMaterial)
+                .clipShape(Capsule())
+                .overlay(Capsule().stroke(Color.white.opacity(0.12), lineWidth: 1))
+
+                // Sort Menu
                 Menu {
                     Picker("Sort By", selection: $selectedSort) {
                         ForEach(SortOrder.allCases) { order in
@@ -82,16 +130,19 @@ struct FolderProjectsListView: View {
                         }
                     }
                 } label: {
-                    Image(systemName: "arrow.up.arrow.down.circle")
-                        .font(.body)
+                    Image(systemName: "arrow.up.arrow.down")
+                        .font(.caption.weight(.semibold))
                         .foregroundColor(.primary)
-                        .padding(8)
+                        .padding(9)
+                        .background(Color(.systemBackground).opacity(0.65))
                         .background(.ultraThinMaterial)
                         .clipShape(Circle())
+                        .overlay(Circle().stroke(Color.white.opacity(0.12), lineWidth: 1))
                 }
             }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 12)
 
             if isLoading && projects.isEmpty {
                 VStack(spacing: 12) {
@@ -103,48 +154,72 @@ struct FolderProjectsListView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if filteredProjects.isEmpty {
                 VStack(spacing: 14) {
-                    Text(folder.icon)
+                    Text(folder.displayIcon)
                         .font(.system(size: 48))
+                        .frame(width: 72, height: 72)
+                        .background(Color(hex: folder.color).opacity(0.18))
+                        .clipShape(Circle())
+
                     Text(selectedStatus == .active ? "No Active Projects" : "No Completed Projects")
                         .font(.headline)
                         .foregroundColor(.primary)
-                    Text(selectedStatus == .active ? "Tap + below to create a project in this folder." : "Finished projects will appear here.")
+
+                    Text(selectedStatus == .active ? "Create your first project in this field to track next actions." : "Finished projects will appear here once archived.")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 32)
+
+                    if selectedStatus == .active {
+                        Button(action: { showingAddProjectSheet = true }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "plus")
+                                Text("New Project")
+                            }
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 18)
+                            .padding(.vertical, 10)
+                            .background(Color.blue)
+                            .clipShape(Capsule())
+                        }
+                        .padding(.top, 4)
+                    }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                List {
-                    ForEach(filteredProjects) { project in
-                        NavigationLink(destination: ProjectDetailView(projectId: project.id, initialTitle: project.title)) {
-                            ProjectRowView(project: project)
-                        }
-                        .listRowBackground(Color.clear)
-                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            Button(role: .destructive) {
-                                deleteProject(project)
-                            } label: {
-                                Label("Delete", systemImage: "trash")
+                ScrollView {
+                    LazyVStack(spacing: 10) {
+                        ForEach(filteredProjects) { project in
+                            NavigationLink(destination: ProjectDetailView(projectId: project.id, initialTitle: project.title)) {
+                                ProjectRowCard(project: project, folderColor: folder.color)
                             }
+                            .buttonStyle(.plain)
+                            .contextMenu {
+                                Button {
+                                    duplicateProject(project)
+                                } label: {
+                                    Label("Duplicate Project", systemImage: "plus.square.on.square")
+                                }
 
-                            Button {
-                                duplicateProject(project)
-                            } label: {
-                                Label("Duplicate", systemImage: "plus.square.on.square")
+                                Divider()
+
+                                Button(role: .destructive) {
+                                    deleteProject(project)
+                                } label: {
+                                    Label("Delete Project", systemImage: "trash")
+                                }
                             }
-                            .tint(.blue)
                         }
                     }
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 40)
                 }
-                .listStyle(.insetGrouped)
-                .scrollContentBackground(.hidden)
             }
         }
         .withAppWallpaper()
-        .searchable(text: $searchQuery, prompt: "Search in \(folder.name)...")
-        .navigationTitle("\(folder.icon) \(folder.name)")
+        .searchable(text: $searchQuery, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "Search in \(folder.name)...")
+        .navigationTitle("\(folder.displayIcon) \(folder.name)")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .navigationBarTrailing) {
@@ -153,7 +228,12 @@ struct FolderProjectsListView: View {
                         showingAddProjectSheet = true
                     } label: {
                         Image(systemName: "plus")
-                            .fontWeight(.semibold)
+                            .font(.subheadline.weight(.bold))
+                            .foregroundColor(.primary)
+                            .padding(7)
+                            .background(Color(.systemBackground).opacity(0.65))
+                            .background(.ultraThinMaterial)
+                            .clipShape(Circle())
                     }
 
                     Menu {
@@ -171,8 +251,13 @@ struct FolderProjectsListView: View {
                             Label("Delete Field", systemImage: "trash")
                         }
                     } label: {
-                        Image(systemName: "ellipsis.circle")
-                            .font(.body)
+                        Image(systemName: "ellipsis")
+                            .font(.subheadline.weight(.bold))
+                            .foregroundColor(.primary)
+                            .padding(7)
+                            .background(Color(.systemBackground).opacity(0.65))
+                            .background(.ultraThinMaterial)
+                            .clipShape(Circle())
                     }
                 }
             }
@@ -274,58 +359,74 @@ struct FolderProjectsListView: View {
     }
 }
 
-// MARK: - Project Row Component
-
-struct ProjectRowView: View {
+// MARK: - Project Row Card (Full Width Floating Glass)
+struct ProjectRowCard: View {
     let project: ProjectSummary
+    var folderColor: String = "#3B82F6"
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 8) {
+                Circle()
+                    .fill(Color(hex: folderColor))
+                    .frame(width: 8, height: 8)
+
                 Text(project.title)
                     .font(.headline)
                     .fontWeight(.semibold)
+                    .lineLimit(1)
                     .foregroundColor(.primary)
 
                 Spacer()
 
                 Text("v\(project.version)")
-                    .font(.caption2)
-                    .fontWeight(.medium)
+                    .font(.caption2.weight(.bold))
                     .foregroundColor(.secondary)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Color.primary.opacity(0.06))
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 3)
+                    .background(Color(.systemBackground).opacity(0.8))
                     .clipShape(Capsule())
             }
 
             if let next = project.nextAction, !next.isEmpty {
                 HStack(spacing: 5) {
-                    Image(systemName: "bolt.fill")
-                        .font(.caption2)
-                        .foregroundColor(.blue)
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 9, weight: .bold))
                     Text(next)
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .lineLimit(1)
+                        .font(.caption.weight(.medium))
+                        .lineLimit(2)
                 }
+                .foregroundColor(.blue)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(Color.blue.opacity(0.12))
+                .clipShape(Capsule())
             } else {
                 HStack(spacing: 5) {
                     Image(systemName: "exclamationmark.circle")
                         .font(.caption2)
-                        .foregroundColor(.orange)
                     Text("Needs next action")
                         .font(.caption2)
-                        .foregroundColor(.secondary)
                 }
+                .foregroundColor(.orange)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.orange.opacity(0.12))
+                .clipShape(Capsule())
             }
         }
-        .padding(.vertical, 4)
+        .padding(14)
+        .background(Color(.systemBackground).opacity(0.72))
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+        )
     }
 }
 
 // MARK: - Quick New Project Modal (Multi-Step Creation)
-
 struct QuickNewProjectView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var sync = SyncService.shared
@@ -352,7 +453,7 @@ struct QuickNewProjectView: View {
                     if presetFolderId == nil {
                         Picker("Field", selection: $selectedFolderId) {
                             ForEach(availableFolders) { f in
-                                Text("\(f.icon) \(f.name)").tag(f.id)
+                                Text("\(f.displayIcon) \(f.name)").tag(f.id)
                             }
                         }
                     } else if let fname = folderName {
@@ -368,24 +469,19 @@ struct QuickNewProjectView: View {
                 Section("Workflow Starter Template") {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
-                            Button("🚀 Feature Sprint") {
+                            templateButton("🚀 Feature Sprint") {
                                 applyTemplate(["Design architecture", "Implement backend logic", "Build user interface", "Test & deploy"])
                             }
-                            .buttonStyle(.bordered)
-                            .font(.caption2)
 
-                            Button("🐛 Bug Fix") {
+                            templateButton("🐛 Bug Fix") {
                                 applyTemplate(["Reproduce issue", "Write regression test", "Apply fix", "Verify in staging"])
                             }
-                            .buttonStyle(.bordered)
-                            .font(.caption2)
 
-                            Button("📋 General Task") {
+                            templateButton("📋 General Task") {
                                 applyTemplate(["Scope requirements", "Execute plan", "Review outcome"])
                             }
-                            .buttonStyle(.bordered)
-                            .font(.caption2)
                         }
+                        .padding(.vertical, 4)
                     }
                 }
 
@@ -407,8 +503,8 @@ struct QuickNewProjectView: View {
                                 Button(action: {
                                     milestones.remove(at: i)
                                 }) {
-                                    Image(systemName: "xmark.circle")
-                                        .foregroundColor(.secondary)
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundColor(.secondary.opacity(0.6))
                                 }
                                 .buttonStyle(.plain)
                             }
@@ -433,6 +529,7 @@ struct QuickNewProjectView: View {
                     Button("Create") {
                         createProject()
                     }
+                    .fontWeight(.bold)
                     .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty || isCreating)
                 }
             }
@@ -451,10 +548,26 @@ struct QuickNewProjectView: View {
         }
     }
 
+    private func templateButton(_ label: String, action: @escaping () -> Void) -> some View {
+        Button(action: {
+            #if os(iOS)
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            #endif
+            action()
+        }) {
+            Text(label)
+                .font(.caption.weight(.semibold))
+                .padding(.horizontal, 12)
+                .padding(.vertical, 7)
+                .background(Color(.tertiarySystemBackground))
+                .foregroundColor(.primary)
+                .clipShape(Capsule())
+                .overlay(Capsule().stroke(Color.primary.opacity(0.08), lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+    }
+
     private func applyTemplate(_ steps: [String]) {
-        #if os(iOS)
-        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-        #endif
         self.milestones = steps
     }
 
@@ -462,31 +575,20 @@ struct QuickNewProjectView: View {
         let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedTitle.isEmpty else { return }
 
-        let folderId = presetFolderId ?? selectedFolderId
-        guard !folderId.isEmpty else { return }
-
-        #if os(iOS)
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
-        #endif
+        let targetFolderId = presetFolderId ?? selectedFolderId
+        guard !targetFolderId.isEmpty else { return }
 
         isCreating = true
+        let validMilestones = milestones.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
 
         Task {
             do {
-                let newProj = try await sync.createProject(
-                    folderId: folderId,
+                _ = try await sync.createProject(
+                    folderId: targetFolderId,
                     title: trimmedTitle,
-                    currentState: currentState.trimmingCharacters(in: .whitespacesAndNewlines)
+                    currentState: currentState.trimmingCharacters(in: .whitespacesAndNewlines),
+                    milestones: validMilestones
                 )
-
-                // Create all non-empty milestones sequentially
-                for step in milestones {
-                    let trimmed = step.trimmingCharacters(in: .whitespacesAndNewlines)
-                    if !trimmed.isEmpty {
-                        _ = try? await sync.createMilestone(projectId: newProj.id, title: trimmed)
-                    }
-                }
-
                 await MainActor.run {
                     isCreating = false
                     dismiss()

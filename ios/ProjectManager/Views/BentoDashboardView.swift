@@ -13,6 +13,7 @@ struct BentoDashboardView: View {
     @State private var activeTab: DashboardTab = .active
     @State private var fieldFilter: FieldFilter = .all
 
+    @State private var showingActionSheet = false
     @State private var showingNewProjectSheet = false
     @State private var showingNewFieldSheet = false
     @State private var folderToEdit: FolderBento? = nil
@@ -20,8 +21,8 @@ struct BentoDashboardView: View {
     @State private var showingSettingsSheet = false
 
     enum DashboardTab: String, CaseIterable, Identifiable {
-        case active = "Active Fields"
-        case archive = "Finished Archive"
+        case active = "Workspaces"
+        case archive = "Archive"
         var id: String { rawValue }
     }
 
@@ -63,16 +64,11 @@ struct BentoDashboardView: View {
             ZStack(alignment: .bottomTrailing) {
                 VStack(spacing: 0) {
                     
-                    // Top Segmented Mode Switcher
-                    Picker("Dashboard Mode", selection: $activeTab) {
-                        ForEach(DashboardTab.allCases) { tab in
-                            Text(tab.rawValue).tag(tab)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    .padding(.horizontal)
-                    .padding(.top, 10)
-                    .padding(.bottom, 6)
+                    // Top Custom Glass Mode Switcher
+                    customDashboardTabPicker
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
+                        .padding(.bottom, 10)
 
                     if activeTab == .active {
                         activeBentoView
@@ -81,86 +77,38 @@ struct BentoDashboardView: View {
                     }
                 }
 
-                // Global Floating Action Buttons (Active Tab Only)
+                // Global Floating Action Button (Active Tab Only)
                 if activeTab == .active && searchQuery.isEmpty {
-                    HStack(spacing: 12) {
-                        Button(action: {
-                            #if os(iOS)
-                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                            #endif
-                            showingNewFieldSheet = true
-                        }) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "folder.badge.plus")
-                                Text("New Field")
-                            }
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundColor(.primary)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 12)
-                            .background(.ultraThinMaterial)
-                            .clipShape(Capsule())
-                            .shadow(color: Color.black.opacity(0.12), radius: 8, y: 4)
-                        }
-
-                        Button(action: {
-                            #if os(iOS)
-                            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                            #endif
-                            showingNewProjectSheet = true
-                        }) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "plus")
-                                Text("New Project")
-                            }
-                            .font(.subheadline.weight(.bold))
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 18)
-                            .padding(.vertical, 12)
-                            .background(Color.blue)
-                            .clipShape(Capsule())
-                            .shadow(color: Color.blue.opacity(0.35), radius: 10, y: 5)
-                        }
-                    }
-                    .padding(.trailing, 20)
-                    .padding(.bottom, 20)
+                    floatingNewButton
+                        .padding(.trailing, 20)
+                        .padding(.bottom, 24)
                 }
             }
             .withAppWallpaper()
+            .navigationTitle("Project Manager")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "bolt.fill")
-                            .font(.subheadline)
-                            .foregroundColor(.blue)
-                        Text("Project Manager")
-                            .font(.headline)
-                            .fontWeight(.bold)
-                    }
-                }
-
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    HStack(spacing: 10) {
+                    HStack(spacing: 8) {
                         // Sync status pill
                         Button(action: { showingSettingsSheet = true }) {
-                            HStack(spacing: 6) {
+                            HStack(spacing: 5) {
                                 if sync.isSyncing {
                                     ProgressView()
                                         .scaleEffect(0.6)
                                 } else {
                                     Circle()
                                         .fill(sync.isOnline ? (sync.pendingSyncCount > 0 ? Color.orange : Color.green) : Color.gray)
-                                        .frame(width: 8, height: 8)
+                                        .frame(width: 7, height: 7)
                                 }
 
                                 Text(statusText)
-                                    .font(.caption2)
-                                    .fontWeight(.bold)
+                                    .font(.caption2.weight(.bold))
                                     .foregroundColor(.primary)
                             }
-                            .padding(.horizontal, 10)
+                            .padding(.horizontal, 9)
                             .padding(.vertical, 5)
+                            .background(Color(.systemBackground).opacity(0.65))
                             .background(.ultraThinMaterial)
                             .clipShape(Capsule())
                         }
@@ -168,16 +116,17 @@ struct BentoDashboardView: View {
                         // Settings / Wallpaper button
                         Button(action: { showingSettingsSheet = true }) {
                             Image(systemName: "paintpalette.fill")
-                                .font(.subheadline)
+                                .font(.caption.weight(.semibold))
                                 .foregroundColor(.primary)
                                 .padding(8)
+                                .background(Color(.systemBackground).opacity(0.65))
                                 .background(.ultraThinMaterial)
                                 .clipShape(Circle())
                         }
                     }
                 }
             }
-            .searchable(text: $searchQuery, prompt: "Search projects or next actions...")
+            .searchable(text: $searchQuery, placement: .navigationBarDrawer(displayMode: .automatic), prompt: "Search projects or next actions...")
             .sheet(isPresented: $showingNewProjectSheet) {
                 QuickNewProjectView(onCreated: {
                     Task { await loadBento() }
@@ -203,6 +152,19 @@ struct BentoDashboardView: View {
             }
             .sheet(isPresented: $showingSettingsSheet) {
                 SettingsSheetView(sync: sync)
+            }
+            .confirmationDialog(
+                "Create New",
+                isPresented: $showingActionSheet,
+                titleVisibility: .visible
+            ) {
+                Button("New Project") {
+                    showingNewProjectSheet = true
+                }
+                Button("New Field") {
+                    showingNewFieldSheet = true
+                }
+                Button("Cancel", role: .cancel) { }
             }
             .confirmationDialog(
                 "Delete Field?",
@@ -248,18 +210,77 @@ struct BentoDashboardView: View {
         return "Synced"
     }
 
+    // MARK: - Custom Glass Dashboard Mode Picker
+    private var customDashboardTabPicker: some View {
+        HStack(spacing: 0) {
+            Button(action: {
+                #if os(iOS)
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                #endif
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    activeTab = .active
+                }
+            }) {
+                HStack(spacing: 6) {
+                    Image(systemName: "square.grid.2x2.fill")
+                        .font(.caption2)
+                    Text("Workspaces (\(folders.count))")
+                        .font(.caption.weight(.semibold))
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 7)
+                .background(activeTab == .active ? Color(.systemBackground).opacity(0.85) : Color.clear)
+                .foregroundColor(activeTab == .active ? .primary : .secondary)
+                .clipShape(Capsule())
+                .shadow(color: activeTab == .active ? Color.black.opacity(0.08) : Color.clear, radius: 4, y: 1)
+            }
+            .buttonStyle(.plain)
+
+            Button(action: {
+                #if os(iOS)
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                #endif
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    activeTab = .archive
+                }
+            }) {
+                HStack(spacing: 6) {
+                    Image(systemName: "archivebox.fill")
+                        .font(.caption2)
+                    Text("Archive")
+                        .font(.caption.weight(.semibold))
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 7)
+                .background(activeTab == .archive ? Color(.systemBackground).opacity(0.85) : Color.clear)
+                .foregroundColor(activeTab == .archive ? .primary : .secondary)
+                .clipShape(Capsule())
+                .shadow(color: activeTab == .archive ? Color.black.opacity(0.08) : Color.clear, radius: 4, y: 1)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(3)
+        .background(Color(.systemBackground).opacity(0.45))
+        .background(.ultraThinMaterial)
+        .clipShape(Capsule())
+        .overlay(
+            Capsule()
+                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+        )
+    }
+
+    // MARK: - Active Bento View
     private var activeBentoView: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 14) {
                 
                 // If Search Active, show search results
                 if !searchQuery.trimmingCharacters(in: .whitespaces).isEmpty {
                     searchResultsSection
                 } else {
-                    // Quick Stats Row
+                    // Unified Metrics Banner
                     quickMetricsRow
-                        .padding(.horizontal)
-                        .padding(.top, 4)
+                        .padding(.horizontal, 16)
 
                     // Quick Filter Chips
                     HStack(spacing: 8) {
@@ -277,12 +298,12 @@ struct BentoDashboardView: View {
                             fieldFilter = .needsAction
                         }
                     }
-                    .padding(.horizontal)
+                    .padding(.horizontal, 16)
 
                     if fieldFilter == .needsAction {
                         needsActionProjectsSection
                     } else {
-                        // Bento Grid
+                        // Bento Stream Cards
                         if isLoading && folders.isEmpty {
                             VStack(spacing: 12) {
                                 ProgressView()
@@ -295,7 +316,7 @@ struct BentoDashboardView: View {
                         } else if folders.isEmpty {
                             emptyStateView
                         } else {
-                            LazyVGrid(columns: [GridItem(.flexible(), spacing: 14), GridItem(.flexible(), spacing: 14)], spacing: 14) {
+                            LazyVStack(spacing: 14) {
                                 ForEach(folders) { folder in
                                     NavigationLink(destination: FolderProjectsListView(folder: folder)) {
                                         BentoFolderCard(
@@ -324,21 +345,72 @@ struct BentoDashboardView: View {
                                     }
                                 }
                             }
-                            .padding(.horizontal)
+                            .padding(.horizontal, 16)
                         }
                     }
                 }
             }
-            .padding(.bottom, 90)
+            .padding(.bottom, 96)
         }
     }
 
-    // MARK: - Quick Metrics Row
+    // MARK: - Unified Metrics Banner (No Overflow)
     private var quickMetricsRow: some View {
-        HStack(spacing: 10) {
-            MetricPill(icon: "⚡", label: "Fields", value: "\(folders.count)")
-            MetricPill(icon: "📂", label: "Projects", value: "\(totalProjectsCount)")
-            MetricPill(icon: "🎯", label: "Next Actions", value: "\(totalNextActionsCount)")
+        HStack(spacing: 0) {
+            metricItem(icon: "⚡", value: "\(folders.count)", label: "Fields")
+            Spacer()
+            Divider().frame(height: 18).opacity(0.3)
+            Spacer()
+            metricItem(icon: "📂", value: "\(totalProjectsCount)", label: "Projects")
+            Spacer()
+            Divider().frame(height: 18).opacity(0.3)
+            Spacer()
+            metricItem(icon: "🎯", value: "\(totalNextActionsCount)", label: "Actions")
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .background(Color(.systemBackground).opacity(0.72))
+        .background(.ultraThinMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+        )
+    }
+
+    private func metricItem(icon: String, value: String, label: String) -> some View {
+        HStack(spacing: 6) {
+            Text(icon)
+                .font(.subheadline)
+            Text(value)
+                .font(.subheadline.weight(.bold))
+                .foregroundColor(.primary)
+            Text(label)
+                .font(.caption2.weight(.medium))
+                .foregroundColor(.secondary)
+        }
+    }
+
+    // MARK: - Floating New Button
+    private var floatingNewButton: some View {
+        Button(action: {
+            #if os(iOS)
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            #endif
+            showingActionSheet = true
+        }) {
+            HStack(spacing: 7) {
+                Image(systemName: "plus")
+                    .font(.subheadline.weight(.bold))
+                Text("New")
+                    .font(.subheadline.weight(.bold))
+            }
+            .foregroundColor(.white)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 12)
+            .background(Color.blue)
+            .clipShape(Capsule())
+            .shadow(color: Color.blue.opacity(0.4), radius: 10, y: 5)
         }
     }
 
@@ -349,7 +421,7 @@ struct BentoDashboardView: View {
                 .font(.subheadline)
                 .fontWeight(.bold)
                 .foregroundColor(.secondary)
-                .padding(.horizontal)
+                .padding(.horizontal, 16)
 
             if projectsNeedingActions.isEmpty {
                 VStack(spacing: 10) {
@@ -381,13 +453,14 @@ struct BentoDashboardView: View {
                                     .foregroundColor(.secondary)
                             }
                             .padding(14)
+                            .background(Color(.systemBackground).opacity(0.72))
                             .background(.ultraThinMaterial)
                             .clipShape(RoundedRectangle(cornerRadius: 14))
                         }
                         .buttonStyle(.plain)
                     }
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 16)
             }
         }
     }
@@ -399,7 +472,7 @@ struct BentoDashboardView: View {
                 .font(.subheadline)
                 .fontWeight(.bold)
                 .foregroundColor(.secondary)
-                .padding(.horizontal)
+                .padding(.horizontal, 16)
 
             if searchResults.isEmpty {
                 VStack(spacing: 10) {
@@ -433,13 +506,14 @@ struct BentoDashboardView: View {
                                     .foregroundColor(.secondary)
                             }
                             .padding(14)
+                            .background(Color(.systemBackground).opacity(0.72))
                             .background(.ultraThinMaterial)
                             .clipShape(RoundedRectangle(cornerRadius: 14))
                         }
                         .buttonStyle(.plain)
                     }
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, 16)
             }
         }
     }
@@ -451,11 +525,25 @@ struct BentoDashboardView: View {
                 .foregroundColor(.secondary)
             Text("No Fields Found")
                 .font(.headline)
-            Text("Tap '+ New Field' below to organize your projects.")
+            Text("Tap '+ New' below to create your first field workspace.")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
+
+            Button(action: { showingNewFieldSheet = true }) {
+                HStack(spacing: 6) {
+                    Image(systemName: "folder.badge.plus")
+                    Text("Create New Field")
+                }
+                .font(.subheadline.weight(.semibold))
+                .foregroundColor(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .background(Color.blue)
+                .clipShape(Capsule())
+            }
+            .padding(.top, 4)
         }
         .frame(maxWidth: .infinity)
         .padding(.top, 60)
@@ -505,7 +593,7 @@ struct DashboardFilterChip: View {
                 .font(.caption.weight(.semibold))
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
-                .background(isSelected ? Color.blue : Color.primary.opacity(0.06))
+                .background(isSelected ? Color.blue : Color(.systemBackground).opacity(0.6))
                 .foregroundColor(isSelected ? .white : .primary)
                 .clipShape(Capsule())
         }
@@ -513,56 +601,36 @@ struct DashboardFilterChip: View {
     }
 }
 
-// MARK: - Metric Pill
-struct MetricPill: View {
-    let icon: String
-    let label: String
-    let value: String
-
-    var body: some View {
-        HStack(spacing: 8) {
-            Text(icon)
-                .font(.headline)
-            VStack(alignment: .leading, spacing: 1) {
-                Text(value)
-                    .font(.subheadline.weight(.bold))
-                    .foregroundColor(.primary)
-                Text(label)
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
-            }
-            Spacer()
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-    }
-}
-
-// MARK: - Bento Card Component
+// MARK: - Modern Stream Card Component (Full Width, Zero Clipping)
 struct BentoFolderCard: View {
     let folder: FolderBento
     var onEdit: (() -> Void)? = nil
     var onDelete: (() -> Void)? = nil
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            // Folder header
-            HStack(spacing: 6) {
-                Text(folder.icon)
-                    .font(.title2)
-                
-                Spacer()
+        VStack(alignment: .leading, spacing: 12) {
+            // Folder header: Icon Badge + Title + Count Badge + Menu
+            HStack(spacing: 10) {
+                Text(folder.displayIcon)
+                    .font(.title3)
+                    .frame(width: 38, height: 38)
+                    .background(Color(hex: folder.color).opacity(0.2))
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
 
-                Text("\(folder.projectCount)")
-                    .font(.caption2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.secondary)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
-                    .background(Color(.tertiarySystemBackground))
-                    .clipShape(Capsule())
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(folder.name)
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .lineLimit(1)
+                        .foregroundColor(.primary)
+
+                    Text("\(folder.projectCount) \(folder.projectCount == 1 ? "project" : "projects")")
+                        .font(.caption2)
+                        .fontWeight(.medium)
+                        .foregroundColor(.secondary)
+                }
+
+                Spacer()
 
                 if onEdit != nil || onDelete != nil {
                     Menu {
@@ -578,62 +646,73 @@ struct BentoFolderCard: View {
                         }
                     } label: {
                         Image(systemName: "ellipsis")
-                            .font(.caption2.weight(.bold))
+                            .font(.subheadline.weight(.bold))
                             .foregroundColor(.secondary)
-                            .padding(6)
-                            .background(Color(.tertiarySystemBackground))
+                            .padding(8)
+                            .background(Color(.tertiarySystemBackground).opacity(0.8))
                             .clipShape(Circle())
                     }
                     .buttonStyle(.plain)
                 }
             }
 
-            Text(folder.name)
-                .font(.headline)
-                .fontWeight(.bold)
-                .lineLimit(1)
-                .foregroundColor(.primary)
-
-            Divider()
-
             // Previews of recent projects
             if folder.recentProjects.isEmpty {
-                VStack {
-                    Spacer(minLength: 4)
-                    Text("No active projects")
+                HStack(spacing: 6) {
+                    Image(systemName: "tray")
                         .font(.caption2)
-                        .foregroundColor(.secondary.opacity(0.6))
-                    Spacer(minLength: 4)
+                        .foregroundColor(.secondary)
+                    Text("No active projects — tap to open field")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
                 }
+                .padding(.vertical, 2)
             } else {
-                VStack(alignment: .leading, spacing: 6) {
-                    ForEach(folder.recentProjects.prefix(2)) { proj in
-                        VStack(alignment: .leading, spacing: 2) {
+                VStack(spacing: 7) {
+                    ForEach(folder.recentProjects.prefix(3)) { proj in
+                        HStack(alignment: .center, spacing: 8) {
+                            Circle()
+                                .fill(Color(hex: folder.color))
+                                .frame(width: 6, height: 6)
+
                             Text(proj.title)
-                                .font(.caption)
-                                .fontWeight(.semibold)
+                                .font(.subheadline)
+                                .fontWeight(.medium)
                                 .lineLimit(1)
                                 .foregroundColor(.primary)
 
+                            Spacer()
+
                             if let next = proj.nextAction, !next.isEmpty {
-                                Text("➔ \(next)")
-                                    .font(.caption2)
-                                    .foregroundColor(.blue)
-                                    .lineLimit(1)
+                                HStack(spacing: 4) {
+                                    Image(systemName: "arrow.right")
+                                        .font(.system(size: 8, weight: .bold))
+                                    Text(next)
+                                        .font(.caption2.weight(.medium))
+                                        .lineLimit(1)
+                                }
+                                .foregroundColor(.blue)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 3)
+                                .background(Color.blue.opacity(0.12))
+                                .clipShape(Capsule())
                             }
                         }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color(.systemBackground).opacity(0.55))
+                        .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
                     }
                 }
             }
-            Spacer(minLength: 0)
         }
         .padding(14)
-        .frame(minHeight: 160)
+        .background(Color(.systemBackground).opacity(0.74))
         .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .stroke(Color.primary.opacity(0.08), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .stroke(Color.white.opacity(0.12), lineWidth: 1)
         )
     }
 }

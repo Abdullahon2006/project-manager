@@ -76,6 +76,32 @@ public struct FolderBento: Codable, Identifiable, Hashable {
         self.projectCount = projectCount
         self.recentProjects = recentProjects
     }
+
+    public var displayIcon: String {
+        let trimmed = icon.trimmingCharacters(in: .whitespacesAndNewlines)
+        switch trimmed.lowercased() {
+        case "folder", "default", "stream": return "📁"
+        case "code", "coding", "terminal", "lightning", "bolt": return "⚡"
+        case "palette", "art", "creative", "design": return "🎨"
+        case "plant", "life", "sprout", "grow": return "🌱"
+        case "science", "lab", "research", "microscope": return "🔬"
+        case "briefcase", "work", "business": return "💼"
+        case "rocket", "launch", "ship": return "🚀"
+        case "book", "reading", "study", "notes": return "📚"
+        case "tools", "wrench", "settings": return "🛠️"
+        case "target", "goal", "focus": return "🎯"
+        case "sparkles", "stars", "magic": return "✨"
+        case "lightbulb", "idea": return "💡"
+        case "phone", "mobile", "ios": return "📱"
+        case "globe", "web", "internet": return "🌐"
+        case "chart", "analytics", "stats": return "📊"
+        case "lock", "security", "private": return "🔒"
+        default:
+            // If it's already an emoji or short symbol, return it as-is
+            if trimmed.count <= 2 { return trimmed }
+            return "📁"
+        }
+    }
 }
 
 public struct ProjectSummary: Codable, Identifiable, Hashable {
