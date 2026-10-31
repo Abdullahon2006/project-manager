@@ -73,7 +73,7 @@ struct BentoDashboardView: View {
                     if activeTab == .active {
                         activeBentoView
                     } else {
-                        FinishedArchiveView(sync: sync)
+                        FinishedArchiveView(sync: sync, searchQuery: searchQuery)
                     }
                 }
 

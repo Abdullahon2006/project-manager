@@ -2,9 +2,9 @@ import SwiftUI
 
 struct FinishedArchiveView: View {
     @ObservedObject var sync = SyncService.shared
+    var searchQuery: String = ""
     @State private var finishedProjects: [ProjectSummary] = []
     @State private var isLoading: Bool = false
-    @State private var searchQuery: String = ""
     @State private var errorMessage: String? = nil
 
     var filteredProjects: [ProjectSummary] {
@@ -23,7 +23,8 @@ struct FinishedArchiveView: View {
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .frame(maxWidth: .infinity)
+                .padding(.top, 60)
             } else if finishedProjects.isEmpty {
                 VStack(spacing: 14) {
                     Image(systemName: "archivebox")
@@ -38,55 +39,64 @@ struct FinishedArchiveView: View {
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 32)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .frame(maxWidth: .infinity)
+                .padding(.top, 60)
             } else {
-                List {
-                    ForEach(filteredProjects) { project in
-                        NavigationLink(destination: ProjectDetailView(projectId: project.id, initialTitle: project.title)) {
-                            HStack(alignment: .center, spacing: 12) {
-                                Image(systemName: "checkmark.circle.fill")
-                                    .font(.title3)
-                                    .foregroundColor(.green)
+                ScrollView {
+                    LazyVStack(spacing: 10) {
+                        ForEach(filteredProjects) { project in
+                            NavigationLink(destination: ProjectDetailView(projectId: project.id, initialTitle: project.title)) {
+                                HStack(alignment: .center, spacing: 12) {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .font(.title3)
+                                        .foregroundColor(.green)
 
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(project.title)
-                                        .font(.headline)
-                                        .strikethrough(false)
-                                        .foregroundColor(.primary)
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text(project.title)
+                                            .font(.headline)
+                                            .fontWeight(.semibold)
+                                            .lineLimit(1)
+                                            .foregroundColor(.primary)
 
-                                    if let updated = project.updatedAt {
-                                        Text("Completed \(updated, format: .dateTime.month().day().year())")
-                                            .font(.caption2)
-                                            .foregroundColor(.secondary)
+                                        if let updated = project.updatedAt {
+                                            Text("Completed \(updated, format: .dateTime.month().day().year())")
+                                                .font(.caption2)
+                                                .foregroundColor(.secondary)
+                                        }
                                     }
-                                }
 
-                                Spacer()
+                                    Spacer()
 
-                                Button(action: { reopenProject(project) }) {
-                                    Text("Reopen")
-                                        .font(.caption2)
-                                        .fontWeight(.semibold)
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 5)
-                                        .background(Color.blue.opacity(0.12))
-                                        .foregroundColor(.blue)
-                                        .clipShape(Capsule())
+                                    Button(action: { reopenProject(project) }) {
+                                        Text("Reopen")
+                                            .font(.caption2.weight(.bold))
+                                            .padding(.horizontal, 10)
+                                            .padding(.vertical, 5)
+                                            .background(Color.blue.opacity(0.12))
+                                            .foregroundColor(.blue)
+                                            .clipShape(Capsule())
+                                    }
+                                    .buttonStyle(.plain)
                                 }
-                                .buttonStyle(.plain)
+                                .padding(14)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Color(.systemBackground).opacity(0.72))
+                                .background(.ultraThinMaterial)
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                        .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                                )
                             }
-                            .padding(.vertical, 4)
+                            .buttonStyle(.plain)
                         }
-                        .listRowBackground(Color.clear)
                     }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 4)
+                    .padding(.bottom, 96)
                 }
-                .scrollContentBackground(.hidden)
-                .searchable(text: $searchQuery, prompt: "Search finished archive...")
             }
         }
-        .withAppWallpaper()
-        .navigationTitle("Finished Archive")
-        .navigationBarTitleDisplayMode(.inline)
         .refreshable {
             await loadFinishedProjects()
         }

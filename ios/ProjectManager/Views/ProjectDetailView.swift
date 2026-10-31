@@ -86,11 +86,6 @@ struct ProjectDetailView: View {
                             
                             // 1. Header Bar: Status Badge, Folder Picker, Progress Capsule
                             headerSection(proj)
-                            
-                            // 2. Project Progress Bar
-                            if totalActionsCount > 0 {
-                                progressBarSection(proj)
-                            }
 
                             // 3. Current State of Affairs (Auto-saving text box)
                             stateOfAffairsSection
@@ -298,41 +293,6 @@ struct ProjectDetailView: View {
                 Spacer()
             }
         }
-        .padding(.horizontal)
-    }
-
-    @ViewBuilder
-    private func progressBarSection(_ proj: ProjectDetail) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text("Velocity Progress")
-                    .font(.caption2.weight(.bold))
-                    .foregroundColor(.secondary)
-                    .textCase(.uppercase)
-                Spacer()
-                Text("\(proj.archivedCount)/\(totalActionsCount) completed (\(progressPercent)%)")
-                    .font(.caption2.weight(.semibold))
-                    .foregroundColor(progressPercent == 100 ? .green : .blue)
-            }
-
-            GeometryReader { geo in
-                ZStack(alignment: .leading) {
-                    Capsule()
-                        .fill(Color.primary.opacity(0.08))
-                        .frame(height: 6)
-
-                    Capsule()
-                        .fill(progressPercent == 100 ? Color.green : Color.blue)
-                        .frame(width: max(0, min(geo.size.width * CGFloat(progressPercent) / 100.0, geo.size.width)), height: 6)
-                        .animation(.spring(response: 0.4, dampingFraction: 0.8), value: progressPercent)
-                }
-            }
-            .frame(height: 6)
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .padding(.horizontal)
     }
 
