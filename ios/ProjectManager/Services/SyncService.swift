@@ -23,6 +23,7 @@ public class SyncService: ObservableObject {
 
     private let stagedQueueKey = "state_next_staged_queue"
     private var stagedQueue: [StagedSyncChange] = []
+    private var isSyncingQueue: Bool = false
 
     public init() {
         let savedUrl = UserDefaults.standard.string(forKey: "state_next_server_url")
@@ -34,7 +35,13 @@ public class SyncService: ObservableObject {
     private func setupNetworkMonitoring() {
         networkMonitor.pathUpdateHandler = { [weak self] path in
             DispatchQueue.main.async {
-                self?.isOnline = (path.status == .satisfied)
+                guard let self = self else { return }
+                let becameOnline = (path.status == .satisfied)
+                let wasOffline = !self.isOnline
+                self.isOnline = becameOnline
+                if becameOnline && wasOffline && !self.stagedQueue.isEmpty {
+                    self.triggerSync()
+                }
             }
         }
         networkMonitor.start(queue: monitorQueue)
@@ -432,44 +439,52 @@ public class SyncService: ObservableObject {
 
     public func triggerSync() {
         guard !stagedQueue.isEmpty else { return }
+        guard !isSyncingQueue else { return }
         guard let url = URL(string: "\(serverBaseURL)/api/sync") else { return }
+
+        isSyncingQueue = true
+        let snapshot = stagedQueue
+        let snapshotIds = Set(snapshot.map { $0.id })
+
+        let syncReq = SyncRequest(clientId: "ios_device_app", changes: snapshot)
+        guard let httpBody = try? JSONEncoder.apiEncoder.encode(syncReq) else {
+            isSyncingQueue = false
+            return
+        }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        let body: [String: Any] = [
-            "client_id": "ios_device_app",
-            "changes": stagedQueue.map { [
-                "entity_type": $0.entityType,
-                "entity_id": $0.entityId,
-                "action": $0.action,
-                "base_version": $0.baseVersion as Any,
-                "payload": $0.payload
-            ]}
-        ]
-
-        guard let httpBody = try? JSONSerialization.data(withJSONObject: body) else { return }
+        request.timeoutInterval = 15
         request.httpBody = httpBody
 
         URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
             DispatchQueue.main.async {
                 guard let self = self else { return }
+                self.isSyncingQueue = false
                 if let _ = error {
                     return
                 }
 
                 guard let data = data else { return }
 
-                if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
-                    if let conflicts = json["conflicts"] as? [[String: Any]], !conflicts.isEmpty {
-                        self.syncConflictAlert = "Sync Conflict detected on \(conflicts.count) item(s). Changes were saved on server by another device."
-                    } else {
-                        self.stagedQueue.removeAll()
-                        self.saveStagedQueue()
-                        self.pendingSyncCount = 0
-                        self.lastSyncTime = Date()
+                if let syncResponse = try? JSONDecoder.apiDecoder.decode(SyncResponse.self, from: data) {
+                    if !syncResponse.conflicts.isEmpty {
+                        self.syncConflictAlert = "Sync Conflict detected on \(syncResponse.conflicts.count) item(s). Changes were saved on server by another device."
                     }
+                    // Remove ONLY the items that were successfully synced in this snapshot
+                    self.stagedQueue.removeAll { snapshotIds.contains($0.id) }
+                    self.saveStagedQueue()
+                    self.pendingSyncCount = self.stagedQueue.count
+                    self.lastSyncTime = Date()
+                } else if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                    if let conflicts = json["conflicts"] as? [[String: Any]], !conflicts.isEmpty {
+                        self.syncConflictAlert = "Sync Conflict detected on \(conflicts.count) item(s)."
+                    }
+                    self.stagedQueue.removeAll { snapshotIds.contains($0.id) }
+                    self.saveStagedQueue()
+                    self.pendingSyncCount = self.stagedQueue.count
+                    self.lastSyncTime = Date()
                 }
             }
         }.resume()

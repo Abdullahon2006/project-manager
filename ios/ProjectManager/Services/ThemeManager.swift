@@ -72,6 +72,11 @@ public class ThemeManager: ObservableObject {
         self.customWallpaperUrl = UserDefaults.standard.string(forKey: "pm_custom_wallpaper_url") ?? ""
         self.appearanceMode = UserDefaults.standard.string(forKey: "pm_appearance_mode") ?? "system"
         self.wallpaperDimming = UserDefaults.standard.object(forKey: "pm_wallpaper_dimming") as? Double ?? 0.25
+        
+        // Cache wallpapers to disk and memory to prevent redundant re-downloads
+        if URLCache.shared.memoryCapacity < 50 * 1024 * 1024 {
+            URLCache.shared = URLCache(memoryCapacity: 50 * 1024 * 1024, diskCapacity: 200 * 1024 * 1024)
+        }
     }
     
     public var activeWallpaperURL: URL? {
@@ -148,8 +153,7 @@ public extension View {
 public extension Color {
     init(hex: String) {
         let cleanHex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
-        var int: UInt64 = 0
-        Scanner(string: cleanHex).scanHexInt64(&int)
+        let int = UInt64(cleanHex, radix: 16) ?? 0
         let a, r, g, b: UInt64
         switch cleanHex.count {
         case 3: // RGB (12-bit)

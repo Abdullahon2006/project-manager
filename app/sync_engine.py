@@ -2,6 +2,9 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from . import models, schemas
 
+PROJECT_ALLOWED_FIELDS = {"title", "current_state", "status", "folder_id"}
+MILESTONE_ALLOWED_FIELDS = {"title", "order", "is_completed"}
+
 def process_sync_batch(db: Session, sync_req: schemas.SyncRequest) -> schemas.SyncResponse:
     applied = 0
     conflicts = []
@@ -53,14 +56,14 @@ def process_sync_batch(db: Session, sync_req: schemas.SyncRequest) -> schemas.Sy
                         else:
                             # Auto-merge non-conflicting updates
                             for k, v in change.payload.items():
-                                if hasattr(proj, k):
+                                if k in PROJECT_ALLOWED_FIELDS and hasattr(proj, k):
                                     setattr(proj, k, v)
                             proj.version += 1
                             applied += 1
                     else:
                         # Clean update
                         for k, v in change.payload.items():
-                            if hasattr(proj, k):
+                            if k in PROJECT_ALLOWED_FIELDS and hasattr(proj, k):
                                 setattr(proj, k, v)
                         proj.version += 1
                         applied += 1
@@ -92,7 +95,7 @@ def process_sync_batch(db: Session, sync_req: schemas.SyncRequest) -> schemas.Sy
                             is_comp = v if isinstance(v, bool) else (str(v).lower() in ("true", "1"))
                             milestone.is_completed = is_comp
                             milestone.completed_at = datetime.utcnow() if is_comp else None
-                        elif hasattr(milestone, k):
+                        elif k in MILESTONE_ALLOWED_FIELDS and hasattr(milestone, k):
                             setattr(milestone, k, v)
                     milestone.version += 1
                     applied += 1

@@ -7,7 +7,7 @@ struct ProjectDetailView: View {
     let projectId: String
     var initialTitle: String = "Project"
 
-    @StateObject private var sync = SyncService.shared
+    private let sync = SyncService.shared
     @Environment(\.dismiss) private var dismiss
 
     @State private var project: ProjectDetail? = nil
@@ -107,6 +107,7 @@ struct ProjectDetailView: View {
                         .padding(.vertical)
                         .padding(.bottom, 80) // Spacing for floating undo toast
                     }
+                    .scrollDismissesKeyboard(.interactively)
                 } else {
                     VStack(spacing: 12) {
                         Text("Project not found.")
@@ -181,6 +182,13 @@ struct ProjectDetailView: View {
         .task {
             await loadProject()
             await loadFolders()
+        }
+        .onDisappear {
+            undoDismissTask?.cancel()
+            if let task = stateSaveTask {
+                task.cancel()
+                flushStateSave()
+            }
         }
         .sheet(item: $editingMilestone) { m in
             NavigationStack {
@@ -685,6 +693,18 @@ struct ProjectDetailView: View {
                     }
                     await MainActor.run { isSavingState = false }
                 }
+            }
+        }
+    }
+
+    private func flushStateSave() {
+        guard let p = project, currentStateText != p.currentState else { return }
+        let text = currentStateText
+        Task {
+            do {
+                try await sync.updateProject(id: projectId, currentState: text)
+            } catch {
+                sync.stageProjectUpdate(projectId: p.id, baseVersion: p.version, title: nil, state: text)
             }
         }
     }

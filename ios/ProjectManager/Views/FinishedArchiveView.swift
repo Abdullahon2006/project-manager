@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct FinishedArchiveView: View {
-    @ObservedObject var sync = SyncService.shared
+    var sync: SyncService = SyncService.shared
     var searchQuery: String = ""
     @State private var finishedProjects: [ProjectSummary] = []
     @State private var isLoading: Bool = false
@@ -95,6 +95,7 @@ struct FinishedArchiveView: View {
                     .padding(.top, 4)
                     .padding(.bottom, 96)
                 }
+                .scrollDismissesKeyboard(.interactively)
             }
         }
         .refreshable {

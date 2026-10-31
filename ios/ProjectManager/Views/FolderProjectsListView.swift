@@ -5,7 +5,7 @@ import UIKit
 
 struct FolderProjectsListView: View {
     @Environment(\.dismiss) private var dismiss
-    @ObservedObject var sync = SyncService.shared
+    private let sync = SyncService.shared
 
     @State private var folder: FolderBento
     @State private var projects: [ProjectSummary] = []
@@ -219,6 +219,7 @@ struct FolderProjectsListView: View {
                     .padding(.horizontal, 16)
                     .padding(.bottom, 40)
                 }
+                .scrollDismissesKeyboard(.interactively)
             }
         }
         .withAppWallpaper()
@@ -434,7 +435,7 @@ struct ProjectRowCard: View {
 // MARK: - Quick New Project Modal (Multi-Step Creation)
 struct QuickNewProjectView: View {
     @Environment(\.dismiss) private var dismiss
-    @ObservedObject var sync = SyncService.shared
+    private let sync = SyncService.shared
 
     var presetFolderId: String? = nil
     var folderName: String? = nil

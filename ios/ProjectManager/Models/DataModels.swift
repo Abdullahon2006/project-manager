@@ -1,41 +1,63 @@
 import Foundation
+import os
 
-// MARK: - API Date Decoder & Encoder
+// MARK: - Fast & Thread-Safe Date Decoder & Encoder
 
 public extension JSONDecoder {
     static let apiDecoder: JSONDecoder = {
         let decoder = JSONDecoder()
         
-        let formatterWithFraction = ISO8601DateFormatter()
-        formatterWithFraction.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let isoFraction = ISO8601DateFormatter()
+        isoFraction.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
         
-        let formatterStandard = ISO8601DateFormatter()
-        formatterStandard.formatOptions = [.withInternetDateTime]
+        let isoStandard = ISO8601DateFormatter()
+        isoStandard.formatOptions = [.withInternetDateTime]
         
-        let fallbackFormatter = DateFormatter()
-        fallbackFormatter.locale = Locale(identifier: "en_US_POSIX")
-        fallbackFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
+        let posixMicro: DateFormatter = {
+            let df = DateFormatter()
+            df.locale = Locale(identifier: "en_US_POSIX")
+            df.timeZone = TimeZone(secondsFromGMT: 0)
+            df.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
+            return df
+        }()
         
-        let fallbackNoFrac = DateFormatter()
-        fallbackNoFrac.locale = Locale(identifier: "en_US_POSIX")
-        fallbackNoFrac.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-
+        let posixSec: DateFormatter = {
+            let df = DateFormatter()
+            df.locale = Locale(identifier: "en_US_POSIX")
+            df.timeZone = TimeZone(secondsFromGMT: 0)
+            df.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+            return df
+        }()
+        
+        let lock = os_unfair_lock_t.allocate(capacity: 1)
+        lock.initialize(to: os_unfair_lock())
+        
         decoder.dateDecodingStrategy = .custom { d in
             let container = try d.singleValueContainer()
             let dateStr = try container.decode(String.self)
+            let count = dateStr.utf8.count
             
-            if let date = formatterWithFraction.date(from: dateStr) {
-                return date
+            os_unfair_lock_lock(lock)
+            defer { os_unfair_lock_unlock(lock) }
+            
+            // Fast-path branch routing based on length and markers
+            if dateStr.contains("Z") || dateStr.contains("+") {
+                if dateStr.contains(".") {
+                    if let dt = isoFraction.date(from: dateStr) { return dt }
+                }
+                if let dt = isoStandard.date(from: dateStr) { return dt }
+            } else if count >= 26 {
+                if let dt = posixMicro.date(from: dateStr) { return dt }
+            } else if count == 19 {
+                if let dt = posixSec.date(from: dateStr) { return dt }
             }
-            if let date = fallbackFormatter.date(from: dateStr) {
-                return date
-            }
-            if let date = formatterStandard.date(from: dateStr) {
-                return date
-            }
-            if let date = fallbackNoFrac.date(from: dateStr) {
-                return date
-            }
+            
+            // Fallbacks
+            if let dt = posixMicro.date(from: dateStr) { return dt }
+            if let dt = isoFraction.date(from: dateStr) { return dt }
+            if let dt = posixSec.date(from: dateStr) { return dt }
+            if let dt = isoStandard.date(from: dateStr) { return dt }
+            
             return Date()
         }
         return decoder
@@ -52,7 +74,7 @@ public extension JSONEncoder {
 
 // MARK: - Data Models
 
-public struct FolderBento: Codable, Identifiable, Hashable {
+public struct FolderBento: Codable, Identifiable, Hashable, Sendable {
     public let id: String
     public var name: String
     public var icon: String
@@ -79,6 +101,7 @@ public struct FolderBento: Codable, Identifiable, Hashable {
 
     public var displayIcon: String {
         let trimmed = icon.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.count <= 2 && !trimmed.isEmpty { return trimmed }
         switch trimmed.lowercased() {
         case "folder", "default", "stream": return "📁"
         case "code", "coding", "terminal", "lightning", "bolt": return "⚡"
@@ -96,15 +119,12 @@ public struct FolderBento: Codable, Identifiable, Hashable {
         case "globe", "web", "internet": return "🌐"
         case "chart", "analytics", "stats": return "📊"
         case "lock", "security", "private": return "🔒"
-        default:
-            // If it's already an emoji or short symbol, return it as-is
-            if trimmed.count <= 2 { return trimmed }
-            return "📁"
+        default: return "📁"
         }
     }
 }
 
-public struct ProjectSummary: Codable, Identifiable, Hashable {
+public struct ProjectSummary: Codable, Identifiable, Hashable, Sendable {
     public let id: String
     public let folderId: String
     public var title: String
@@ -131,14 +151,14 @@ public struct ProjectSummary: Codable, Identifiable, Hashable {
     }
 }
 
-public struct ProjectDetail: Codable, Identifiable {
+public struct ProjectDetail: Codable, Identifiable, Hashable, Sendable {
     public let id: String
     public var folderId: String
     public var title: String
     public var currentState: String
     public var status: String
     public var version: Int
-    public var createdAt: Date?
+    public let createdAt: Date?
     public var updatedAt: Date?
     public var activeMilestones: [MilestoneItem]
     public var archivedMilestones: [MilestoneItem]
@@ -173,9 +193,9 @@ public struct ProjectDetail: Codable, Identifiable {
     }
 }
 
-public struct MilestoneItem: Codable, Identifiable, Hashable {
+public struct MilestoneItem: Codable, Identifiable, Hashable, Sendable {
     public let id: String
-    public var projectId: String?
+    public let projectId: String?
     public var title: String
     public var isCompleted: Bool
     public var completedAt: Date?
@@ -201,7 +221,9 @@ public struct MilestoneItem: Codable, Identifiable, Hashable {
 }
 
 // MARK: - Staged Change for Conflict-Controlled Sync
-public struct StagedSyncChange: Codable {
+
+public struct StagedSyncChange: Codable, Identifiable, Hashable, Sendable {
+    public let id: String
     public let entityType: String
     public let entityId: String
     public let action: String
@@ -209,12 +231,76 @@ public struct StagedSyncChange: Codable {
     public let payload: [String: String]
     public let clientTimestamp: Date
     
-    public init(entityType: String, entityId: String, action: String, baseVersion: Int?, payload: [String : String], clientTimestamp: Date = Date()) {
+    enum CodingKeys: String, CodingKey {
+        case id
+        case entityType = "entity_type"
+        case entityId = "entity_id"
+        case action
+        case baseVersion = "base_version"
+        case payload
+        case clientTimestamp = "client_timestamp"
+    }
+
+    public init(id: String = UUID().uuidString, entityType: String, entityId: String, action: String, baseVersion: Int?, payload: [String: String], clientTimestamp: Date = Date()) {
+        self.id = id
         self.entityType = entityType
         self.entityId = entityId
         self.action = action
         self.baseVersion = baseVersion
         self.payload = payload
         self.clientTimestamp = clientTimestamp
+    }
+}
+
+// MARK: - Sync Request & Response Schemas
+
+public struct SyncRequest: Codable, Sendable {
+    public let clientId: String
+    public let changes: [StagedSyncChange]
+    public let since: Date?
+
+    enum CodingKeys: String, CodingKey {
+        case clientId = "client_id"
+        case changes
+        case since
+    }
+
+    public init(clientId: String = "ios_device_app", changes: [StagedSyncChange], since: Date? = nil) {
+        self.clientId = clientId
+        self.changes = changes
+        self.since = since
+    }
+}
+
+public struct ConflictItem: Codable, Identifiable, Sendable {
+    public var id: String { "\(entityType)_\(entityId)" }
+    public let entityType: String
+    public let entityId: String
+    public let fieldConflicts: [String]
+    public let clientPayload: [String: String]
+    public let serverPayload: [String: String]
+    public let serverVersion: Int
+
+    enum CodingKeys: String, CodingKey {
+        case entityType = "entity_type"
+        case entityId = "entity_id"
+        case fieldConflicts = "field_conflicts"
+        case clientPayload = "client_payload"
+        case serverPayload = "server_payload"
+        case serverVersion = "server_version"
+    }
+}
+
+public struct SyncResponse: Codable, Sendable {
+    public let success: Bool
+    public let appliedCount: Int
+    public let conflicts: [ConflictItem]
+    public let serverTime: Date?
+
+    enum CodingKeys: String, CodingKey {
+        case success
+        case appliedCount = "applied_count"
+        case conflicts
+        case serverTime = "server_time"
     }
 }

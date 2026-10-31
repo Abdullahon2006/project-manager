@@ -14,7 +14,7 @@ class Folder(Base):
     name = Column(String(100), nullable=False)
     icon = Column(String(20), default="📁")
     color = Column(String(20), default="#3b82f6")
-    order = Column(Integer, default=0)
+    order = Column(Integer, default=0, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -24,13 +24,13 @@ class Project(Base):
     __tablename__ = "projects"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
-    folder_id = Column(String(36), ForeignKey("folders.id"), nullable=False)
+    folder_id = Column(String(36), ForeignKey("folders.id"), nullable=False, index=True)
     title = Column(String(200), nullable=False)
     current_state = Column(Text, default="")
-    status = Column(String(20), default="active") # "active", "paused", "archived"
+    status = Column(String(20), default="active", index=True) # "active", "completed", "archived"
     version = Column(Integer, default=1)
     created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, index=True)
 
     folder = relationship("Folder", back_populates="projects")
     milestones = relationship("Milestone", back_populates="project", cascade="all, delete-orphan", order_by="Milestone.order")
@@ -39,11 +39,11 @@ class Milestone(Base):
     __tablename__ = "milestones"
 
     id = Column(String(36), primary_key=True, default=generate_uuid)
-    project_id = Column(String(36), ForeignKey("projects.id"), nullable=False)
+    project_id = Column(String(36), ForeignKey("projects.id"), nullable=False, index=True)
     title = Column(String(255), nullable=False)
-    is_completed = Column(Boolean, default=False)
+    is_completed = Column(Boolean, default=False, index=True)
     completed_at = Column(DateTime, nullable=True)
-    order = Column(Integer, default=0)
+    order = Column(Integer, default=0, index=True)
     version = Column(Integer, default=1)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

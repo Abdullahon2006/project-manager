@@ -97,6 +97,7 @@ class FolderBentoOut(FolderBase):
 
 # --- Staged Sync Engine Schemas ---
 class StagedChange(BaseModel):
+    id: Optional[str] = None
     entity_type: str # "folder", "project", "milestone"
     entity_id: str
     action: str      # "create", "update", "delete"

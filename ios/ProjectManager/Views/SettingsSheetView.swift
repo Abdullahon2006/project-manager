@@ -173,12 +173,11 @@ struct SettingsSheetView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {
-                        let trimmed = serverURL.trimmingCharacters(in: .whitespacesAndNewlines)
-                        if !trimmed.isEmpty {
-                            sync.serverBaseURL = trimmed
+                        if let sanitized = sanitizeServerURL(serverURL) {
+                            sync.serverBaseURL = sanitized
                         }
                         if theme.selectedWallpaperId == "custom" {
-                            theme.customWallpaperUrl = customUrlText
+                            theme.customWallpaperUrl = customUrlText.trimmingCharacters(in: .whitespacesAndNewlines)
                         }
                         dismiss()
                     }
@@ -191,9 +190,22 @@ struct SettingsSheetView: View {
         }
     }
 
+    private func sanitizeServerURL(_ input: String) -> String? {
+        var trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
+        while trimmed.hasSuffix("/") {
+            trimmed.removeLast()
+        }
+        guard let url = URL(string: trimmed), let scheme = url.scheme?.lowercased(),
+              (scheme == "http" || scheme == "https"), url.host != nil else {
+            return nil
+        }
+        return trimmed
+    }
+
     private func testConnection() {
-        guard let url = URL(string: "\(serverURL.trimmingCharacters(in: .whitespacesAndNewlines))/api/bento") else {
-            testStatusMessage = "Invalid URL format."
+        guard let sanitized = sanitizeServerURL(serverURL),
+              let url = URL(string: "\(sanitized)/api/bento") else {
+            testStatusMessage = "Invalid URL format. Must start with http:// or https://"
             return
         }
         isTesting = true
