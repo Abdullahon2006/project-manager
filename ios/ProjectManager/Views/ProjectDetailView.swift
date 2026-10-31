@@ -239,7 +239,7 @@ struct ProjectDetailView: View {
                                 moveProjectToFolder(f.id)
                             } label: {
                                 HStack {
-                                    Text("\(f.icon) \(f.name)")
+                                    Text("\(f.displayIcon) \(f.name)")
                                     if f.id == proj.folderId {
                                         Image(systemName: "checkmark")
                                     }
@@ -602,7 +602,7 @@ struct ProjectDetailView: View {
     private var currentFolderName: String {
         guard let p = project else { return "Field" }
         if let match = allFolders.first(where: { $0.id == p.folderId }) {
-            return "\(match.icon) \(match.name)"
+            return "\(match.displayIcon) \(match.name)"
         }
         return "Field"
     }
