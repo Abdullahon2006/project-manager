@@ -306,6 +306,14 @@
       border: 1px solid var(--border-subtle);
       border-radius: 999px;
       color: var(--text-muted);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+    .status-chip:hover {
+      background: var(--surface-hover);
+      border-color: var(--border-focus);
+      color: var(--text-main);
     }
     .status-dot {
       width: 7px;
@@ -1566,12 +1574,12 @@
   <div class="app-frame">
     <!-- Header -->
     <header>
-      <div class="brand-group" onclick="showDashboard('streams')">
+      <div class="brand-group" onclick="handleBrandClick(event)" title="Return to Streams Dashboard">
         <div class="brand-mark">
           <svg class="vector-icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
         </div>
         <div class="brand-title">Project Manager</div>
-        <div class="status-chip" id="syncStatusChip">
+        <div class="status-chip" id="syncStatusChip" onclick="handleStatusChipClick(event)" title="Cloud Sync Status • Click to authenticate or configure">
           <span class="status-dot" id="statusDot"></span>
           <span id="statusLabel">CONNECTING...</span>
         </div>
@@ -1759,7 +1767,7 @@
       <div class="settings-view" id="settingsSection">
         <div class="settings-top-bar">
           <div class="breadcrumbs">
-            <span class="breadcrumb-link" onclick="showDashboard('streams')">STREAMS</span>
+            <span class="breadcrumb-link" onclick="navigateToDashboard()">STREAMS</span>
             <span>/</span>
             <span style="color: var(--text-main);">SETTINGS</span>
           </div>
@@ -1769,7 +1777,7 @@
               <h1 class="display-h1">Workspace Settings</h1>
               <div class="display-sub">Customise Trello wallpapers, visual appearance, and cloud sync</div>
             </div>
-            <button class="btn-pill btn-secondary" onclick="showDashboard('streams')">
+            <button class="btn-pill btn-secondary" onclick="navigateToDashboard()">
               <svg class="vector-icon" style="width:14px; height:14px;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
               <span>Back to Streams</span>
             </button>
@@ -1886,16 +1894,22 @@
               <input type="text" class="form-input" id="settingsBackendUrlInput">
             </div>
 
-            <div class="form-field" style="margin-top: 10px;">
-              <label class="form-label">Secret Access Token (X-App-Token)</label>
-              <input type="password" class="form-input" id="settingsApiTokenInput" placeholder="Enter pre-shared APP_SECRET_KEY">
-              <span style="font-size: 11px; color: var(--text-dim); margin-top: 4px; display: block;">Required when the server has APP_SECRET_KEY configured.</span>
+            <div class="form-field" style="margin-top: 12px;">
+              <label class="form-label" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>Secret Access Passcode (APP_SECRET_KEY)</span>
+                <span id="pageAuthStatusBadge" style="font-size: 11px; font-weight: 500;"></span>
+              </label>
+              <div style="position: relative;">
+                <input type="password" class="form-input" id="settingsApiTokenInput" placeholder="Enter pre-shared APP_SECRET_KEY" style="padding-right: 40px;" onkeydown="if(event.key==='Enter') saveBackendSettingsFromPage()">
+                <button type="button" onclick="toggleAuthPasscodeVisibility('settingsApiTokenInput')" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 14px;" title="Show/Hide Passcode">👁️</button>
+              </div>
+              <span style="font-size: 11px; color: var(--text-dim); margin-top: 4px; display: block;">Required when the server has APP_SECRET_KEY configured. Matches X-App-Token.</span>
             </div>
 
-            <div style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
+            <div style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
               <button type="button" class="btn-pill btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="document.getElementById('settingsBackendUrlInput').value='https://project-manager-app-78c6297c8f8b.herokuapp.com/api'">Heroku (Live)</button>
               <button type="button" class="btn-pill btn-secondary" style="font-size: 11px; padding: 4px 10px;" onclick="document.getElementById('settingsBackendUrlInput').value='http://127.0.0.1:8000/api'">Localhost (8000)</button>
-              <button type="button" class="btn-pill btn-primary" style="font-size: 11px; padding: 4px 12px; margin-left: auto;" onclick="saveBackendSettingsFromPage()">Save & Test</button>
+              <button type="button" class="btn-pill btn-primary" id="saveBackendBtn" style="font-size: 11px; padding: 4px 14px; margin-left: auto;" onclick="saveBackendSettingsFromPage()">Save & Authenticate</button>
             </div>
           </div>
 
@@ -2069,12 +2083,42 @@
       </div>
       <div class="form-field" style="margin-top: 10px;">
         <label class="form-label">Secret Access Token (X-App-Token)</label>
-        <input type="password" class="form-input" id="backendTokenInput" placeholder="Enter pre-shared APP_SECRET_KEY">
+        <div style="position: relative;">
+          <input type="password" class="form-input" id="backendTokenInput" placeholder="Enter pre-shared APP_SECRET_KEY" style="padding-right: 40px;">
+          <button type="button" onclick="toggleAuthPasscodeVisibility('backendTokenInput')" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 14px;" title="Show/Hide Passcode">👁️</button>
+        </div>
         <span style="font-size: 11px; color: var(--text-dim); margin-top: 4px; display: block;">Required when the server has APP_SECRET_KEY configured.</span>
       </div>
       <div class="modal-actions">
         <button class="btn-pill btn-secondary" onclick="closeModals()">Close</button>
         <button class="btn-pill btn-primary" onclick="saveSettings()">Save & Reconnect</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dedicated Authentication Modal -->
+  <div class="modal-backdrop" id="authModal">
+    <div class="modal-dialog">
+      <div class="modal-title" style="display: flex; align-items: center; gap: 8px;">
+        <span>🔐</span>
+        <span>Authenticate Workspace</span>
+      </div>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5;">
+        Your server is secured with <code style="font-family: var(--mono); color: var(--text-main); font-weight: 600;">APP_SECRET_KEY</code>. Enter your secret passcode to unlock and synchronize projects across all your devices.
+      </p>
+
+      <div class="form-field">
+        <label class="form-label">Secret Access Passcode (X-App-Token)</label>
+        <div style="position: relative;">
+          <input type="password" class="form-input" id="authPasscodeInput" placeholder="Paste your APP_SECRET_KEY here" style="padding-right: 40px;" onkeydown="if(event.key==='Enter') submitAuthModal()">
+          <button type="button" onclick="toggleAuthPasscodeVisibility('authPasscodeInput')" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 14px;" title="Show/Hide Passcode">👁️</button>
+        </div>
+        <div id="authModalFeedback" style="font-size: 12px; margin-top: 8px; display: none; line-height: 1.4;"></div>
+      </div>
+
+      <div class="modal-actions" style="margin-top: 20px;">
+        <button class="btn-pill btn-secondary" onclick="closeModals()">Cancel</button>
+        <button class="btn-pill btn-primary" id="authSubmitBtn" onclick="submitAuthModal()">Unlock & Sync →</button>
       </div>
     </div>
   </div>
@@ -2220,7 +2264,9 @@
       if (setSec) setSec.style.display = "flex";
       activeProjectId = null;
       currentFolderId = null;
-      window.location.hash = "#/settings";
+      if (window.location.hash !== "#/settings") {
+        window.location.hash = "#/settings";
+      }
       renderSettingsWallpapers();
     }
 
@@ -2275,10 +2321,10 @@
 
       // Backend URL & Token
       const bInput = document.getElementById("settingsBackendUrlInput");
-      if (bInput && !bInput.value) bInput.value = API_URL;
+      if (bInput) bInput.value = API_URL;
 
       const tInput = document.getElementById("settingsApiTokenInput");
-      if (tInput && !tInput.value) tInput.value = API_TOKEN;
+      if (tInput) tInput.value = API_TOKEN;
 
       const customInput = document.getElementById("customWpInput");
       if (customInput && !customInput.value && savedCustomWp) customInput.value = savedCustomWp;
@@ -2296,9 +2342,41 @@
         localStorage.setItem("state_next_api_token", API_TOKEN);
       }
       const ping = document.getElementById("settingsPingStatus");
-      if (ping) ping.innerText = "CONNECTING...";
-      await syncWithBackend();
-      if (ping) ping.innerText = "CONNECTED";
+      const badge = document.getElementById("pageAuthStatusBadge");
+      const saveBtn = document.getElementById("saveBackendBtn");
+      if (saveBtn) saveBtn.innerText = "Connecting...";
+      if (ping) ping.innerText = "TESTING...";
+      if (badge) {
+        badge.innerText = "Testing connection...";
+        badge.style.color = "var(--text-muted)";
+      }
+
+      const isConnected = await syncWithBackend();
+      if (saveBtn) saveBtn.innerText = "Save & Authenticate";
+
+      if (isConnected) {
+        if (ping) {
+          ping.innerText = "CONNECTED";
+          ping.style.background = "#10b981";
+          ping.style.color = "#ffffff";
+        }
+        if (badge) {
+          badge.innerText = "✓ Authenticated";
+          badge.style.color = "#10b981";
+        }
+      } else {
+        const dot = document.getElementById("statusDot");
+        const isAuthError = dot && dot.classList.contains("offline") && document.getElementById("statusLabel").innerText.includes("AUTH");
+        if (ping) {
+          ping.innerText = isAuthError ? "AUTH FAILED" : "OFFLINE";
+          ping.style.background = "#ef4444";
+          ping.style.color = "#ffffff";
+        }
+        if (badge) {
+          badge.innerText = isAuthError ? "❌ Invalid passcode (401)" : "❌ Unreachable";
+          badge.style.color = "#ef4444";
+        }
+      }
     }
 
     async function resyncAllData() {
@@ -2441,7 +2519,13 @@
       applyWallpaper(currentWallpaper);
       applyFontTheme(currentFontTheme);
       renderBento(folders);
-      await syncWithBackend();
+      const isSynced = await syncWithBackend();
+      if (!isSynced && !API_TOKEN) {
+        const dot = document.getElementById("statusDot");
+        if (dot && dot.className.includes("offline") && document.getElementById("statusLabel").innerText.includes("AUTH")) {
+          openAuthModal();
+        }
+      }
       await fetchFinishedProjects();
       renderSettingsWallpapers();
       handleHashChange();
@@ -2466,9 +2550,29 @@
       }
     }
 
+    function handleBrandClick(event) {
+      if (event && event.target && event.target.closest("#syncStatusChip")) {
+        return;
+      }
+      navigateToDashboard();
+    }
+
+    function handleStatusChipClick(event) {
+      if (event) event.stopPropagation();
+      openAuthModal();
+    }
+
+    function navigateToDashboard() {
+      if (window.location.hash) {
+        history.replaceState(null, "", window.location.pathname + window.location.search);
+      }
+      showDashboard("streams");
+    }
+
     async function syncWithBackend() {
       const dot = document.getElementById("statusDot");
       const label = document.getElementById("statusLabel");
+      const chip = document.getElementById("syncStatusChip");
       let success = false;
 
       try {
@@ -2480,13 +2584,16 @@
             saveCachedFolders(data);
             renderBento(folders);
           }
-          dot.className = "status-dot";
-          label.innerText = "CLOUD SYNCED";
+          if (dot) dot.className = "status-dot";
+          if (label) label.innerText = "CLOUD SYNCED";
+          if (chip) chip.title = "Cloud Synced • Click to manage sync settings";
           success = true;
+          return true;
         } else if (res.status === 401) {
-          dot.className = "status-dot offline";
-          label.innerText = "AUTH REQUIRED (401)";
-          return;
+          if (dot) dot.className = "status-dot offline";
+          if (label) label.innerText = "AUTH REQUIRED 🔒";
+          if (chip) chip.title = "Authentication Required: Click to enter secret passcode";
+          return false;
         }
       } catch (e) {
         console.warn("Primary API sync failed:", e);
@@ -2507,9 +2614,16 @@
               saveCachedFolders(data);
               renderBento(folders);
             }
-            dot.className = "status-dot";
-            label.innerText = "CLOUD SYNCED";
+            if (dot) dot.className = "status-dot";
+            if (label) label.innerText = "CLOUD SYNCED";
+            if (chip) chip.title = "Cloud Synced • Click to manage sync settings";
             success = true;
+            return true;
+          } else if (res.status === 401) {
+            if (dot) dot.className = "status-dot offline";
+            if (label) label.innerText = "AUTH REQUIRED 🔒";
+            if (chip) chip.title = "Authentication Required: Click to enter secret passcode";
+            return false;
           }
         } catch (e) {
           console.warn("Heroku fallback failed:", e);
@@ -2517,9 +2631,11 @@
       }
 
       if (!success) {
-        dot.className = "status-dot offline";
-        label.innerText = "LOCAL STANDALONE";
+        if (dot) dot.className = "status-dot offline";
+        if (label) label.innerText = "LOCAL STANDALONE";
+        if (chip) chip.title = "Offline Mode • Click to configure connection";
       }
+      return success;
     }
 
     async function fetchFinishedProjects() {
@@ -2544,7 +2660,17 @@
       if (setSec) setSec.style.display = "none";
       activeProjectId = null;
       currentFolderId = null;
-      switchDashboardTab(tab || currentDashboardTab);
+
+      if (tab === "finished") {
+        if (window.location.hash !== "#/finished") {
+          window.location.hash = "#/finished";
+        }
+      } else {
+        if (window.location.hash === "#/settings" || window.location.hash === "#/finished") {
+          history.replaceState(null, "", window.location.pathname + window.location.search);
+        }
+      }
+      switchDashboardTab(tab || "streams");
     }
 
     function switchDashboardTab(tab) {
@@ -2566,7 +2692,9 @@
         finishedBtn.classList.remove("active");
         bentoContainer.style.display = "grid";
         finishedContainer.style.display = "none";
-        if (window.location.hash === "#/finished") window.location.hash = "";
+        if (window.location.hash === "#/finished" || window.location.hash === "#/settings") {
+          history.replaceState(null, "", window.location.pathname + window.location.search);
+        }
       }
     }
 
@@ -3453,6 +3581,84 @@
       const bToken = document.getElementById("backendTokenInput");
       if (bToken) bToken.value = API_TOKEN;
       document.getElementById("settingsModal").classList.add("active");
+    }
+
+    function openAuthModal() {
+      const modal = document.getElementById("authModal");
+      const input = document.getElementById("authPasscodeInput");
+      const feedback = document.getElementById("authModalFeedback");
+      if (input) input.value = API_TOKEN || "";
+      if (feedback) {
+        feedback.style.display = "none";
+        feedback.innerText = "";
+      }
+      if (modal) modal.classList.add("active");
+      setTimeout(() => { if (input) input.focus(); }, 120);
+    }
+
+    function toggleAuthPasscodeVisibility(inputId) {
+      const input = document.getElementById(inputId);
+      if (!input) return;
+      input.type = input.type === "password" ? "text" : "password";
+    }
+
+    async function submitAuthModal() {
+      const input = document.getElementById("authPasscodeInput");
+      const feedback = document.getElementById("authModalFeedback");
+      const submitBtn = document.getElementById("authSubmitBtn");
+
+      const token = input ? input.value.trim() : "";
+      API_TOKEN = token;
+      localStorage.setItem("state_next_api_token", token);
+
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Authenticating...";
+      }
+
+      if (feedback) {
+        feedback.style.display = "block";
+        feedback.style.color = "var(--text-muted)";
+        feedback.innerText = "Verifying with server...";
+      }
+
+      try {
+        const isSuccess = await syncWithBackend();
+        if (isSuccess) {
+          if (feedback) {
+            feedback.style.color = "#10b981";
+            feedback.innerText = "✓ Passcode accepted! Cloud synced.";
+          }
+          await fetchFinishedProjects();
+          setTimeout(() => {
+            closeModals();
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerText = "Unlock & Sync →";
+            }
+          }, 500);
+          return;
+        } else {
+          const dot = document.getElementById("statusDot");
+          const is401 = dot && dot.classList.contains("offline") && document.getElementById("statusLabel").innerText.includes("AUTH");
+          if (feedback) {
+            feedback.style.color = "#ef4444";
+            feedback.innerText = is401
+              ? "❌ Unauthorized: Invalid secret key. Please check your APP_SECRET_KEY in Heroku Config Vars."
+              : "❌ Could not reach server. Check your connection.";
+          }
+        }
+      } catch (err) {
+        if (feedback) {
+          feedback.style.color = "#ef4444";
+          feedback.innerText = "Connection error: " + err.message;
+        }
+      }
+
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Unlock & Sync →";
+      }
     }
 
     function closeModals() {
