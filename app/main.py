@@ -1,7 +1,8 @@
 import os
-from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from .database import engine, Base, SessionLocal
 from .models import Folder, Project, Milestone
 from .api_router import api_router
@@ -72,6 +73,27 @@ app.include_router(agent_router)
 
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
 STATIC_INDEX = os.path.join(STATIC_DIR, "index.html")
+STATIC_404 = os.path.join(STATIC_DIR, "404.html")
+
+@app.exception_handler(StarletteHTTPException)
+async def custom_http_exception_handler(request: Request, exc: StarletteHTTPException):
+    if exc.status_code == 404:
+        accept = request.headers.get("accept", "")
+        if request.url.path.startswith("/api/") or "application/json" in accept:
+            return JSONResponse(
+                status_code=404,
+                content={"detail": "This page is not available in your region", "status": 404}
+            )
+        if os.path.exists(STATIC_404):
+            return FileResponse(STATIC_404, status_code=404)
+        return HTMLResponse("<h1>This page is not available in your region</h1>", status_code=404)
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+
+@app.get("/404", include_in_schema=False)
+def serve_404_page():
+    if os.path.exists(STATIC_404):
+        return FileResponse(STATIC_404, status_code=404)
+    return HTMLResponse("<h1>This page is not available in your region</h1>", status_code=404)
 
 @app.get("/", include_in_schema=False)
 def serve_root():
