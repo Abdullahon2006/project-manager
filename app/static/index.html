@@ -1701,14 +1701,13 @@
               <div class="card-icon-box" id="folderPageIcon"></div>
               <div>
                 <h1 class="display-h1" id="folderPageTitle">Field Stream</h1>
-                <div class="display-sub" id="folderPageSub">All projects in this domain</div>
+                <div class="display-sub" id="folderPageSub">Projects in this domain</div>
               </div>
             </div>
 
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
               <div class="tab-pills">
-                <button class="tab-pill active" id="folderTabAll" onclick="filterFolderProjects('all')">All</button>
-                <button class="tab-pill" id="folderTabActive" onclick="filterFolderProjects('active')">Active</button>
+                <button class="tab-pill active" id="folderTabActive" onclick="filterFolderProjects('active')">Active</button>
                 <button class="tab-pill" id="folderTabFinished" onclick="filterFolderProjects('finished')">Finished</button>
               </div>
               <button class="btn-pill btn-primary" onclick="openNewProjectInCurrentFolder()">+ New Project</button>
@@ -2529,7 +2528,7 @@
     let folders = loadCachedFolders();
     let allFinishedProjects = [];
     let currentFolderId = null;
-    let currentFolderFilter = "all";
+    let currentFolderFilter = "active";
     let activeProjectId = null;
     let activeProjectData = null;
     let saveDebounceTimer = null;
@@ -2916,7 +2915,7 @@
       document.getElementById("folderPageIcon").innerHTML = getVectorIcon(iconType);
       document.getElementById("folderPageIcon").style.color = folder.color || "var(--accent)";
 
-      filterFolderProjects("all");
+      filterFolderProjects("active");
       await loadFolderProjects(folderId);
     }
 
@@ -2937,9 +2936,10 @@
 
     function filterFolderProjects(filterType) {
       currentFolderFilter = filterType;
-      document.getElementById("folderTabAll").classList.toggle("active", filterType === "all");
-      document.getElementById("folderTabActive").classList.toggle("active", filterType === "active");
-      document.getElementById("folderTabFinished").classList.toggle("active", filterType === "finished");
+      const tabActive = document.getElementById("folderTabActive");
+      const tabFinished = document.getElementById("folderTabFinished");
+      if (tabActive) tabActive.classList.toggle("active", filterType === "active");
+      if (tabFinished) tabFinished.classList.toggle("active", filterType === "finished");
       renderFolderProjectsGrid();
     }
 
