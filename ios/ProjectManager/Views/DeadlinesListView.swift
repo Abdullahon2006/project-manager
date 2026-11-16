@@ -1,6 +1,6 @@
 import SwiftUI
 
-public struct DeadlinesListView: View {
+struct DeadlinesListView: View {
     var sync: SyncService = SyncService.shared
     var searchQuery: String = ""
     var isActiveTab: Bool = false
@@ -12,7 +12,7 @@ public struct DeadlinesListView: View {
 
     private let cacheKey = "state_next_ios_deadlines_cache"
 
-    public enum DeadlineFilter: String, CaseIterable, Identifiable {
+    enum DeadlineFilter: String, CaseIterable, Identifiable {
         case all = "All Tasks"
         case dueOnly = "With Deadline"
         case overdue = "Overdue"
