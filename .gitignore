@@ -35,5 +35,3 @@ xcuserdata/
 DerivedData/
 .build/
 .swiftpm/
-ios/ProjectManager.xcodeproj/project.pbxproj
-*.pbxproj
