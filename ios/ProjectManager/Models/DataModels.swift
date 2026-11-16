@@ -3,62 +3,74 @@ import os
 
 // MARK: - Fast & Thread-Safe Date Decoder & Encoder
 
+private final class DateParserHelper: @unchecked Sendable {
+    private let isoFraction: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return f
+    }()
+    
+    private let isoStandard: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime]
+        return f
+    }()
+    
+    private let posixMicro: DateFormatter = {
+        let df = DateFormatter()
+        df.locale = Locale(identifier: "en_US_POSIX")
+        df.timeZone = TimeZone(secondsFromGMT: 0)
+        df.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
+        return df
+    }()
+    
+    private let posixSec: DateFormatter = {
+        let df = DateFormatter()
+        df.locale = Locale(identifier: "en_US_POSIX")
+        df.timeZone = TimeZone(secondsFromGMT: 0)
+        df.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        return df
+    }()
+    
+    private let lock = NSLock()
+    
+    func parse(_ dateStr: String) -> Date? {
+        lock.lock()
+        defer { lock.unlock() }
+        
+        let count = dateStr.utf8.count
+        
+        // Fast-path branch routing based on length and markers
+        if dateStr.contains("Z") || dateStr.contains("+") {
+            if dateStr.contains(".") {
+                if let dt = isoFraction.date(from: dateStr) { return dt }
+            }
+            if let dt = isoStandard.date(from: dateStr) { return dt }
+        } else if count >= 26 {
+            if let dt = posixMicro.date(from: dateStr) { return dt }
+        } else if count == 19 {
+            if let dt = posixSec.date(from: dateStr) { return dt }
+        }
+        
+        // Fallbacks
+        if let dt = posixMicro.date(from: dateStr) { return dt }
+        if let dt = isoFraction.date(from: dateStr) { return dt }
+        if let dt = posixSec.date(from: dateStr) { return dt }
+        if let dt = isoStandard.date(from: dateStr) { return dt }
+        
+        return nil
+    }
+}
+
 public extension JSONDecoder {
+    private static let dateParser = DateParserHelper()
+
     static let apiDecoder: JSONDecoder = {
         let decoder = JSONDecoder()
-        
-        let isoFraction = ISO8601DateFormatter()
-        isoFraction.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        
-        let isoStandard = ISO8601DateFormatter()
-        isoStandard.formatOptions = [.withInternetDateTime]
-        
-        let posixMicro: DateFormatter = {
-            let df = DateFormatter()
-            df.locale = Locale(identifier: "en_US_POSIX")
-            df.timeZone = TimeZone(secondsFromGMT: 0)
-            df.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
-            return df
-        }()
-        
-        let posixSec: DateFormatter = {
-            let df = DateFormatter()
-            df.locale = Locale(identifier: "en_US_POSIX")
-            df.timeZone = TimeZone(secondsFromGMT: 0)
-            df.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-            return df
-        }()
-        
-        let lock = os_unfair_lock_t.allocate(capacity: 1)
-        lock.initialize(to: os_unfair_lock())
-        
         decoder.dateDecodingStrategy = .custom { d in
             let container = try d.singleValueContainer()
             let dateStr = try container.decode(String.self)
-            let count = dateStr.utf8.count
-            
-            os_unfair_lock_lock(lock)
-            defer { os_unfair_lock_unlock(lock) }
-            
-            // Fast-path branch routing based on length and markers
-            if dateStr.contains("Z") || dateStr.contains("+") {
-                if dateStr.contains(".") {
-                    if let dt = isoFraction.date(from: dateStr) { return dt }
-                }
-                if let dt = isoStandard.date(from: dateStr) { return dt }
-            } else if count >= 26 {
-                if let dt = posixMicro.date(from: dateStr) { return dt }
-            } else if count == 19 {
-                if let dt = posixSec.date(from: dateStr) { return dt }
-            }
-            
-            // Fallbacks
-            if let dt = posixMicro.date(from: dateStr) { return dt }
-            if let dt = isoFraction.date(from: dateStr) { return dt }
-            if let dt = posixSec.date(from: dateStr) { return dt }
-            if let dt = isoStandard.date(from: dateStr) { return dt }
-            
-            return Date()
+            return dateParser.parse(dateStr) ?? Date()
         }
         return decoder
     }()

@@ -71,20 +71,7 @@ struct BentoDashboardView: View {
                         .padding(.top, 8)
                         .padding(.bottom, 10)
 
-                    ZStack(alignment: .top) {
-                        activeBentoView
-                            .opacity(activeTab == .active ? 1 : 0)
-                            .allowsHitTesting(activeTab == .active)
-
-                        DeadlinesListView(sync: sync, searchQuery: searchQuery, isActiveTab: activeTab == .deadlines)
-                            .opacity(activeTab == .deadlines ? 1 : 0)
-                            .allowsHitTesting(activeTab == .deadlines)
-
-                        FinishedArchiveView(sync: sync, searchQuery: searchQuery, isActiveTab: activeTab == .archive)
-                            .opacity(activeTab == .archive ? 1 : 0)
-                            .allowsHitTesting(activeTab == .archive)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    dashboardTabContent
                 }
 
                 // Global Floating Action Button (Active Tab Only)
@@ -240,6 +227,25 @@ struct BentoDashboardView: View {
         if !sync.isOnline { return .gray }
         if sync.pendingSyncCount > 0 { return .orange }
         return .green
+    }
+
+    // MARK: - Dashboard Tab Content
+    @ViewBuilder
+    private var dashboardTabContent: some View {
+        ZStack(alignment: .top) {
+            activeBentoView
+                .opacity(activeTab == .active ? 1 : 0)
+                .allowsHitTesting(activeTab == .active)
+
+            DeadlinesListView(sync: sync, searchQuery: searchQuery, isActiveTab: activeTab == .deadlines)
+                .opacity(activeTab == .deadlines ? 1 : 0)
+                .allowsHitTesting(activeTab == .deadlines)
+
+            FinishedArchiveView(sync: sync, searchQuery: searchQuery, isActiveTab: activeTab == .archive)
+                .opacity(activeTab == .archive ? 1 : 0)
+                .allowsHitTesting(activeTab == .archive)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     // MARK: - Custom Glass Dashboard Mode Picker
