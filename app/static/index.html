@@ -1396,6 +1396,142 @@
     .btn-archive-del:hover { color: var(--danger); }
     .btn-archive-del svg { width: 12px; height: 12px; }
 
+    /* ============================================================
+       DEADLINE BADGES & DATE PICKERS
+       ============================================================ */
+    .deadline-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: var(--tag-bg);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      white-space: nowrap;
+      width: fit-content;
+    }
+    .deadline-badge.overdue {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+      font-weight: 600;
+    }
+    .deadline-badge.today {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(245, 158, 11, 0.3);
+      color: #f59e0b;
+      font-weight: 600;
+    }
+    .deadline-badge.upcoming {
+      background: rgba(59, 130, 246, 0.12);
+      border-color: rgba(59, 130, 246, 0.25);
+      color: #3b82f6;
+    }
+
+    .action-date-input,
+    .add-action-deadline {
+      background: var(--tag-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 7px;
+      padding: 4px 8px;
+      color: var(--text-main);
+      font-family: var(--mono);
+      font-size: 11px;
+      outline: none;
+      cursor: pointer;
+      color-scheme: dark;
+      transition: all 0.15s;
+    }
+    body.theme-daylight .action-date-input,
+    body.theme-daylight .add-action-deadline {
+      color-scheme: light;
+    }
+    .action-date-input:focus,
+    .add-action-deadline:focus {
+      border-color: var(--accent);
+    }
+
+    /* Deadlines View Section */
+    .deadlines-section {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      animation: fadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .deadlines-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .deadline-task-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+    }
+    .deadline-task-card:hover {
+      background: var(--card-hover);
+      border-color: var(--border-focus);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    }
+    .deadline-task-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex: 1;
+      min-width: 0;
+    }
+    .deadline-task-body {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+    .deadline-task-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.35;
+      word-break: break-word;
+    }
+    .deadline-task-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .deadline-project-link {
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: color 0.15s;
+    }
+    .deadline-project-link:hover {
+      color: var(--accent);
+    }
+    .deadline-task-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
     /* Right Column: Project Notes & Context */
     .notes-panel {
       background: var(--card-bg);
@@ -1668,18 +1804,37 @@
       <div id="bentoSection">
         <div class="view-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px;">
           <div>
-            <div class="eyebrow">01 // PROJECT DOMAINS</div>
+            <div class="eyebrow">PROJECT DOMAINS</div>
             <div class="display-h1">Active Workspaces</div>
-            <div class="display-sub">Living state of projects, milestones, and finished archives.</div>
+            <div class="display-sub">Living state of projects, milestones, deadlines, and finished archives.</div>
           </div>
           <div class="tab-pills">
             <button class="tab-pill active" id="tabStreamsBtn" onclick="switchDashboardTab('streams')">⚡ Active Streams</button>
-            <button class="tab-pill" id="tabFinishedBtn" onclick="switchDashboardTab('finished')">✓ Finished Projects (<span id="finishedCountBadge">0</span>)</button>
+            <button class="tab-pill" id="tabDeadlinesBtn" onclick="switchDashboardTab('deadlines')">⏰ Deadlines</button>
+            <button class="tab-pill" id="tabFinishedBtn" onclick="switchDashboardTab('finished')">✓ Finished Projects</button>
           </div>
         </div>
 
         <!-- Bento Grid for Active Streams -->
         <div class="bento-grid" id="bentoContainer"></div>
+
+        <!-- Deadlines Section -->
+        <div class="deadlines-section" id="deadlinesContainer" style="display: none;">
+          <div class="deadlines-top-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <h2 style="font-size: 20px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Tasks by Target Deadline</h2>
+              <p style="font-size: 13px; color: var(--text-muted); margin: 0;">Active tasks across all streams, ordered chronologically by target date.</p>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <div class="tab-pills">
+                <button class="tab-pill active" id="deadlineFilterAll" onclick="filterDeadlines('all')">All</button>
+                <button class="tab-pill" id="deadlineFilterDue" onclick="filterDeadlines('due')">With Deadline</button>
+                <button class="tab-pill" id="deadlineFilterOverdue" onclick="filterDeadlines('overdue')">Overdue</button>
+              </div>
+            </div>
+          </div>
+          <div class="deadlines-list" id="deadlinesListContainer"></div>
+        </div>
 
         <!-- Showcase for Finished Projects -->
         <div class="finished-section" id="finishedContainer">
@@ -1787,6 +1942,7 @@
               <!-- Quick Add Action Input -->
               <div class="add-action-box">
                 <input type="text" class="add-action-input" id="newActionInput" placeholder="Add next action... (press Enter)" onkeydown="if(event.key==='Enter') submitNewAction()">
+                <input type="date" class="add-action-deadline" id="newActionDeadline" title="Target Deadline (Optional)">
                 <button class="btn-pill btn-primary" style="padding: 5px 14px; font-size: 12px;" onclick="submitNewAction()">+ Add</button>
               </div>
             </div>
@@ -2600,6 +2756,8 @@
         openFolderView(fid);
       } else if (hash === "#/finished") {
         showDashboard("finished");
+      } else if (hash === "#/deadlines") {
+        showDashboard("deadlines");
       } else if (hash === "#/settings") {
         openSettingsPage();
       } else {
@@ -2704,7 +2862,8 @@
       } catch (e) {
         allFinishedProjects = [];
       }
-      document.getElementById("finishedCountBadge").innerText = allFinishedProjects.length;
+      const badge = document.getElementById("finishedCountBadge");
+      if (badge) badge.innerText = allFinishedProjects.length;
       renderFinishedProjects();
     }
 
@@ -2722,8 +2881,12 @@
         if (window.location.hash !== "#/finished") {
           window.location.hash = "#/finished";
         }
+      } else if (tab === "deadlines") {
+        if (window.location.hash !== "#/deadlines") {
+          window.location.hash = "#/deadlines";
+        }
       } else {
-        if (window.location.hash === "#/settings" || window.location.hash === "#/finished") {
+        if (window.location.hash === "#/settings" || window.location.hash === "#/finished" || window.location.hash === "#/deadlines") {
           history.replaceState(null, "", window.location.pathname + window.location.search);
         }
       }
@@ -2733,23 +2896,33 @@
     function switchDashboardTab(tab) {
       currentDashboardTab = tab;
       const streamsBtn = document.getElementById("tabStreamsBtn");
+      const deadlinesBtn = document.getElementById("tabDeadlinesBtn");
       const finishedBtn = document.getElementById("tabFinishedBtn");
       const bentoContainer = document.getElementById("bentoContainer");
+      const deadlinesContainer = document.getElementById("deadlinesContainer");
       const finishedContainer = document.getElementById("finishedContainer");
 
+      if (streamsBtn) streamsBtn.classList.toggle("active", tab === "streams");
+      if (deadlinesBtn) deadlinesBtn.classList.toggle("active", tab === "deadlines");
+      if (finishedBtn) finishedBtn.classList.toggle("active", tab === "finished");
+
       if (tab === "finished") {
-        streamsBtn.classList.remove("active");
-        finishedBtn.classList.add("active");
-        bentoContainer.style.display = "none";
-        finishedContainer.style.display = "flex";
+        if (bentoContainer) bentoContainer.style.display = "none";
+        if (deadlinesContainer) deadlinesContainer.style.display = "none";
+        if (finishedContainer) finishedContainer.style.display = "flex";
         renderFinishedProjects();
         if (window.location.hash !== "#/finished") window.location.hash = "#/finished";
+      } else if (tab === "deadlines") {
+        if (bentoContainer) bentoContainer.style.display = "none";
+        if (deadlinesContainer) deadlinesContainer.style.display = "flex";
+        if (finishedContainer) finishedContainer.style.display = "none";
+        loadAndRenderDeadlines();
+        if (window.location.hash !== "#/deadlines") window.location.hash = "#/deadlines";
       } else {
-        streamsBtn.classList.add("active");
-        finishedBtn.classList.remove("active");
-        bentoContainer.style.display = "grid";
-        finishedContainer.style.display = "none";
-        if (window.location.hash === "#/finished" || window.location.hash === "#/settings") {
+        if (bentoContainer) bentoContainer.style.display = "grid";
+        if (deadlinesContainer) deadlinesContainer.style.display = "none";
+        if (finishedContainer) finishedContainer.style.display = "none";
+        if (window.location.hash === "#/finished" || window.location.hash === "#/deadlines" || window.location.hash === "#/settings") {
           history.replaceState(null, "", window.location.pathname + window.location.search);
         }
       }
@@ -2889,6 +3062,195 @@
       document.getElementById("finishedCountBadge").innerText = allFinishedProjects.length;
       renderFinishedProjects();
       syncWithBackend();
+    }
+
+    /* ============================================================
+       DEADLINES TAB LOGIC
+       ============================================================ */
+    let allDeadlineTasks = [];
+    let currentDeadlineFilter = 'all'; // 'all', 'due', 'overdue'
+
+    async function loadAndRenderDeadlines() {
+      const listContainer = document.getElementById("deadlinesListContainer");
+      if (!listContainer) return;
+      listContainer.innerHTML = `<div style="text-align: center; padding: 36px 0; color: var(--text-muted); font-size: 13px;">Loading deadlines...</div>`;
+
+      try {
+        const res = await fetch(`${API_URL}/deadlines?status=active`);
+        if (res.ok) {
+          allDeadlineTasks = await res.json();
+        } else {
+          allDeadlineTasks = [];
+        }
+      } catch (e) {
+        console.error("Error fetching deadlines:", e);
+        allDeadlineTasks = [];
+      }
+      renderDeadlinesList();
+    }
+
+    function filterDeadlines(type) {
+      currentDeadlineFilter = type;
+      const allBtn = document.getElementById("deadlineFilterAll");
+      const dueBtn = document.getElementById("deadlineFilterDue");
+      const overdueBtn = document.getElementById("deadlineFilterOverdue");
+      if (allBtn) allBtn.classList.toggle("active", type === "all");
+      if (dueBtn) dueBtn.classList.toggle("active", type === "due");
+      if (overdueBtn) overdueBtn.classList.toggle("active", type === "overdue");
+      renderDeadlinesList();
+    }
+
+    function isTaskOverdue(deadlineIso) {
+      if (!deadlineIso) return false;
+      const d = new Date(deadlineIso);
+      if (isNaN(d.getTime())) return false;
+      const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const targetDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      return targetDate < startOfToday;
+    }
+
+    function formatDeadlineBadge(isoStr) {
+      if (!isoStr) return "";
+      try {
+        const d = new Date(isoStr);
+        if (isNaN(d.getTime())) return "";
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const targetDate = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        const diffMs = targetDate - startOfToday;
+        const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+        let badgeClass = "deadline-badge";
+        let text = "";
+
+        if (diffDays < 0) {
+          badgeClass += " overdue";
+          text = `Overdue (${Math.abs(diffDays)}d ago)`;
+        } else if (diffDays === 0) {
+          badgeClass += " today";
+          text = "Due Today";
+        } else if (diffDays === 1) {
+          badgeClass += " upcoming";
+          text = "Due Tomorrow";
+        } else if (diffDays <= 7) {
+          badgeClass += " upcoming";
+          text = `In ${diffDays} days`;
+        } else {
+          text = d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+        }
+
+        return `<span class="${badgeClass}">⏰ ${text}</span>`;
+      } catch (e) {
+        return "";
+      }
+    }
+
+    function renderDeadlinesList() {
+      const container = document.getElementById("deadlinesListContainer");
+      if (!container) return;
+
+      let items = allDeadlineTasks;
+      if (currentDeadlineFilter === "due") {
+        items = items.filter(t => t.deadline != null);
+      } else if (currentDeadlineFilter === "overdue") {
+        items = items.filter(t => isTaskOverdue(t.deadline));
+      }
+
+      if (items.length === 0) {
+        let msg = "No active tasks found.";
+        if (currentDeadlineFilter === "due") msg = "No tasks with target deadlines assigned yet.";
+        if (currentDeadlineFilter === "overdue") msg = "Awesome! There are no overdue tasks.";
+
+        container.innerHTML = `
+          <div style="text-align: center; padding: 48px 20px; background: var(--card-bg); border: 1px dashed var(--border-subtle); border-radius: 18px;">
+            <div style="font-size: 26px; margin-bottom: 8px;">⏰</div>
+            <div style="font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">${msg}</div>
+            <div style="font-size: 13px; color: var(--text-muted);">Set target deadlines on next actions in any project workspace to see them tracked here.</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = items.map(t => {
+        const badgeHtml = t.deadline ? formatDeadlineBadge(t.deadline) : `<span class="deadline-badge">No deadline</span>`;
+        const dateVal = t.deadline ? t.deadline.substring(0, 10) : "";
+        const folderColor = t.folder_color || "var(--accent)";
+        const folderName = t.folder_name || "FIELD";
+        const projTitle = t.project_title || "Project";
+
+        return `
+          <div class="deadline-task-card" id="deadline_task_${t.id}">
+            <div class="deadline-task-left">
+              <button type="button" class="action-check-btn" onclick="completeDeadlineTask('${t.id}', '${t.project_id}')" title="Complete task">
+                <svg class="check-svg" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
+              <div class="deadline-task-body">
+                <div class="deadline-task-title">${escapeHtml(t.title)}</div>
+                <div class="deadline-task-meta">
+                  <span class="deadline-project-link" onclick="openWorkspace('${t.project_id}', '${escapeHtml(folderName)}')" title="Open workspace">
+                    <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:${folderColor};"></span>
+                    <span style="font-weight: 600; color: var(--text-main);">${escapeHtml(projTitle)}</span>
+                    <span style="color: var(--text-dim); font-size: 11px;">(${escapeHtml(folderName)})</span>
+                  </span>
+                  <span>•</span>
+                  ${badgeHtml}
+                </div>
+              </div>
+            </div>
+            <div class="deadline-task-right">
+              <input type="date" class="action-date-input" value="${dateVal}" onchange="changeTaskDeadlineFromList('${t.id}', this.value)" title="Change task deadline">
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function completeDeadlineTask(taskId, projId) {
+      const card = document.getElementById(`deadline_task_${taskId}`);
+      if (card) {
+        card.style.opacity = "0.4";
+        card.style.transform = "translateX(10px)";
+      }
+
+      allDeadlineTasks = allDeadlineTasks.filter(t => t.id !== taskId);
+      setTimeout(() => {
+        renderDeadlinesList();
+      }, 200);
+
+      try {
+        await fetch(`${API_URL}/milestones/${taskId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ is_completed: true })
+        });
+        syncWithBackend();
+      } catch (e) {}
+    }
+
+    async function changeTaskDeadlineFromList(taskId, dateStr) {
+      const isoValue = dateStr ? new Date(dateStr + "T12:00:00").toISOString() : null;
+      const item = allDeadlineTasks.find(t => t.id === taskId);
+      if (item) item.deadline = isoValue;
+
+      allDeadlineTasks.sort((a, b) => {
+        if (a.deadline && !b.deadline) return -1;
+        if (!a.deadline && b.deadline) return 1;
+        if (a.deadline && b.deadline) {
+          return new Date(a.deadline) - new Date(b.deadline);
+        }
+        return (a.order || 0) - (b.order || 0);
+      });
+
+      renderDeadlinesList();
+
+      try {
+        await fetch(`${API_URL}/milestones/${taskId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ deadline: isoValue })
+        });
+      } catch (e) {}
     }
 
     /* ============================================================
@@ -3191,19 +3553,29 @@
         return;
       }
 
-      c.innerHTML = list.map(m => `
+      c.innerHTML = list.map(m => {
+        const badge = m.deadline ? formatDeadlineBadge(m.deadline) : "";
+        const dateVal = m.deadline ? m.deadline.substring(0, 10) : "";
+        return `
         <div class="action-card" id="action_${m.id}">
           <button type="button" class="action-check-btn" onclick="markActionComplete('${m.id}')" title="Complete action">
             <svg class="check-svg" viewBox="0 0 24 24">
               <polyline points="20 6 9 17 4 12"/>
             </svg>
           </button>
-          <span class="action-text">${escapeHtml(m.title)}</span>
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+            <span class="action-text">${escapeHtml(m.title)}</span>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              ${badge}
+              <input type="date" class="action-date-input" value="${dateVal}" onchange="updateMilestoneDeadline('${m.id}', this.value)" title="Set or change target deadline">
+            </div>
+          </div>
           <button class="action-delete-btn" onclick="deleteMilestone('${m.id}')" title="Delete action">
             <svg class="vector-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
-      `).join("");
+      `;
+      }).join("");
     }
 
     function renderArchive() {
@@ -3333,26 +3705,56 @@
 
     async function submitNewAction() {
       const input = document.getElementById("newActionInput");
+      const deadlineInput = document.getElementById("newActionDeadline");
       const text = input.value.trim();
       if (!text || !activeProjectId) return;
 
+      const deadlineVal = deadlineInput && deadlineInput.value ? new Date(deadlineInput.value + "T12:00:00").toISOString() : null;
+
       let createdId = "m_" + Date.now();
-      const newMilestone = { id: createdId, project_id: activeProjectId, title: text, is_completed: false };
+      const newMilestone = {
+        id: createdId,
+        project_id: activeProjectId,
+        title: text,
+        is_completed: false,
+        deadline: deadlineVal
+      };
       activeProjectData.active_milestones = activeProjectData.active_milestones || [];
       activeProjectData.active_milestones.push(newMilestone);
       input.value = "";
+      if (deadlineInput) deadlineInput.value = "";
       renderWorkspaceActions();
 
       try {
         const res = await fetch(`${API_URL}/milestones?project_id=${activeProjectId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title: text })
+          body: JSON.stringify({
+            title: text,
+            deadline: deadlineVal
+          })
         });
         if (res.ok) {
           const json = await res.json();
           newMilestone.id = json.id;
         }
+      } catch (e) {}
+    }
+
+    async function updateMilestoneDeadline(milestoneId, dateStr) {
+      const isoValue = dateStr ? new Date(dateStr + "T12:00:00").toISOString() : null;
+      if (activeProjectData && activeProjectData.active_milestones) {
+        const m = activeProjectData.active_milestones.find(item => item.id === milestoneId);
+        if (m) m.deadline = isoValue;
+      }
+      renderWorkspaceActions();
+
+      try {
+        await fetch(`${API_URL}/milestones/${milestoneId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ deadline: isoValue })
+        });
       } catch (e) {}
     }
 

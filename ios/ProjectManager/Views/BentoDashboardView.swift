@@ -22,6 +22,7 @@ struct BentoDashboardView: View {
 
     enum DashboardTab: String, CaseIterable, Identifiable {
         case active = "Workspaces"
+        case deadlines = "Deadlines"
         case archive = "Archive"
         var id: String { rawValue }
     }
@@ -74,6 +75,10 @@ struct BentoDashboardView: View {
                         activeBentoView
                             .opacity(activeTab == .active ? 1 : 0)
                             .allowsHitTesting(activeTab == .active)
+
+                        DeadlinesListView(sync: sync, searchQuery: searchQuery, isActiveTab: activeTab == .deadlines)
+                            .opacity(activeTab == .deadlines ? 1 : 0)
+                            .allowsHitTesting(activeTab == .deadlines)
 
                         FinishedArchiveView(sync: sync, searchQuery: searchQuery, isActiveTab: activeTab == .archive)
                             .opacity(activeTab == .archive ? 1 : 0)
@@ -251,7 +256,7 @@ struct BentoDashboardView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "square.grid.2x2.fill")
                         .font(.caption2)
-                    Text("Workspaces (\(folders.count))")
+                    Text("Workspaces")
                         .font(.caption.weight(.semibold))
                         .lineLimit(1)
                         .minimumScaleFactor(0.85)
@@ -262,6 +267,31 @@ struct BentoDashboardView: View {
                 .foregroundColor(activeTab == .active ? .primary : .secondary)
                 .clipShape(Capsule())
                 .shadow(color: activeTab == .active ? Color.black.opacity(0.08) : Color.clear, radius: 4, y: 1)
+            }
+            .buttonStyle(.plain)
+
+            Button(action: {
+                #if os(iOS)
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                #endif
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    activeTab = .deadlines
+                }
+            }) {
+                HStack(spacing: 6) {
+                    Image(systemName: "calendar.badge.clock")
+                        .font(.caption2)
+                    Text("Deadlines")
+                        .font(.caption.weight(.semibold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 7)
+                .background(activeTab == .deadlines ? Color(.systemBackground).opacity(0.85) : Color.clear)
+                .foregroundColor(activeTab == .deadlines ? .primary : .secondary)
+                .clipShape(Capsule())
+                .shadow(color: activeTab == .deadlines ? Color.black.opacity(0.08) : Color.clear, radius: 4, y: 1)
             }
             .buttonStyle(.plain)
 
@@ -317,14 +347,14 @@ struct BentoDashboardView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             DashboardFilterChip(
-                                title: "All Fields (\(folders.count))",
+                                title: "All Fields",
                                 isSelected: fieldFilter == .all
                             ) {
                                 fieldFilter = .all
                             }
 
                             DashboardFilterChip(
-                                title: "Needs Action (\(projectsNeedingActions.count))",
+                                title: "Needs Action",
                                 isSelected: fieldFilter == .needsAction
                             ) {
                                 fieldFilter = .needsAction
@@ -504,7 +534,7 @@ struct BentoDashboardView: View {
     // MARK: - Search Results Section
     private var searchResultsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Search Results (\(searchResults.count))")
+            Text("Search Results")
                 .font(.subheadline)
                 .fontWeight(.bold)
                 .foregroundColor(.secondary)

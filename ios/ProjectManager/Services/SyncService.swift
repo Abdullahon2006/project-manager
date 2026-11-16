@@ -289,7 +289,7 @@ public class SyncService: ObservableObject {
     }
 
     /// Creates a new milestone for a project
-    public func createMilestone(projectId: String, title: String) async throws -> MilestoneItem {
+    public func createMilestone(projectId: String, title: String, deadline: Date? = nil) async throws -> MilestoneItem {
         guard var components = URLComponents(string: "\(serverBaseURL)/api/milestones") else {
             throw URLError(.badURL)
         }
@@ -299,11 +299,15 @@ public class SyncService: ObservableObject {
         var request = authorizedRequest(url: url, method: "POST")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        let body: [String: Any] = [
+        var body: [String: Any] = [
             "title": title,
             "is_completed": false,
             "order": 0
         ]
+        if let d = deadline {
+            let df = ISO8601DateFormatter()
+            body["deadline"] = df.string(from: d)
+        }
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
         
         let (data, response) = try await URLSession.shared.data(for: request)
@@ -336,8 +340,8 @@ public class SyncService: ObservableObject {
         return try JSONDecoder.apiDecoder.decode(MilestoneItem.self, from: data)
     }
 
-    /// Updates milestone title or order
-    public func updateMilestone(milestoneId: String, title: String? = nil, order: Int? = nil) async throws {
+    /// Updates milestone title, deadline, or order
+    public func updateMilestone(milestoneId: String, title: String? = nil, deadline: Date? = nil, clearDeadline: Bool = false, order: Int? = nil) async throws {
         guard let url = URL(string: "\(serverBaseURL)/api/milestones/\(milestoneId)") else {
             throw URLError(.badURL)
         }
@@ -348,12 +352,35 @@ public class SyncService: ObservableObject {
         var body: [String: Any] = [:]
         if let t = title { body["title"] = t }
         if let o = order { body["order"] = o }
+        if clearDeadline {
+            body["deadline"] = NSNull()
+        } else if let d = deadline {
+            let df = ISO8601DateFormatter()
+            body["deadline"] = df.string(from: d)
+        }
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
         
         let (_, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
             throw URLError(.badServerResponse)
         }
+    }
+
+    /// Fetches tasks sorted by deadline
+    public func fetchDeadlines(status: String = "active") async throws -> [TaskDeadlineItem] {
+        guard var components = URLComponents(string: "\(serverBaseURL)/api/deadlines") else {
+            throw URLError(.badURL)
+        }
+        components.queryItems = [URLQueryItem(name: "status", value: status)]
+        guard let url = components.url else { throw URLError(.badURL) }
+
+        let request = authorizedRequest(url: url)
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse, (200...299).contains(http.statusCode) else {
+            throw URLError(.badServerResponse)
+        }
+
+        return try JSONDecoder.apiDecoder.decode([TaskDeadlineItem].self, from: data)
     }
 
     /// Deletes a milestone

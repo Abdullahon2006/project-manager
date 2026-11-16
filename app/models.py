@@ -43,6 +43,7 @@ class Milestone(Base):
     title = Column(String(255), nullable=False)
     is_completed = Column(Boolean, default=False, index=True)
     completed_at = Column(DateTime, nullable=True)
+    deadline = Column(DateTime, nullable=True, index=True)
     order = Column(Integer, default=0, index=True)
     version = Column(Integer, default=1)
     created_at = Column(DateTime, default=datetime.utcnow)

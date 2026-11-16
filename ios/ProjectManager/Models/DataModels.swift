@@ -199,24 +199,53 @@ public struct MilestoneItem: Codable, Identifiable, Hashable, Sendable {
     public var title: String
     public var isCompleted: Bool
     public var completedAt: Date?
+    public var deadline: Date?
     public var order: Int
     public var version: Int?
 
     enum CodingKeys: String, CodingKey {
-        case id, title, order, version
+        case id, title, order, version, deadline
         case projectId = "project_id"
         case isCompleted = "is_completed"
         case completedAt = "completed_at"
     }
     
-    public init(id: String, projectId: String? = nil, title: String, isCompleted: Bool, completedAt: Date? = nil, order: Int = 0, version: Int? = 1) {
+    public init(id: String, projectId: String? = nil, title: String, isCompleted: Bool, completedAt: Date? = nil, deadline: Date? = nil, order: Int = 0, version: Int? = 1) {
         self.id = id
         self.projectId = projectId
         self.title = title
         self.isCompleted = isCompleted
         self.completedAt = completedAt
+        self.deadline = deadline
         self.order = order
         self.version = version
+    }
+}
+
+public struct TaskDeadlineItem: Codable, Identifiable, Hashable, Sendable {
+    public let id: String
+    public let projectId: String
+    public let projectTitle: String
+    public let folderId: String
+    public let folderName: String
+    public let folderIcon: String
+    public let folderColor: String
+    public var title: String
+    public var isCompleted: Bool
+    public var completedAt: Date?
+    public var deadline: Date?
+    public var order: Int
+
+    enum CodingKeys: String, CodingKey {
+        case id, title, order, deadline
+        case projectId = "project_id"
+        case projectTitle = "project_title"
+        case folderId = "folder_id"
+        case folderName = "folder_name"
+        case folderIcon = "folder_icon"
+        case folderColor = "folder_color"
+        case isCompleted = "is_completed"
+        case completedAt = "completed_at"
     }
 }
 
