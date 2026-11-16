@@ -185,27 +185,32 @@ struct BentoDashboardView: View {
                     get: { folderToDelete != nil },
                     set: { if !$0 { folderToDelete = nil } }
                 ),
-                titleVisibility: .visible
-            ) {
+                titleVisibility: .visible,
+                presenting: folderToDelete
+            ) { f in
                 Button("Delete Field & Projects", role: .destructive) {
-                    if let f = folderToDelete {
-                        deleteField(f)
-                    }
+                    deleteField(f)
                     folderToDelete = nil
                 }
                 Button("Cancel", role: .cancel) {
                     folderToDelete = nil
                 }
-            } message: {
-                Text("Deleting '\(folderToDelete?.name ?? "this field")' will permanently remove all projects inside it. This cannot be undone.")
+            } message: { f in
+                Text("Deleting '\(f.name)' will permanently remove all projects inside it. This cannot be undone.")
             }
-            .alert("Sync Conflict Detected", isPresented: Binding(
-                get: { sync.syncConflictAlert != nil },
-                set: { if !$0 { sync.syncConflictAlert = nil } }
-            )) {
-                Button("Dismiss", role: .cancel) { }
-            } message: {
-                Text(sync.syncConflictAlert ?? "")
+            .alert(
+                "Sync Conflict Detected",
+                isPresented: Binding(
+                    get: { sync.syncConflictAlert != nil },
+                    set: { if !$0 { sync.syncConflictAlert = nil } }
+                ),
+                presenting: sync.syncConflictAlert
+            ) { _ in
+                Button("Dismiss", role: .cancel) {
+                    sync.syncConflictAlert = nil
+                }
+            } message: { alertMsg in
+                Text(alertMsg)
             }
             .refreshable {
                 await loadBento()
