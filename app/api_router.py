@@ -262,6 +262,7 @@ def create_milestone(payload: schemas.MilestoneCreate, project_id: str = Query(.
         title=payload.title,
         is_completed=payload.is_completed,
         completed_at=datetime.utcnow() if payload.is_completed else None,
+        deadline=payload.deadline,
         order=payload.order,
         version=1
     )
@@ -290,7 +291,65 @@ def update_milestone(milestone_id: str, payload: schemas.MilestoneUpdate, db: Se
     if m.project:
         m.project.version += 1
     db.commit()
-    return {"status": "ok", "version": m.version, "completed_at": m.completed_at.isoformat() if m.completed_at else None}
+    return {
+        "status": "ok",
+        "version": m.version,
+        "completed_at": m.completed_at.isoformat() if m.completed_at else None,
+        "deadline": m.deadline.isoformat() if m.deadline else None
+    }
+
+# --- Deadlines View ---
+@api_router.get("/deadlines", response_model=List[schemas.TaskDeadlineItem])
+def list_tasks_by_deadline(
+    status: str = Query("active", description="Filter by task status: 'active', 'completed', or 'all'"),
+    db: Session = Depends(get_db)
+):
+    """Returns tasks/milestones joined with project and folder, sorted by deadline (items with deadline first in chronological order, followed by items without deadline)."""
+    from sqlalchemy import case
+    q = db.query(
+        models.Milestone,
+        models.Project.title.label("project_title"),
+        models.Folder.id.label("folder_id"),
+        models.Folder.name.label("folder_name"),
+        models.Folder.icon.label("folder_icon"),
+        models.Folder.color.label("folder_color")
+    ).join(
+        models.Project, models.Milestone.project_id == models.Project.id
+    ).join(
+        models.Folder, models.Project.folder_id == models.Folder.id
+    )
+
+    if status == "active":
+        q = q.filter(models.Milestone.is_completed == False, models.Project.status == "active")
+    elif status == "completed":
+        q = q.filter(models.Milestone.is_completed == True)
+
+    q = q.order_by(
+        case((models.Milestone.deadline.is_(None), 1), else_=0),
+        models.Milestone.deadline.asc(),
+        models.Milestone.order.asc(),
+        models.Milestone.created_at.desc()
+    )
+
+    results = []
+    for m, proj_title, f_id, f_name, f_icon, f_color in q.all():
+        results.append(schemas.TaskDeadlineItem(
+            id=m.id,
+            project_id=m.project_id,
+            project_title=proj_title,
+            folder_id=f_id,
+            folder_name=f_name,
+            folder_icon=f_icon,
+            folder_color=f_color,
+            title=m.title,
+            is_completed=m.is_completed,
+            completed_at=m.completed_at,
+            deadline=m.deadline,
+            order=m.order,
+            created_at=m.created_at,
+            updated_at=m.updated_at
+        ))
+    return results
 
 @api_router.delete("/milestones/{milestone_id}")
 def delete_milestone(milestone_id: str, db: Session = Depends(get_db)):

@@ -7,6 +7,7 @@ class MilestoneBase(BaseModel):
     title: str = Field(..., min_length=1, max_length=500)
     is_completed: bool = False
     completed_at: Optional[datetime] = None
+    deadline: Optional[datetime] = None
     order: int = 0
 
 class MilestoneCreate(MilestoneBase):
@@ -16,6 +17,7 @@ class MilestoneUpdate(BaseModel):
     title: Optional[str] = Field(None, min_length=1, max_length=500)
     is_completed: Optional[bool] = None
     completed_at: Optional[datetime] = None
+    deadline: Optional[datetime] = None
     order: Optional[int] = None
     version: Optional[int] = None
 
@@ -23,6 +25,25 @@ class MilestoneOut(MilestoneBase):
     id: str
     project_id: str
     version: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class TaskDeadlineItem(BaseModel):
+    id: str
+    project_id: str
+    project_title: str
+    folder_id: str
+    folder_name: str
+    folder_icon: str
+    folder_color: str
+    title: str
+    is_completed: bool
+    completed_at: Optional[datetime] = None
+    deadline: Optional[datetime] = None
+    order: int
     created_at: datetime
     updated_at: datetime
 

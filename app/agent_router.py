@@ -92,7 +92,7 @@ def get_agent_project_detail(
         "current_state": proj.current_state,
         "status": proj.status,
         "version": proj.version,
-        "active_milestones": [{"id": m.id, "title": m.title, "order": m.order} for m in active],
+        "active_milestones": [{"id": m.id, "title": m.title, "order": m.order, "deadline": m.deadline.isoformat() if m.deadline else None} for m in active],
         "archived_count": len(archived),
         "archived_preview": [{"id": m.id, "title": m.title, "completed_at": m.completed_at.isoformat()} for m in archived[:2]]
     }
@@ -113,13 +113,14 @@ def add_agent_milestone(
         project_id=project_id,
         title=payload.title,
         is_completed=False,
+        deadline=payload.deadline,
         order=payload.order or 0
     )
     db.add(new_m)
     proj.version += 1
     db.commit()
     db.refresh(new_m)
-    return {"status": "created", "milestone_id": new_m.id, "title": new_m.title}
+    return {"status": "created", "milestone_id": new_m.id, "title": new_m.title, "deadline": new_m.deadline.isoformat() if new_m.deadline else None}
 
 @agent_router.patch("/milestones/{milestone_id}/complete")
 def complete_agent_milestone(

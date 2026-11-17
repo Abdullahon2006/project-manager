@@ -11,7 +11,6 @@ struct BentoDashboardView: View {
     @State private var isLoading: Bool = true
     @State private var searchQuery: String = ""
     @State private var activeTab: DashboardTab = .active
-    @State private var fieldFilter: FieldFilter = .all
 
     @State private var showingActionSheet = false
     @State private var showingNewProjectSheet = false
@@ -22,32 +21,9 @@ struct BentoDashboardView: View {
 
     enum DashboardTab: String, CaseIterable, Identifiable {
         case active = "Workspaces"
+        case deadlines = "Deadlines"
         case archive = "Archive"
         var id: String { rawValue }
-    }
-
-    enum FieldFilter: String, CaseIterable, Identifiable {
-        case all = "All Fields"
-        case needsAction = "Needs Next Action"
-        var id: String { rawValue }
-    }
-
-    // Computed Stats
-    var totalProjectsCount: Int {
-        folders.reduce(0) { $0 + $1.projectCount }
-    }
-
-    var totalNextActionsCount: Int {
-        folders.reduce(0) { sum, folder in
-            sum + folder.recentProjects.filter { $0.nextAction != nil && !$0.nextAction!.isEmpty }.count
-        }
-    }
-
-    // Projects with no next actions set
-    var projectsNeedingActions: [ProjectSummary] {
-        folders.flatMap { $0.recentProjects }.filter {
-            $0.nextAction == nil || $0.nextAction!.trimmingCharacters(in: .whitespaces).isEmpty
-        }
     }
 
     // Search Results across all folders
@@ -70,16 +46,7 @@ struct BentoDashboardView: View {
                         .padding(.top, 8)
                         .padding(.bottom, 10)
 
-                    ZStack(alignment: .top) {
-                        activeBentoView
-                            .opacity(activeTab == .active ? 1 : 0)
-                            .allowsHitTesting(activeTab == .active)
-
-                        FinishedArchiveView(sync: sync, searchQuery: searchQuery, isActiveTab: activeTab == .archive)
-                            .opacity(activeTab == .archive ? 1 : 0)
-                            .allowsHitTesting(activeTab == .archive)
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    dashboardTabContent
                 }
 
                 // Global Floating Action Button (Active Tab Only)
@@ -193,27 +160,32 @@ struct BentoDashboardView: View {
                     get: { folderToDelete != nil },
                     set: { if !$0 { folderToDelete = nil } }
                 ),
-                titleVisibility: .visible
-            ) {
+                titleVisibility: .visible,
+                presenting: folderToDelete
+            ) { f in
                 Button("Delete Field & Projects", role: .destructive) {
-                    if let f = folderToDelete {
-                        deleteField(f)
-                    }
+                    deleteField(f)
                     folderToDelete = nil
                 }
                 Button("Cancel", role: .cancel) {
                     folderToDelete = nil
                 }
-            } message: {
-                Text("Deleting '\(folderToDelete?.name ?? "this field")' will permanently remove all projects inside it. This cannot be undone.")
+            } message: { f in
+                Text("Deleting '\(f.name)' will permanently remove all projects inside it. This cannot be undone.")
             }
-            .alert("Sync Conflict Detected", isPresented: Binding(
-                get: { sync.syncConflictAlert != nil },
-                set: { if !$0 { sync.syncConflictAlert = nil } }
-            )) {
-                Button("Dismiss", role: .cancel) { }
-            } message: {
-                Text(sync.syncConflictAlert ?? "")
+            .alert(
+                "Sync Conflict Detected",
+                isPresented: Binding(
+                    get: { sync.syncConflictAlert != nil },
+                    set: { if !$0 { sync.syncConflictAlert = nil } }
+                ),
+                presenting: sync.syncConflictAlert
+            ) { _ in
+                Button("Dismiss", role: .cancel) {
+                    sync.syncConflictAlert = nil
+                }
+            } message: { alertMsg in
+                Text(alertMsg)
             }
             .refreshable {
                 await loadBento()
@@ -237,6 +209,25 @@ struct BentoDashboardView: View {
         return .green
     }
 
+    // MARK: - Dashboard Tab Content
+    @ViewBuilder
+    private var dashboardTabContent: some View {
+        ZStack(alignment: .top) {
+            activeBentoView
+                .opacity(activeTab == .active ? 1 : 0)
+                .allowsHitTesting(activeTab == .active)
+
+            DeadlinesListView(sync: sync, searchQuery: searchQuery, isActiveTab: activeTab == .deadlines)
+                .opacity(activeTab == .deadlines ? 1 : 0)
+                .allowsHitTesting(activeTab == .deadlines)
+
+            FinishedArchiveView(sync: sync, searchQuery: searchQuery, isActiveTab: activeTab == .archive)
+                .opacity(activeTab == .archive ? 1 : 0)
+                .allowsHitTesting(activeTab == .archive)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
     // MARK: - Custom Glass Dashboard Mode Picker
     private var customDashboardTabPicker: some View {
         HStack(spacing: 0) {
@@ -251,7 +242,7 @@ struct BentoDashboardView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "square.grid.2x2.fill")
                         .font(.caption2)
-                    Text("Workspaces (\(folders.count))")
+                    Text("Workspaces")
                         .font(.caption.weight(.semibold))
                         .lineLimit(1)
                         .minimumScaleFactor(0.85)
@@ -262,6 +253,31 @@ struct BentoDashboardView: View {
                 .foregroundColor(activeTab == .active ? .primary : .secondary)
                 .clipShape(Capsule())
                 .shadow(color: activeTab == .active ? Color.black.opacity(0.08) : Color.clear, radius: 4, y: 1)
+            }
+            .buttonStyle(.plain)
+
+            Button(action: {
+                #if os(iOS)
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                #endif
+                withAnimation(.easeInOut(duration: 0.2)) {
+                    activeTab = .deadlines
+                }
+            }) {
+                HStack(spacing: 6) {
+                    Image(systemName: "calendar.badge.clock")
+                        .font(.caption2)
+                    Text("Deadlines")
+                        .font(.caption.weight(.semibold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 7)
+                .background(activeTab == .deadlines ? Color(.systemBackground).opacity(0.85) : Color.clear)
+                .foregroundColor(activeTab == .deadlines ? .primary : .secondary)
+                .clipShape(Capsule())
+                .shadow(color: activeTab == .deadlines ? Color.black.opacity(0.08) : Color.clear, radius: 4, y: 1)
             }
             .buttonStyle(.plain)
 
@@ -309,122 +325,55 @@ struct BentoDashboardView: View {
                 if !searchQuery.trimmingCharacters(in: .whitespaces).isEmpty {
                     searchResultsSection
                 } else {
-                    // Unified Metrics Banner
-                    quickMetricsRow
-                        .padding(.horizontal, 16)
-
-                    // Quick Filter Chips (Safe on all device widths)
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            DashboardFilterChip(
-                                title: "All Fields (\(folders.count))",
-                                isSelected: fieldFilter == .all
-                            ) {
-                                fieldFilter = .all
-                            }
-
-                            DashboardFilterChip(
-                                title: "Needs Action (\(projectsNeedingActions.count))",
-                                isSelected: fieldFilter == .needsAction
-                            ) {
-                                fieldFilter = .needsAction
-                            }
+                    // Bento Stream Cards
+                    if isLoading && folders.isEmpty {
+                        VStack(spacing: 12) {
+                            ProgressView()
+                            Text("Loading Workspaces...")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
                         }
-                        .padding(.horizontal, 16)
-                    }
-
-                    if fieldFilter == .needsAction {
-                        needsActionProjectsSection
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 60)
+                    } else if folders.isEmpty {
+                        emptyStateView
                     } else {
-                        // Bento Stream Cards
-                        if isLoading && folders.isEmpty {
-                            VStack(spacing: 12) {
-                                ProgressView()
-                                Text("Loading Workspaces...")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.top, 60)
-                        } else if folders.isEmpty {
-                            emptyStateView
-                        } else {
-                            LazyVStack(spacing: 14) {
-                                ForEach(folders) { folder in
-                                    NavigationLink(destination: FolderProjectsListView(folder: folder)) {
-                                        BentoFolderCard(
-                                            folder: folder,
-                                            onEdit: {
-                                                folderToEdit = folder
-                                            },
-                                            onDelete: {
-                                                folderToDelete = folder
-                                            }
-                                        )
-                                    }
-                                    .buttonStyle(.plain)
-                                    .contextMenu {
-                                        Button {
+                        LazyVStack(spacing: 14) {
+                            ForEach(folders) { folder in
+                                NavigationLink(destination: FolderProjectsListView(folder: folder)) {
+                                    BentoFolderCard(
+                                        folder: folder,
+                                        onEdit: {
                                             folderToEdit = folder
-                                        } label: {
-                                            Label("Edit Field", systemImage: "pencil")
-                                        }
-
-                                        Button(role: .destructive) {
+                                        },
+                                        onDelete: {
                                             folderToDelete = folder
-                                        } label: {
-                                            Label("Delete Field", systemImage: "trash")
                                         }
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                                .contextMenu {
+                                    Button {
+                                        folderToEdit = folder
+                                    } label: {
+                                        Label("Edit Field", systemImage: "pencil")
+                                    }
+
+                                    Button(role: .destructive) {
+                                        folderToDelete = folder
+                                    } label: {
+                                        Label("Delete Field", systemImage: "trash")
                                     }
                                 }
                             }
-                            .padding(.horizontal, 16)
                         }
+                        .padding(.horizontal, 16)
                     }
                 }
             }
             .padding(.bottom, 96)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
-    // MARK: - Unified Metrics Banner (No Overflow)
-    private var quickMetricsRow: some View {
-        HStack(spacing: 0) {
-            metricItem(icon: "⚡", value: "\(folders.count)", label: "Fields")
-            Spacer()
-            Divider().frame(height: 18).opacity(0.3)
-            Spacer()
-            metricItem(icon: "📂", value: "\(totalProjectsCount)", label: "Projects")
-            Spacer()
-            Divider().frame(height: 18).opacity(0.3)
-            Spacer()
-            metricItem(icon: "🎯", value: "\(totalNextActionsCount)", label: "Actions")
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .background(Color(.systemBackground).opacity(0.72))
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .stroke(Color.white.opacity(0.12), lineWidth: 1)
-        )
-    }
-
-    private func metricItem(icon: String, value: String, label: String) -> some View {
-        HStack(spacing: 5) {
-            Text(icon)
-                .font(.subheadline)
-            Text(value)
-                .font(.subheadline.weight(.bold))
-                .foregroundColor(.primary)
-            Text(label)
-                .font(.caption2.weight(.medium))
-                .foregroundColor(.secondary)
-        }
-        .lineLimit(1)
-        .minimumScaleFactor(0.85)
     }
 
     // MARK: - Floating New Button
@@ -450,61 +399,10 @@ struct BentoDashboardView: View {
         }
     }
 
-    // MARK: - Needs Action Projects View
-    private var needsActionProjectsSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Projects Needing Next Actions")
-                .font(.subheadline)
-                .fontWeight(.bold)
-                .foregroundColor(.secondary)
-                .padding(.horizontal, 16)
-
-            if projectsNeedingActions.isEmpty {
-                VStack(spacing: 10) {
-                    Image(systemName: "checkmark.seal.fill")
-                        .font(.largeTitle)
-                        .foregroundColor(.green)
-                    Text("All projects have defined next actions!")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.top, 40)
-            } else {
-                VStack(spacing: 8) {
-                    ForEach(projectsNeedingActions) { proj in
-                        NavigationLink(destination: ProjectDetailView(projectId: proj.id, initialTitle: proj.title)) {
-                            HStack {
-                                VStack(alignment: .leading, spacing: 3) {
-                                    Text(proj.title)
-                                        .font(.headline)
-                                        .foregroundColor(.primary)
-                                    Text("⚠️ No active next action")
-                                        .font(.caption)
-                                        .foregroundColor(.orange)
-                                }
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .font(.caption2)
-                                    .foregroundColor(.secondary)
-                            }
-                            .padding(14)
-                            .background(Color(.systemBackground).opacity(0.72))
-                            .background(.ultraThinMaterial)
-                            .clipShape(RoundedRectangle(cornerRadius: 14))
-                        }
-                        .buttonStyle(.plain)
-                    }
-                }
-                .padding(.horizontal, 16)
-            }
-        }
-    }
-
     // MARK: - Search Results Section
     private var searchResultsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Search Results (\(searchResults.count))")
+            Text("Search Results")
                 .font(.subheadline)
                 .fontWeight(.bold)
                 .foregroundColor(.secondary)

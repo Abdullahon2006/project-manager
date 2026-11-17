@@ -3,7 +3,18 @@ from sqlalchemy.orm import Session
 from . import models, schemas
 
 PROJECT_ALLOWED_FIELDS = {"title", "current_state", "status", "folder_id"}
-MILESTONE_ALLOWED_FIELDS = {"title", "order", "is_completed"}
+MILESTONE_ALLOWED_FIELDS = {"title", "order", "is_completed", "deadline"}
+
+def parse_iso_datetime(val):
+    if not val:
+        return None
+    if isinstance(val, datetime):
+        return val
+    try:
+        clean = str(val).replace("Z", "+00:00")
+        return datetime.fromisoformat(clean)
+    except Exception:
+        return None
 
 def process_sync_batch(db: Session, sync_req: schemas.SyncRequest) -> schemas.SyncResponse:
     applied = 0
@@ -83,6 +94,7 @@ def process_sync_batch(db: Session, sync_req: schemas.SyncRequest) -> schemas.Sy
                         title=change.payload.get("title", ""),
                         is_completed=change.payload.get("is_completed", False),
                         completed_at=datetime.utcnow() if change.payload.get("is_completed") else None,
+                        deadline=parse_iso_datetime(change.payload.get("deadline")),
                         order=change.payload.get("order", 0),
                         version=1
                     )
@@ -95,6 +107,8 @@ def process_sync_batch(db: Session, sync_req: schemas.SyncRequest) -> schemas.Sy
                             is_comp = v if isinstance(v, bool) else (str(v).lower() in ("true", "1"))
                             milestone.is_completed = is_comp
                             milestone.completed_at = datetime.utcnow() if is_comp else None
+                        elif k == "deadline":
+                            milestone.deadline = parse_iso_datetime(v)
                         elif k in MILESTONE_ALLOWED_FIELDS and hasattr(milestone, k):
                             setattr(milestone, k, v)
                     milestone.version += 1
@@ -116,7 +130,15 @@ def process_sync_batch(db: Session, sync_req: schemas.SyncRequest) -> schemas.Sy
         ]
         updated_milestones = db.query(models.Milestone).filter(models.Milestone.updated_at > sync_req.since).all()
         server_changes["milestones"] = [
-            {"id": m.id, "project_id": m.project_id, "title": m.title, "is_completed": m.is_completed, "completed_at": m.completed_at.isoformat() if m.completed_at else None, "version": m.version}
+            {
+                "id": m.id,
+                "project_id": m.project_id,
+                "title": m.title,
+                "is_completed": m.is_completed,
+                "completed_at": m.completed_at.isoformat() if m.completed_at else None,
+                "deadline": m.deadline.isoformat() if m.deadline else None,
+                "version": m.version
+            }
             for m in updated_milestones
         ]
 

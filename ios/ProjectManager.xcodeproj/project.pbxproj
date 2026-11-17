@@ -18,6 +18,7 @@
 		AA0100092C00000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA0200092C00000000000001 /* Assets.xcassets */; };
 		AA0100102C00000000000001 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0200102C00000000000001 /* ThemeManager.swift */; };
 		AA0100112C00000000000001 /* FieldEditModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0200112C00000000000001 /* FieldEditModalView.swift */; };
+		AA0100122C00000000000001 /* DeadlinesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0200122C00000000000001 /* DeadlinesListView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -33,6 +34,7 @@
 		AA0200092C00000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA0200102C00000000000001 /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
 		AA0200112C00000000000001 /* FieldEditModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldEditModalView.swift; sourceTree = "<group>"; };
+		AA0200122C00000000000001 /* DeadlinesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeadlinesListView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,6 +102,7 @@
 				AA0200072C00000000000001 /* FinishedArchiveView.swift */,
 				AA0200082C00000000000001 /* SettingsSheetView.swift */,
 				AA0200112C00000000000001 /* FieldEditModalView.swift */,
+				AA0200122C00000000000001 /* DeadlinesListView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -139,10 +142,11 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					AA0500012C00000000000001 = {
-						CreatedOnToolsVersion = 15.0;
+						CreatedOnToolsVersion = 16.0;
 					};
 				};
 			};
@@ -190,6 +194,7 @@
 				AA0100082C00000000000001 /* SettingsSheetView.swift in Sources */,
 				AA0100102C00000000000001 /* ThemeManager.swift in Sources */,
 				AA0100112C00000000000001 /* FieldEditModalView.swift in Sources */,
+				AA0100122C00000000000001 /* DeadlinesListView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

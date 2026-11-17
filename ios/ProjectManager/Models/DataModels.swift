@@ -3,62 +3,74 @@ import os
 
 // MARK: - Fast & Thread-Safe Date Decoder & Encoder
 
+private final class DateParserHelper: @unchecked Sendable {
+    private let isoFraction: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        return f
+    }()
+    
+    private let isoStandard: ISO8601DateFormatter = {
+        let f = ISO8601DateFormatter()
+        f.formatOptions = [.withInternetDateTime]
+        return f
+    }()
+    
+    private let posixMicro: DateFormatter = {
+        let df = DateFormatter()
+        df.locale = Locale(identifier: "en_US_POSIX")
+        df.timeZone = TimeZone(secondsFromGMT: 0)
+        df.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
+        return df
+    }()
+    
+    private let posixSec: DateFormatter = {
+        let df = DateFormatter()
+        df.locale = Locale(identifier: "en_US_POSIX")
+        df.timeZone = TimeZone(secondsFromGMT: 0)
+        df.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        return df
+    }()
+    
+    private let lock = NSLock()
+    
+    func parse(_ dateStr: String) -> Date? {
+        lock.lock()
+        defer { lock.unlock() }
+        
+        let count = dateStr.utf8.count
+        
+        // Fast-path branch routing based on length and markers
+        if dateStr.contains("Z") || dateStr.contains("+") {
+            if dateStr.contains(".") {
+                if let dt = isoFraction.date(from: dateStr) { return dt }
+            }
+            if let dt = isoStandard.date(from: dateStr) { return dt }
+        } else if count >= 26 {
+            if let dt = posixMicro.date(from: dateStr) { return dt }
+        } else if count == 19 {
+            if let dt = posixSec.date(from: dateStr) { return dt }
+        }
+        
+        // Fallbacks
+        if let dt = posixMicro.date(from: dateStr) { return dt }
+        if let dt = isoFraction.date(from: dateStr) { return dt }
+        if let dt = posixSec.date(from: dateStr) { return dt }
+        if let dt = isoStandard.date(from: dateStr) { return dt }
+        
+        return nil
+    }
+}
+
 public extension JSONDecoder {
+    private static let dateParser = DateParserHelper()
+
     static let apiDecoder: JSONDecoder = {
         let decoder = JSONDecoder()
-        
-        let isoFraction = ISO8601DateFormatter()
-        isoFraction.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
-        
-        let isoStandard = ISO8601DateFormatter()
-        isoStandard.formatOptions = [.withInternetDateTime]
-        
-        let posixMicro: DateFormatter = {
-            let df = DateFormatter()
-            df.locale = Locale(identifier: "en_US_POSIX")
-            df.timeZone = TimeZone(secondsFromGMT: 0)
-            df.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
-            return df
-        }()
-        
-        let posixSec: DateFormatter = {
-            let df = DateFormatter()
-            df.locale = Locale(identifier: "en_US_POSIX")
-            df.timeZone = TimeZone(secondsFromGMT: 0)
-            df.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-            return df
-        }()
-        
-        let lock = os_unfair_lock_t.allocate(capacity: 1)
-        lock.initialize(to: os_unfair_lock())
-        
         decoder.dateDecodingStrategy = .custom { d in
             let container = try d.singleValueContainer()
             let dateStr = try container.decode(String.self)
-            let count = dateStr.utf8.count
-            
-            os_unfair_lock_lock(lock)
-            defer { os_unfair_lock_unlock(lock) }
-            
-            // Fast-path branch routing based on length and markers
-            if dateStr.contains("Z") || dateStr.contains("+") {
-                if dateStr.contains(".") {
-                    if let dt = isoFraction.date(from: dateStr) { return dt }
-                }
-                if let dt = isoStandard.date(from: dateStr) { return dt }
-            } else if count >= 26 {
-                if let dt = posixMicro.date(from: dateStr) { return dt }
-            } else if count == 19 {
-                if let dt = posixSec.date(from: dateStr) { return dt }
-            }
-            
-            // Fallbacks
-            if let dt = posixMicro.date(from: dateStr) { return dt }
-            if let dt = isoFraction.date(from: dateStr) { return dt }
-            if let dt = posixSec.date(from: dateStr) { return dt }
-            if let dt = isoStandard.date(from: dateStr) { return dt }
-            
-            return Date()
+            return dateParser.parse(dateStr) ?? Date()
         }
         return decoder
     }()
@@ -199,24 +211,53 @@ public struct MilestoneItem: Codable, Identifiable, Hashable, Sendable {
     public var title: String
     public var isCompleted: Bool
     public var completedAt: Date?
+    public var deadline: Date?
     public var order: Int
     public var version: Int?
 
     enum CodingKeys: String, CodingKey {
-        case id, title, order, version
+        case id, title, order, version, deadline
         case projectId = "project_id"
         case isCompleted = "is_completed"
         case completedAt = "completed_at"
     }
     
-    public init(id: String, projectId: String? = nil, title: String, isCompleted: Bool, completedAt: Date? = nil, order: Int = 0, version: Int? = 1) {
+    public init(id: String, projectId: String? = nil, title: String, isCompleted: Bool, completedAt: Date? = nil, deadline: Date? = nil, order: Int = 0, version: Int? = 1) {
         self.id = id
         self.projectId = projectId
         self.title = title
         self.isCompleted = isCompleted
         self.completedAt = completedAt
+        self.deadline = deadline
         self.order = order
         self.version = version
+    }
+}
+
+public struct TaskDeadlineItem: Codable, Identifiable, Hashable, Sendable {
+    public let id: String
+    public let projectId: String
+    public let projectTitle: String
+    public let folderId: String
+    public let folderName: String
+    public let folderIcon: String
+    public let folderColor: String
+    public var title: String
+    public var isCompleted: Bool
+    public var completedAt: Date?
+    public var deadline: Date?
+    public var order: Int
+
+    enum CodingKeys: String, CodingKey {
+        case id, title, order, deadline
+        case projectId = "project_id"
+        case projectTitle = "project_title"
+        case folderId = "folder_id"
+        case folderName = "folder_name"
+        case folderIcon = "folder_icon"
+        case folderColor = "folder_color"
+        case isCompleted = "is_completed"
+        case completedAt = "completed_at"
     }
 }
 

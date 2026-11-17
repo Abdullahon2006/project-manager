@@ -32,6 +32,10 @@ struct ProjectDetailView: View {
     @State private var showDeleteConfirmation: Bool = false
     @State private var editingMilestone: MilestoneItem? = nil
     @State private var editedMilestoneTitle: String = ""
+    @State private var editedMilestoneHasDeadline: Bool = false
+    @State private var editedMilestoneDeadline: Date = Date().addingTimeInterval(86400)
+    @State private var newMilestoneHasDeadline: Bool = false
+    @State private var newMilestoneDeadline: Date = Date().addingTimeInterval(86400)
     @State private var showShareSheet: Bool = false
     @State private var shareSummaryText: String = ""
     @State private var showCopiedAlert: Bool = false
@@ -193,8 +197,16 @@ struct ProjectDetailView: View {
         .sheet(item: $editingMilestone) { m in
             NavigationStack {
                 Form {
-                    Section("Edit Next Action") {
+                    Section("Action Details") {
                         TextField("Action title", text: $editedMilestoneTitle)
+                    }
+
+                    Section("Target Deadline") {
+                        Toggle("Has Deadline", isOn: $editedMilestoneHasDeadline)
+                        if editedMilestoneHasDeadline {
+                            DatePicker("Deadline", selection: $editedMilestoneDeadline, displayedComponents: [.date])
+                                .datePickerStyle(.graphical)
+                        }
                     }
                 }
                 .navigationTitle("Edit Action")
@@ -205,7 +217,12 @@ struct ProjectDetailView: View {
                     }
                     ToolbarItem(placement: .confirmationAction) {
                         Button("Save") {
-                            saveMilestoneTitle(m, newTitle: editedMilestoneTitle)
+                            saveMilestoneTitleAndDeadline(
+                                m,
+                                newTitle: editedMilestoneTitle,
+                                deadline: editedMilestoneHasDeadline ? editedMilestoneDeadline : nil,
+                                clearDeadline: !editedMilestoneHasDeadline
+                            )
                         }
                     }
                 }
@@ -412,23 +429,58 @@ struct ProjectDetailView: View {
             }
 
             // Quick add next action input
-            HStack(spacing: 10) {
-                TextField("Add immediate next action...", text: $newMilestoneTitle)
-                    .focused($isNewActionFocused)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 10)
-                    .background(.ultraThinMaterial)
-                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                    .onSubmit {
-                        createNextAction()
-                    }
+            VStack(spacing: 8) {
+                HStack(spacing: 8) {
+                    TextField("Add immediate next action...", text: $newMilestoneTitle)
+                        .focused($isNewActionFocused)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 10)
+                        .background(.ultraThinMaterial)
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .onSubmit {
+                            createNextAction()
+                        }
 
-                Button(action: createNextAction) {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.title2)
-                        .foregroundColor(newMilestoneTitle.trimmingCharacters(in: .whitespaces).isEmpty ? .gray.opacity(0.4) : .blue)
+                    Button(action: {
+                        withAnimation(.easeInOut(duration: 0.18)) {
+                            newMilestoneHasDeadline.toggle()
+                        }
+                    }) {
+                        Image(systemName: newMilestoneHasDeadline ? "calendar.badge.clock" : "calendar")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundColor(newMilestoneHasDeadline ? .blue : .secondary)
+                            .padding(10)
+                            .background(newMilestoneHasDeadline ? Color.blue.opacity(0.15) : Color.primary.opacity(0.06))
+                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+
+                    Button(action: createNextAction) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(newMilestoneTitle.trimmingCharacters(in: .whitespaces).isEmpty ? .gray.opacity(0.4) : .blue)
+                    }
+                    .disabled(newMilestoneTitle.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
-                .disabled(newMilestoneTitle.trimmingCharacters(in: .whitespaces).isEmpty)
+
+                if newMilestoneHasDeadline {
+                    HStack {
+                        DatePicker("Target Deadline", selection: $newMilestoneDeadline, displayedComponents: [.date])
+                            .datePickerStyle(.compact)
+                            .font(.caption)
+                        Button(action: { newMilestoneHasDeadline = false }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(.ultraThinMaterial)
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
             }
             .padding(.horizontal)
 
@@ -461,6 +513,8 @@ struct ProjectDetailView: View {
                             onEdit: {
                                 editingMilestone = milestone
                                 editedMilestoneTitle = milestone.title
+                                editedMilestoneHasDeadline = milestone.deadline != nil
+                                editedMilestoneDeadline = milestone.deadline ?? Date().addingTimeInterval(86400)
                             },
                             onDelete: { deleteMilestone(milestone) },
                             onMoveUp: { moveMilestoneUp(milestone) },
@@ -717,11 +771,13 @@ struct ProjectDetailView: View {
         UINotificationFeedbackGenerator().notificationOccurred(.success)
         #endif
 
+        let deadline = newMilestoneHasDeadline ? newMilestoneDeadline : nil
         newMilestoneTitle = ""
+        newMilestoneHasDeadline = false
 
         Task {
             do {
-                let created = try await sync.createMilestone(projectId: projectId, title: trimmed)
+                let created = try await sync.createMilestone(projectId: projectId, title: trimmed, deadline: deadline)
                 await MainActor.run {
                     withAnimation {
                         project?.activeMilestones.append(created)
@@ -735,6 +791,7 @@ struct ProjectDetailView: View {
                     projectId: projectId,
                     title: trimmed,
                     isCompleted: false,
+                    deadline: deadline,
                     order: (project?.activeMilestones.count ?? 0) + 1
                 )
                 await MainActor.run {
@@ -849,7 +906,7 @@ struct ProjectDetailView: View {
         }
     }
 
-    private func saveMilestoneTitle(_ milestone: MilestoneItem, newTitle: String) {
+    private func saveMilestoneTitleAndDeadline(_ milestone: MilestoneItem, newTitle: String, deadline: Date?, clearDeadline: Bool) {
         let trimmed = newTitle.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             editingMilestone = nil
@@ -857,12 +914,20 @@ struct ProjectDetailView: View {
         }
         editingMilestone = nil
 
+        let targetDeadline = clearDeadline ? nil : deadline
+
         if let idx = project?.activeMilestones.firstIndex(where: { $0.id == milestone.id }) {
             project?.activeMilestones[idx].title = trimmed
+            project?.activeMilestones[idx].deadline = targetDeadline
         }
 
         Task {
-            try? await sync.updateMilestone(milestoneId: milestone.id, title: trimmed)
+            try? await sync.updateMilestone(
+                milestoneId: milestone.id,
+                title: trimmed,
+                deadline: targetDeadline,
+                clearDeadline: clearDeadline
+            )
         }
     }
 
@@ -994,10 +1059,27 @@ struct ActiveMilestoneRow: View {
             }
             .buttonStyle(.plain)
 
-            Text(milestone.title)
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .foregroundColor(.primary)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(milestone.title)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.primary)
+
+                if let dl = milestone.deadline {
+                    let overdue = Calendar.current.startOfDay(for: dl) < Calendar.current.startOfDay(for: Date())
+                    HStack(spacing: 4) {
+                        Image(systemName: overdue ? "exclamationmark.triangle.fill" : "calendar")
+                            .font(.system(size: 9))
+                        Text(formatRowDeadline(dl))
+                            .font(.system(size: 10, weight: .semibold))
+                    }
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(overdue ? Color.red.opacity(0.14) : Color.blue.opacity(0.12))
+                    .foregroundColor(overdue ? .red : .blue)
+                    .clipShape(Capsule())
+                }
+            }
 
             Spacer()
 
@@ -1044,6 +1126,27 @@ struct ActiveMilestoneRow: View {
         .padding(12)
         .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+    }
+
+    private func formatRowDeadline(_ date: Date) -> String {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let target = calendar.startOfDay(for: date)
+        let diff = calendar.dateComponents([.day], from: today, to: target).day ?? 0
+
+        if diff < 0 {
+            return "Overdue \(abs(diff))d"
+        } else if diff == 0 {
+            return "Today"
+        } else if diff == 1 {
+            return "Tomorrow"
+        } else if diff <= 7 {
+            return "In \(diff)d"
+        } else {
+            let formatter = DateFormatter()
+            formatter.dateFormat = "MMM d"
+            return formatter.string(from: date)
+        }
     }
 }
 

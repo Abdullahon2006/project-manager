@@ -11,6 +11,18 @@ from .agent_router import agent_router
 # Initialize database tables
 Base.metadata.create_all(bind=engine)
 
+def run_migrations():
+    from sqlalchemy import inspect, text
+    inspector = inspect(engine)
+    if "milestones" in inspector.get_table_names():
+        col_names = [c["name"] for c in inspector.get_columns("milestones")]
+        if "deadline" not in col_names:
+            with engine.connect() as conn:
+                conn.execute(text("ALTER TABLE milestones ADD COLUMN deadline DATETIME"))
+                conn.commit()
+
+run_migrations()
+
 def seed_default_data():
     db = SessionLocal()
     try:
