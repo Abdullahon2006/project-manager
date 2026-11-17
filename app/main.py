@@ -13,46 +13,60 @@ Base.metadata.create_all(bind=engine)
 
 def run_migrations():
     from sqlalchemy import inspect, text
-    inspector = inspect(engine)
-    if "milestones" in inspector.get_table_names():
-        col_names = [c["name"] for c in inspector.get_columns("milestones")]
-        if "deadline" not in col_names:
-            with engine.connect() as conn:
-                conn.execute(text("ALTER TABLE milestones ADD COLUMN deadline DATETIME"))
-                conn.commit()
+    import logging
+    logger = logging.getLogger("uvicorn.error")
+    try:
+        inspector = inspect(engine)
+        if "milestones" in inspector.get_table_names():
+            col_names = [c["name"] for c in inspector.get_columns("milestones")]
+            if "deadline" not in col_names:
+                with engine.connect() as conn:
+                    # PostgreSQL does not have DATETIME (must be TIMESTAMP).
+                    # SQLite supports TIMESTAMP as well.
+                    col_type = "TIMESTAMP"
+                    conn.execute(text(f"ALTER TABLE milestones ADD COLUMN deadline {col_type}"))
+                    conn.commit()
+                    logger.info("Successfully added 'deadline' column to milestones table.")
+    except Exception as e:
+        import logging
+        logging.getLogger("uvicorn.error").error(f"Migration error: {e}")
 
 run_migrations()
 
 def seed_default_data():
-    db = SessionLocal()
     try:
-        if db.query(Folder).count() == 0:
-            f1 = Folder(name="Coding", icon="⚡", color="#3b82f6", order=1)
-            f2 = Folder(name="Creative", icon="🎨", color="#8b5cf6", order=2)
-            f3 = Folder(name="Life", icon="🌱", color="#10b981", order=3)
-            db.add_all([f1, f2, f3])
-            db.commit()
-
-        # Ensure sample projects exist so workspace is never empty
-        if db.query(Project).count() == 0:
-            f1 = db.query(Folder).order_by(Folder.order).first()
-            if f1:
-                p1 = Project(
-                    folder_id=f1.id,
-                    title="State & Next Monorepo",
-                    current_state="FastAPI backend setup complete. Structuring SwiftUI views for iOS and Tauri desktop app.",
-                    status="active"
-                )
-                db.add(p1)
+        db = SessionLocal()
+        try:
+            if db.query(Folder).count() == 0:
+                f1 = Folder(name="Coding", icon="⚡", color="#3b82f6", order=1)
+                f2 = Folder(name="Creative", icon="🎨", color="#8b5cf6", order=2)
+                f3 = Folder(name="Life", icon="🌱", color="#10b981", order=3)
+                db.add_all([f1, f2, f3])
                 db.commit()
 
-                m1 = Milestone(project_id=p1.id, title="Compile SwiftUI Xcode project", is_completed=False, order=1)
-                m2 = Milestone(project_id=p1.id, title="Test staged conflict resolution modal", is_completed=False, order=2)
-                m_archived = Milestone(project_id=p1.id, title="Design Bento UI and Sync Engine architecture", is_completed=True, completed_at=p1.created_at, order=0)
-                db.add_all([m1, m2, m_archived])
-                db.commit()
-    finally:
-        db.close()
+            # Ensure sample projects exist so workspace is never empty
+            if db.query(Project).count() == 0:
+                f1 = db.query(Folder).order_by(Folder.order).first()
+                if f1:
+                    p1 = Project(
+                        folder_id=f1.id,
+                        title="State & Next Monorepo",
+                        current_state="FastAPI backend setup complete. Structuring SwiftUI views for iOS and Tauri desktop app.",
+                        status="active"
+                    )
+                    db.add(p1)
+                    db.commit()
+
+                    m1 = Milestone(project_id=p1.id, title="Compile SwiftUI Xcode project", is_completed=False, order=1)
+                    m2 = Milestone(project_id=p1.id, title="Test staged conflict resolution modal", is_completed=False, order=2)
+                    m_archived = Milestone(project_id=p1.id, title="Design Bento UI and Sync Engine architecture", is_completed=True, completed_at=p1.created_at, order=0)
+                    db.add_all([m1, m2, m_archived])
+                    db.commit()
+        finally:
+            db.close()
+    except Exception as e:
+        import logging
+        logging.getLogger("uvicorn.error").error(f"Error seeding default data: {e}")
 
 seed_default_data()
 
