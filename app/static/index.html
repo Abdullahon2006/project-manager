@@ -385,7 +385,7 @@
       color: var(--text-main);
       cursor: pointer;
       font-family: var(--sans);
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 600;
       line-height: 1;
       white-space: nowrap;
@@ -398,7 +398,9 @@
     .header-btn svg { width: 14px; height: 14px; }
     .nav-actions .btn-pill {
       height: 34px;
-      padding: 0 15px;
+      padding: 0 14px;
+      font-size: 13px;
+      font-weight: 600;
       line-height: 1;
       white-space: nowrap;
     }
@@ -822,8 +824,12 @@
       gap: 7px;
       white-space: nowrap;
       transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-      border: none;
+      border: 1px solid transparent;
       text-decoration: none;
+    }
+    .btn-pill svg {
+      width: 14px;
+      height: 14px;
     }
 
     .btn-primary {
@@ -1110,7 +1116,7 @@
       margin-top: 3px;
       font-weight: 500;
     }
-    .stream-next svg { width: 12px; height: 12px; }
+    .stream-next svg { width: 14px; height: 14px; }
 
     /* Dashboard Stream Item Delete Button */
     .stream-del-btn {
@@ -1135,7 +1141,7 @@
       color: var(--danger);
       transform: scale(1.15);
     }
-    .stream-del-btn svg { width: 13px; height: 13px; }
+    .stream-del-btn svg { width: 14px; height: 14px; }
 
     .card-footer {
       display: flex;
@@ -1623,7 +1629,7 @@
       flex-shrink: 0;
     }
     .btn-archive-del:hover { color: var(--danger); }
-    .btn-archive-del svg { width: 12px; height: 12px; }
+    .btn-archive-del svg { width: 14px; height: 14px; }
 
     /* ============================================================
        DEADLINE BADGES & DATE PICKERS
@@ -2031,23 +2037,23 @@
         <!-- Clean Mode Toggle (Light / Dark) -->
         <button type="button" class="header-btn" onclick="toggleTheme()" id="modeToggleBtn" title="Toggle Light / Dark Mode">
           <span id="modeIcon">
-            <svg class="vector-icon" style="width:14px; height:14px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+            <svg class="vector-icon" viewBox="-1 -1 26 26"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
           </span>
-          <span id="modeLabel" style="font-family: var(--mono); font-size: 11px; line-height: 1;">LIGHT</span>
+          <span id="modeLabel">Light</span>
         </button>
 
         <button type="button" class="btn-pill btn-secondary" onclick="openNewFolderModal()">
-          <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <svg class="vector-icon" viewBox="3 3 18 18"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           <span>New Field</span>
         </button>
         <button type="button" class="btn-pill btn-primary" onclick="openNewProjectModal()">
-          <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <svg class="vector-icon" viewBox="3 3 18 18"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           <span>New Project</span>
-          <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          <svg class="vector-icon" viewBox="3 3 18 18"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </button>
         <button type="button" class="header-btn" onclick="openSettingsPage()" title="Settings & Appearance">
-          <svg class="vector-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          <span style="font-family: var(--mono); font-size: 11px; line-height: 1;">SETTINGS</span>
+          <svg class="vector-icon" viewBox="-2 -2 28 28"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          <span>Settings</span>
         </button>
       </div>
     </header>
@@ -2146,17 +2152,20 @@
                 <button class="tab-pill active" id="folderTabActive" onclick="filterFolderProjects('active')">Active</button>
                 <button class="tab-pill" id="folderTabFinished" onclick="filterFolderProjects('finished')">Finished</button>
               </div>
-              <button class="btn-pill btn-primary" onclick="openNewProjectInCurrentFolder()">+ New Project</button>
+              <button type="button" class="btn-pill btn-primary" onclick="openNewProjectInCurrentFolder()">
+                <svg class="vector-icon" viewBox="3 3 18 18"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>New Project</span>
+              </button>
               <button type="button" class="btn-pill btn-secondary" onclick="openEditFolderModal(currentFolderId)">
-                <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                <svg class="vector-icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 <span>Edit Field</span>
               </button>
               <button type="button" class="btn-pill btn-secondary" style="color: var(--danger);" onclick="confirmDeleteFolder(currentFolderId)">
-                <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 <span>Delete Field</span>
               </button>
-              <button class="btn-pill btn-secondary" onclick="showDashboard('streams')">
-                <svg class="vector-icon" style="width:14px; height:14px;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+              <button type="button" class="btn-pill btn-secondary" onclick="showDashboard('streams')">
+                <svg class="vector-icon" viewBox="3 3 18 18"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
                 <span>Back</span>
               </button>
             </div>
@@ -2185,19 +2194,19 @@
             </div>
             <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
               <!-- Toggle Project Finished / Active Button -->
-              <button class="btn-pill btn-success-subtle" id="toggleProjectStatusBtn" onclick="toggleProjectFinished()">
-                <svg class="vector-icon" style="width:14px; height:14px;" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+              <button type="button" class="btn-pill btn-success-subtle" id="toggleProjectStatusBtn" onclick="toggleProjectFinished()">
+                <svg class="vector-icon" viewBox="2 2 20 20"><polyline points="20 6 9 17 4 12"/></svg>
                 <span id="finishProjectBtnLabel">Mark Finished</span>
               </button>
 
               <!-- Delete Project Button -->
               <button type="button" class="btn-pill btn-danger" onclick="deleteCurrentProject()" title="Delete Project">
-                <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 <span>Delete</span>
               </button>
 
-              <button class="btn-pill btn-secondary" onclick="closeWorkspace()">
-                <svg class="vector-icon" style="width:14px; height:14px;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+              <button type="button" class="btn-pill btn-secondary" onclick="closeWorkspace()">
+                <svg class="vector-icon" viewBox="3 3 18 18"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
                 <span>Back</span>
               </button>
             </div>
@@ -2271,8 +2280,8 @@
               <h1 class="display-h1">Workspace Settings</h1>
               <div class="display-sub">Customise Trello wallpapers, visual appearance, and cloud sync</div>
             </div>
-            <button class="btn-pill btn-secondary" onclick="navigateToDashboard()">
-              <svg class="vector-icon" style="width:14px; height:14px;" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            <button type="button" class="btn-pill btn-secondary" onclick="navigateToDashboard()">
+              <svg class="vector-icon" viewBox="3 3 18 18"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
               <span>Back to Streams</span>
             </button>
           </div>
@@ -2568,8 +2577,8 @@
       </div>
 
       <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
-        <button type="button" class="btn-pill" style="background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.25);" onclick="confirmDeleteFolder(document.getElementById('editModalFolderId').value)">
-          <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        <button type="button" class="btn-pill btn-danger" onclick="confirmDeleteFolder(document.getElementById('editModalFolderId').value)">
+          <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           <span>Delete Field</span>
         </button>
         <div style="display: flex; gap: 8px;">
@@ -2727,11 +2736,11 @@
       const label = document.getElementById("modeLabel");
       if (icon && label) {
         if (themeName === "dark") {
-          icon.innerHTML = `<svg class="vector-icon" style="width:14px; height:14px; color:#fbbf24;" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
-          label.innerText = "DARK";
+          icon.innerHTML = `<svg class="vector-icon" style="color:#fbbf24;" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
+          label.innerText = "Dark";
         } else {
-          icon.innerHTML = `<svg class="vector-icon" style="width:14px; height:14px; color:#f59e0b;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
-          label.innerText = "LIGHT";
+          icon.innerHTML = `<svg class="vector-icon" style="color:#f59e0b;" viewBox="-1 -1 26 26"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
+          label.innerText = "Light";
         }
       }
 
@@ -3312,7 +3321,7 @@
               </div>
               <h3 style="font-size: 17px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">${escapeHtml(p.title)}</h3>
               <div class="stream-next">
-                <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                <svg class="vector-icon" viewBox="4 4 16 16"><polyline points="9 18 15 12 9 6"/></svg>
                 <span>${escapeHtml(p.next_action || (isFinished ? "Project completed" : "No open action"))}</span>
               </div>
             </div>
@@ -3532,14 +3541,14 @@
                   <span class="card-name">${escapeHtml(f.name)}</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:5px;">
-                  <button class="stream-action-icon-btn" onclick="openEditFolderModal('${f.id}', event)" title="Edit ${escapeHtml(f.name)} Field">
-                    <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  <button type="button" class="stream-action-icon-btn" onclick="openEditFolderModal('${f.id}', event)" title="Edit ${escapeHtml(f.name)} Field">
+                    <svg class="vector-icon" style="width:14px; height:14px;" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                   </button>
-                  <button class="stream-action-icon-btn stream-delete-icon-btn" onclick="confirmDeleteFolder('${f.id}', event)" title="Delete ${escapeHtml(f.name)} Field">
-                    <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  <button type="button" class="stream-action-icon-btn stream-delete-icon-btn" onclick="confirmDeleteFolder('${f.id}', event)" title="Delete ${escapeHtml(f.name)} Field">
+                    <svg class="vector-icon" style="width:14px; height:14px;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                   </button>
-                  <button class="stream-add-btn" onclick="openInlineProjectAdd('${f.id}', event)" title="Quick-add project to ${escapeHtml(f.name)}">
-                    <svg class="vector-icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  <button type="button" class="stream-add-btn" onclick="openInlineProjectAdd('${f.id}', event)" title="Quick-add project to ${escapeHtml(f.name)}">
+                    <svg class="vector-icon" viewBox="3 3 18 18"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                   </button>
                   <span class="count-badge" onclick="openFolderView('${f.id}')" style="cursor: pointer;">${f.project_count || 0} STREAMS</span>
                 </div>
@@ -3570,7 +3579,7 @@
                           </div>
                         </div>
                         <div class="stream-next">
-                          <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                          <svg class="vector-icon" viewBox="4 4 16 16"><polyline points="9 18 15 12 9 6"/></svg>
                           <span>${escapeHtml(p.next_action || "Add next action...")}</span>
                         </div>
                       </div>
@@ -3925,7 +3934,7 @@
               </div>
               <h3 style="font-size: 18px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">${escapeHtml(p.title)}</h3>
               <div class="stream-next">
-                <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                <svg class="vector-icon" viewBox="4 4 16 16"><polyline points="9 18 15 12 9 6"/></svg>
                 <span>${escapeHtml(p.next_action || (isFinished ? "Project completed" : "No open action"))}</span>
               </div>
             </div>
@@ -4186,7 +4195,7 @@
             <input type="date" class="action-date-input" value="${dateVal}" onchange="updateMilestoneDeadline('${m.id}', this.value)" title="Set or change target deadline">
           </div>
           <button type="button" class="action-delete-btn" onclick="deleteMilestone('${m.id}')" title="Delete action">
-            <svg class="vector-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <svg class="vector-icon" viewBox="4 4 16 16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
       `;
@@ -4217,8 +4226,8 @@
             <button class="btn-restore" onclick="revertCompletedMilestone('${a.id}')" title="Move back to active">
               ↺ Restore
             </button>
-            <button class="btn-archive-del" onclick="deleteMilestone('${a.id}')" title="Permanently delete">
-              <svg class="vector-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <button type="button" class="btn-archive-del" onclick="deleteMilestone('${a.id}')" title="Permanently delete">
+              <svg class="vector-icon" viewBox="4 4 16 16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
         </div>
