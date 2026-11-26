@@ -311,29 +311,24 @@
       font-weight: 700;
       font-style: normal;
       letter-spacing: 0;
-      line-height: 1;
       color: var(--text-main);
     }
 
     .status-chip {
       font-family: var(--mono);
       font-size: 11px;
-      line-height: 1;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       display: inline-flex;
       align-items: center;
-      justify-content: center;
       gap: 7px;
-      height: 28px;
-      padding: 0 12px;
+      padding: 5px 12px;
       background: var(--tag-bg);
       border: 1px solid var(--border-subtle);
       border-radius: 999px;
       color: var(--text-muted);
       cursor: pointer;
       user-select: none;
-      white-space: nowrap;
       transition: all 0.15s ease;
     }
     .status-chip:hover {
@@ -375,10 +370,8 @@
     .header-btn {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
       gap: 7px;
-      height: 34px;
-      padding: 0 14px;
+      padding: 6px 13px;
       border-radius: 999px;
       background: var(--card-bg);
       border: 1px solid var(--border-subtle);
@@ -387,8 +380,6 @@
       font-family: var(--sans);
       font-size: 12px;
       font-weight: 600;
-      line-height: 1;
-      white-space: nowrap;
       transition: all 0.15s;
     }
     .header-btn:hover {
@@ -396,24 +387,6 @@
       background: var(--card-hover);
     }
     .header-btn svg { width: 14px; height: 14px; }
-    .nav-actions .btn-pill {
-      height: 34px;
-      padding: 0 15px;
-      line-height: 1;
-      white-space: nowrap;
-    }
-    .nav-actions .btn-pill svg {
-      width: 14px;
-      height: 14px;
-    }
-    #modeIcon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 14px;
-      height: 14px;
-      flex-shrink: 0;
-    }
 
     /* ============================================================
        DEDICATED SETTINGS VIEW & WALLPAPER GALLERY
@@ -630,25 +603,15 @@
     .tab-pill {
       font-family: var(--mono);
       font-size: 11px;
-      line-height: 1;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      padding: 7px 14px;
+      padding: 6px 14px;
       border-radius: 999px;
       border: none;
       background: transparent;
       color: var(--text-muted);
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      white-space: nowrap;
       transition: all 0.15s;
-    }
-    .tab-pill svg {
-      width: 13px;
-      height: 13px;
     }
     .tab-pill.active {
       background: var(--card-bg);
@@ -664,15 +627,12 @@
       font-family: var(--sans);
       font-size: 13px;
       font-weight: 600;
-      line-height: 1;
       padding: 8px 18px;
       border-radius: 999px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      justify-content: center;
       gap: 7px;
-      white-space: nowrap;
       transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
       border: none;
       text-decoration: none;
@@ -846,16 +806,11 @@
     .count-badge {
       font-family: var(--mono);
       font-size: 11px;
-      line-height: 1;
-      padding: 5px 10px;
+      padding: 3px 9px;
       background: var(--tag-bg);
       border: 1px solid var(--border-subtle);
       border-radius: 999px;
       color: var(--text-muted);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      white-space: nowrap;
     }
 
     /* In-Stream Quick Add */
@@ -954,7 +909,6 @@
     }
     .stream-next {
       font-size: 12px;
-      line-height: 1.3;
       color: var(--accent);
       display: flex;
       align-items: center;
@@ -970,14 +924,10 @@
       border: none;
       color: var(--text-dim);
       cursor: pointer;
-      width: 24px;
-      height: 24px;
-      padding: 0;
-      border-radius: 6px;
-      display: inline-flex;
+      padding: 2px 4px;
+      display: flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
       opacity: 0;
       transition: all 0.15s;
     }
@@ -1134,17 +1084,11 @@
     .status-badge {
       font-family: var(--mono);
       font-size: 10px;
-      line-height: 1;
       letter-spacing: 0.08em;
-      padding: 4px 9px;
+      padding: 3px 8px;
       border-radius: 999px;
       text-transform: uppercase;
       font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 5px;
-      white-space: nowrap;
     }
     .status-badge.active-badge {
       background: var(--accent-soft);
@@ -1184,7 +1128,6 @@
     .panel-title {
       font-family: var(--mono);
       font-size: 12px;
-      line-height: 1;
       letter-spacing: 0.14em;
       text-transform: uppercase;
       color: var(--accent);
@@ -1298,14 +1241,10 @@
       border: none;
       color: var(--text-dim);
       cursor: pointer;
-      width: 26px;
-      height: 26px;
-      padding: 0;
-      border-radius: 6px;
-      display: inline-flex;
+      padding: 4px;
+      display: flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
       opacity: 0;
       transition: all 0.15s;
     }
@@ -1359,7 +1298,6 @@
     .archive-tag {
       font-family: var(--mono);
       font-size: 11px;
-      line-height: 1;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--text-muted);
@@ -1435,14 +1373,12 @@
       color: var(--accent);
       font-family: var(--mono);
       font-size: 11px;
-      line-height: 1;
       font-weight: 600;
-      padding: 5px 10px;
+      padding: 3px 8px;
       border-radius: 6px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      justify-content: center;
       gap: 4px;
       transition: all 0.15s;
     }
@@ -1455,14 +1391,7 @@
       border: none;
       color: var(--text-dim);
       cursor: pointer;
-      width: 24px;
-      height: 24px;
-      padding: 0;
-      border-radius: 6px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
+      padding: 2px 4px;
     }
     .btn-archive-del:hover { color: var(--danger); }
     .btn-archive-del svg { width: 12px; height: 12px; }
@@ -1473,22 +1402,16 @@
     .deadline-badge {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 5px;
+      gap: 4px;
       font-family: var(--mono);
       font-size: 11px;
-      line-height: 1;
-      padding: 4px 8px;
+      padding: 2px 7px;
       border-radius: 6px;
       background: var(--tag-bg);
       border: 1px solid var(--border-subtle);
       color: var(--text-muted);
       white-space: nowrap;
       width: fit-content;
-    }
-    .deadline-badge svg {
-      width: 11px;
-      height: 11px;
     }
     .deadline-badge.overdue {
       background: rgba(239, 68, 68, 0.12);
@@ -1776,15 +1699,12 @@
       background: transparent;
       border: none;
       cursor: pointer;
-      width: 28px;
-      height: 28px;
-      padding: 0;
-      border-radius: 7px;
+      padding: 4px;
+      border-radius: 6px;
       color: var(--text-dim);
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
       transition: all 0.15s ease;
     }
     .stream-action-icon-btn:hover {
@@ -1798,8 +1718,7 @@
 
     /* Icons Utility */
     .vector-icon {
-      display: block;
-      flex-shrink: 0;
+      display: inline-block;
       stroke-width: 2;
       stroke-linecap: round;
       stroke-linejoin: round;
@@ -1824,10 +1743,8 @@
       .nav-actions {
         gap: 6px;
       }
-      .nav-actions .header-btn,
       .nav-actions .btn-pill {
-        height: 30px;
-        padding: 0 10px;
+        padding: 5px 10px;
         font-size: 11px;
       }
       main {
@@ -1871,25 +1788,19 @@
 
       <div class="nav-actions">
         <!-- Clean Mode Toggle (Light / Dark) -->
-        <button type="button" class="header-btn" onclick="toggleTheme()" id="modeToggleBtn" title="Toggle Light / Dark Mode">
-          <span id="modeIcon">
-            <svg class="vector-icon" style="width:14px; height:14px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
-          </span>
-          <span id="modeLabel" style="font-family: var(--mono); font-size: 11px; line-height: 1;">LIGHT</span>
+        <button class="header-btn" onclick="toggleTheme()" id="modeToggleBtn" title="Toggle Light / Dark Mode">
+          <span id="modeIcon">☀️</span>
+          <span id="modeLabel" style="font-family: var(--mono); font-size: 11px;">LIGHT</span>
         </button>
 
-        <button type="button" class="btn-pill btn-secondary" onclick="openNewFolderModal()">
-          <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          <span>New Field</span>
+        <button class="btn-pill btn-secondary" onclick="openNewFolderModal()">+ New Field</button>
+        <button class="btn-pill btn-primary" onclick="openNewProjectModal()">
+          <span>+ New Project</span>
+          <svg class="vector-icon" style="width:14px; height:14px;" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
         </button>
-        <button type="button" class="btn-pill btn-primary" onclick="openNewProjectModal()">
-          <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          <span>New Project</span>
-          <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </button>
-        <button type="button" class="header-btn" onclick="openSettingsPage()" title="Settings & Appearance">
+        <button class="header-btn" onclick="openSettingsPage()" title="Settings & Appearance">
           <svg class="vector-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          <span style="font-family: var(--mono); font-size: 11px; line-height: 1;">SETTINGS</span>
+          <span style="font-family: var(--mono); font-size: 11px;">SETTINGS</span>
         </button>
       </div>
     </header>
@@ -1905,18 +1816,9 @@
             <div class="display-sub">Living state of projects, milestones, deadlines, and finished archives.</div>
           </div>
           <div class="tab-pills">
-            <button type="button" class="tab-pill active" id="tabStreamsBtn" onclick="switchDashboardTab('streams')">
-              <svg class="vector-icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-              <span>Active Streams</span>
-            </button>
-            <button type="button" class="tab-pill" id="tabDeadlinesBtn" onclick="switchDashboardTab('deadlines')">
-              <svg class="vector-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              <span>Deadlines</span>
-            </button>
-            <button type="button" class="tab-pill" id="tabFinishedBtn" onclick="switchDashboardTab('finished')">
-              <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-              <span>Finished Projects</span>
-            </button>
+            <button class="tab-pill active" id="tabStreamsBtn" onclick="switchDashboardTab('streams')">⚡ Active Streams</button>
+            <button class="tab-pill" id="tabDeadlinesBtn" onclick="switchDashboardTab('deadlines')">⏰ Deadlines</button>
+            <button class="tab-pill" id="tabFinishedBtn" onclick="switchDashboardTab('finished')">✓ Finished Projects</button>
           </div>
         </div>
 
@@ -1971,12 +1873,12 @@
                 <button class="tab-pill" id="folderTabFinished" onclick="filterFolderProjects('finished')">Finished</button>
               </div>
               <button class="btn-pill btn-primary" onclick="openNewProjectInCurrentFolder()">+ New Project</button>
-              <button type="button" class="btn-pill btn-secondary" onclick="openEditFolderModal(currentFolderId)">
-                <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              <button class="btn-pill btn-secondary" onclick="openEditFolderModal(currentFolderId)">
+                <svg class="vector-icon" style="width:13px; height:13px; vertical-align:-2px;" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 <span>Edit Field</span>
               </button>
-              <button type="button" class="btn-pill btn-secondary" style="color: var(--danger);" onclick="confirmDeleteFolder(currentFolderId)">
-                <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              <button class="btn-pill btn-secondary" style="color: var(--danger);" onclick="confirmDeleteFolder(currentFolderId)">
+                <svg class="vector-icon" style="width:13px; height:13px; vertical-align:-2px;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 <span>Delete Field</span>
               </button>
               <button class="btn-pill btn-secondary" onclick="showDashboard('streams')">
@@ -2219,9 +2121,7 @@
               </label>
               <div style="position: relative;">
                 <input type="password" class="form-input" id="settingsApiTokenInput" placeholder="Enter pre-shared APP_SECRET_KEY" style="padding-right: 40px;" onkeydown="if(event.key==='Enter') saveBackendSettingsFromPage()">
-                <button type="button" onclick="toggleAuthPasscodeVisibility('settingsApiTokenInput')" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-dim); width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="Show/Hide Passcode">
-                  <svg class="vector-icon" style="width:15px; height:15px;" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-                </button>
+                <button type="button" onclick="toggleAuthPasscodeVisibility('settingsApiTokenInput')" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 14px;" title="Show/Hide Passcode">👁️</button>
               </div>
               <span style="font-size: 11px; color: var(--text-dim); margin-top: 4px; display: block;">Required when the server has APP_SECRET_KEY configured. Matches X-App-Token.</span>
             </div>
@@ -2377,8 +2277,8 @@
 
       <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
         <button type="button" class="btn-pill" style="background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.25);" onclick="confirmDeleteFolder(document.getElementById('editModalFolderId').value)">
-          <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-          <span>Delete Field</span>
+          <svg class="vector-icon" style="width:13px; height:13px; vertical-align:-2px; margin-right:4px;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Delete Field
         </button>
         <div style="display: flex; gap: 8px;">
           <button class="btn-pill btn-secondary" onclick="closeModals()">Cancel</button>
@@ -2405,9 +2305,7 @@
         <label class="form-label">Secret Access Token (X-App-Token)</label>
         <div style="position: relative;">
           <input type="password" class="form-input" id="backendTokenInput" placeholder="Enter pre-shared APP_SECRET_KEY" style="padding-right: 40px;">
-          <button type="button" onclick="toggleAuthPasscodeVisibility('backendTokenInput')" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-dim); width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="Show/Hide Passcode">
-            <svg class="vector-icon" style="width:15px; height:15px;" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-          </button>
+          <button type="button" onclick="toggleAuthPasscodeVisibility('backendTokenInput')" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 14px;" title="Show/Hide Passcode">👁️</button>
         </div>
         <span style="font-size: 11px; color: var(--text-dim); margin-top: 4px; display: block;">Required when the server has APP_SECRET_KEY configured.</span>
       </div>
@@ -2433,9 +2331,7 @@
         <label class="form-label">Secret Access Passcode (X-App-Token)</label>
         <div style="position: relative;">
           <input type="password" class="form-input" id="authPasscodeInput" placeholder="Paste your APP_SECRET_KEY here" style="padding-right: 40px;" onkeydown="if(event.key==='Enter') submitAuthModal()">
-          <button type="button" onclick="toggleAuthPasscodeVisibility('authPasscodeInput')" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-dim); width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="Show/Hide Passcode">
-            <svg class="vector-icon" style="width:15px; height:15px;" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-          </button>
+          <button type="button" onclick="toggleAuthPasscodeVisibility('authPasscodeInput')" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 14px;" title="Show/Hide Passcode">👁️</button>
         </div>
         <div id="authModalFeedback" style="font-size: 12px; margin-top: 8px; display: none; line-height: 1.4;"></div>
       </div>
@@ -2535,10 +2431,10 @@
       const label = document.getElementById("modeLabel");
       if (icon && label) {
         if (themeName === "dark") {
-          icon.innerHTML = `<svg class="vector-icon" style="width:14px; height:14px; color:#fbbf24;" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
+          icon.innerText = "🌙";
           label.innerText = "DARK";
         } else {
-          icon.innerHTML = `<svg class="vector-icon" style="width:14px; height:14px; color:#f59e0b;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
+          icon.innerText = "☀️";
           label.innerText = "LIGHT";
         }
       }
@@ -3254,8 +3150,7 @@
           text = d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
         }
 
-        const clockSvg = `<svg class="vector-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
-        return `<span class="${badgeClass}">${clockSvg}<span>${text}</span></span>`;
+        return `<span class="${badgeClass}">⏰ ${text}</span>`;
       } catch (e) {
         return "";
       }
