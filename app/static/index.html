@@ -2970,10 +2970,8 @@
               </div>
 
               <div class="project-stream">
-                ${(() => {
-                  const activeProjects = (f.recent_projects || []).filter(p => !p.status || p.status === "active");
-                  return activeProjects.length > 0
-                    ? activeProjects.map(p => `
+                ${(f.recent_projects && f.recent_projects.length > 0)
+                  ? f.recent_projects.map(p => `
                       <div class="stream-item" onclick="openWorkspace('${p.id}', '${escapeHtml(f.name)}')">
                         <div class="stream-header">
                           <span class="stream-title">${escapeHtml(p.title)}</span>
@@ -2990,8 +2988,8 @@
                         </div>
                       </div>
                     `).join("")
-                    : `<div style="font-size: 13px; color: var(--text-dim); padding: 12px 0;">No active projects. Click + to add one.</div>`;
-                })()}
+                  : `<div style="font-size: 13px; color: var(--text-dim); padding: 12px 0;">No active projects. Click + to add one.</div>`
+                }
               </div>
             </div>
 
@@ -3533,22 +3531,7 @@
         });
       } catch (e) {}
 
-      if (willFinish) {
-        folders.forEach(f => {
-          if (f.recent_projects) {
-            const before = f.recent_projects.length;
-            f.recent_projects = f.recent_projects.filter(p => p.id !== activeProjectId);
-            if (f.recent_projects.length < before) {
-              f.project_count = Math.max(0, (f.project_count || 1) - 1);
-            }
-          }
-        });
-        saveCachedFolders(folders);
-        renderBento(folders);
-      }
-
       showUndoToast(willFinish ? "Project marked finished!" : "Project reopened to active!");
-      syncWithBackend();
       fetchFinishedProjects();
     }
 

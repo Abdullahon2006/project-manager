@@ -40,8 +40,7 @@ def get_bento_dashboard(db: Session = Depends(get_db)):
 
     for folder in folders:
         projects = db.query(models.Project).filter(
-            models.Project.folder_id == folder.id,
-            models.Project.status == "active"
+            models.Project.folder_id == folder.id
         ).order_by(models.Project.updated_at.desc()).all()
 
         recent_summaries = []
