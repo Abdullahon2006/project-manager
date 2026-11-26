@@ -31,35 +31,58 @@ def verify_app_token(
 
 api_router = APIRouter(prefix="/api", tags=["Application API"], dependencies=[Depends(verify_app_token)])
 
+def _first_incomplete_milestones_by_project(db: Session, project_ids: List[str]) -> dict:
+    """Batch-loads the first incomplete milestone title for each project_id in a single query."""
+    if not project_ids:
+        return {}
+    milestones = db.query(models.Milestone.project_id, models.Milestone.title).filter(
+        models.Milestone.project_id.in_(project_ids),
+        models.Milestone.is_completed == False
+    ).order_by(models.Milestone.order).all()
+    next_actions = {}
+    for project_id, title in milestones:
+        if project_id not in next_actions:
+            next_actions[project_id] = title
+    return next_actions
+
+
 # --- Bento Home Screen ---
 @api_router.get("/bento", response_model=List[schemas.FolderBentoOut])
 def get_bento_dashboard(db: Session = Depends(get_db)):
     """Returns Bento box cards for each folder, including recent project previews and next actions."""
     folders = db.query(models.Folder).order_by(models.Folder.order).all()
+    if not folders:
+        return []
+
+    active_projects = db.query(models.Project).filter(
+        models.Project.status == "active"
+    ).order_by(models.Project.updated_at.desc()).all()
+
+    projects_by_folder = {}
+    preview_project_ids = []
+    for p in active_projects:
+        bucket = projects_by_folder.setdefault(p.folder_id, [])
+        if len(bucket) < 3:
+            preview_project_ids.append(p.id)
+        bucket.append(p)
+
+    next_actions = _first_incomplete_milestones_by_project(db, preview_project_ids)
     bento_results = []
 
     for folder in folders:
-        projects = db.query(models.Project).filter(
-            models.Project.folder_id == folder.id,
-            models.Project.status == "active"
-        ).order_by(models.Project.updated_at.desc()).all()
-
-        recent_summaries = []
-        for p in projects[:3]: # top 3 recent projects for bento card preview
-            next_m = db.query(models.Milestone).filter(
-                models.Milestone.project_id == p.id,
-                models.Milestone.is_completed == False
-            ).order_by(models.Milestone.order).first()
-
-            recent_summaries.append(schemas.ProjectSummary(
+        projects = projects_by_folder.get(folder.id, [])
+        recent_summaries = [
+            schemas.ProjectSummary(
                 id=p.id,
                 folder_id=p.folder_id,
                 title=p.title,
                 status=p.status,
                 version=p.version,
-                next_action=next_m.title if next_m else None,
+                next_action=next_actions.get(p.id),
                 updated_at=p.updated_at
-            ))
+            )
+            for p in projects[:3]
+        ]
 
         bento_results.append(schemas.FolderBentoOut(
             id=folder.id,
@@ -128,23 +151,19 @@ def get_folder_projects(folder_id: str, db: Session = Depends(get_db)):
         models.Project.folder_id == folder_id
     ).order_by(models.Project.updated_at.desc()).all()
 
-    summaries = []
-    for p in projects:
-        next_m = db.query(models.Milestone).filter(
-            models.Milestone.project_id == p.id,
-            models.Milestone.is_completed == False
-        ).order_by(models.Milestone.order).first()
-
-        summaries.append(schemas.ProjectSummary(
+    next_actions = _first_incomplete_milestones_by_project(db, [p.id for p in projects])
+    return [
+        schemas.ProjectSummary(
             id=p.id,
             folder_id=p.folder_id,
             title=p.title,
             status=p.status,
             version=p.version,
-            next_action=next_m.title if next_m else None,
+            next_action=next_actions.get(p.id),
             updated_at=p.updated_at
-        ))
-    return summaries
+        )
+        for p in projects
+    ]
 
 @api_router.get("/projects", response_model=List[schemas.ProjectSummary])
 def list_projects(status: Optional[str] = None, folder_id: Optional[str] = None, db: Session = Depends(get_db)):
@@ -155,23 +174,19 @@ def list_projects(status: Optional[str] = None, folder_id: Optional[str] = None,
         q = q.filter(models.Project.folder_id == folder_id)
     projects = q.order_by(models.Project.updated_at.desc()).all()
 
-    summaries = []
-    for p in projects:
-        next_m = db.query(models.Milestone).filter(
-            models.Milestone.project_id == p.id,
-            models.Milestone.is_completed == False
-        ).order_by(models.Milestone.order).first()
-
-        summaries.append(schemas.ProjectSummary(
+    next_actions = _first_incomplete_milestones_by_project(db, [p.id for p in projects])
+    return [
+        schemas.ProjectSummary(
             id=p.id,
             folder_id=p.folder_id,
             title=p.title,
             status=p.status,
             version=p.version,
-            next_action=next_m.title if next_m else None,
+            next_action=next_actions.get(p.id),
             updated_at=p.updated_at
-        ))
-    return summaries
+        )
+        for p in projects
+    ]
 
 @api_router.get("/projects/{project_id}", response_model=schemas.ProjectDetailOut)
 def get_project_detail(project_id: str, db: Session = Depends(get_db)):
