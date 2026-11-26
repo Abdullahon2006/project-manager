@@ -1761,13 +1761,6 @@
         padding: 22px 18px;
       }
     }
-
-    @media (hover: none), (pointer: coarse) {
-      .stream-del-btn,
-      .action-delete-btn {
-        opacity: 0.72;
-      }
-    }
   </style>
 </head>
 <body>
@@ -1917,7 +1910,7 @@
               </button>
 
               <!-- Delete Project Button -->
-              <button type="button" class="btn-pill btn-danger" onclick="deleteCurrentProject()" title="Delete Project">
+              <button class="btn-pill btn-danger" onclick="deleteCurrentProject()" title="Delete Project">
                 <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 <span>Delete</span>
               </button>
@@ -2985,7 +2978,7 @@
                         <div class="stream-header">
                           <span class="stream-title">${escapeHtml(p.title)}</span>
                           <div style="display:flex; align-items:center; gap:8px;">
-                            <button type="button" class="stream-del-btn" data-project-id="${escapeHtml(p.id)}" data-project-title="${escapeHtml(p.title)}" onclick="deleteProjectFromStream(this.dataset.projectId, this.dataset.projectTitle, event)" title="Delete project">
+                            <button class="stream-del-btn" onclick="deleteProjectFromStream('${p.id}', '${escapeHtml(p.title)}', event)" title="Delete project">
                               <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                             </button>
                             <span class="stream-dot"></span>
@@ -3047,7 +3040,7 @@
               <button class="btn-restore" onclick="reopenFinishedProject('${p.id}', event)">↺ Reopen to Active</button>
               <div style="display: flex; gap: 8px;">
                 <button class="btn-pill btn-secondary" style="padding: 4px 10px; font-size: 11px;" onclick="openWorkspace('${p.id}', '${escapeHtml(folderName)}')">View</button>
-                <button type="button" class="stream-del-btn" style="opacity: 0.8;" data-project-id="${escapeHtml(p.id)}" data-project-title="${escapeHtml(p.title)}" onclick="deleteProjectFromStream(this.dataset.projectId, this.dataset.projectTitle, event)" title="Delete project">
+                <button class="stream-del-btn" style="opacity: 0.8;" onclick="deleteProjectFromStream('${p.id}', '${escapeHtml(p.title)}', event)">
                   <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 </button>
               </div>
@@ -3068,8 +3061,7 @@
       } catch (e) {}
 
       allFinishedProjects = allFinishedProjects.filter(p => p.id !== projectId);
-      const badge = document.getElementById("finishedCountBadge");
-      if (badge) badge.innerText = allFinishedProjects.length;
+      document.getElementById("finishedCountBadge").innerText = allFinishedProjects.length;
       renderFinishedProjects();
       syncWithBackend();
     }
@@ -3359,7 +3351,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 14px; margin-top: 8px;">
               <span style="font-family: var(--mono); font-size: 11px; color: var(--text-dim);">v${p.version || 1}</span>
               <div style="display: flex; gap: 8px;" onclick="event.stopPropagation()">
-                <button type="button" class="stream-del-btn" style="opacity: 0.8;" data-project-id="${escapeHtml(p.id)}" data-project-title="${escapeHtml(p.title)}" onclick="deleteProjectFromStream(this.dataset.projectId, this.dataset.projectTitle, event)" title="Delete project">
+                <button class="stream-del-btn" style="opacity: 0.8;" onclick="deleteProjectFromStream('${p.id}', '${escapeHtml(p.title)}', event)">
                   <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 </button>
               </div>
@@ -3436,26 +3428,8 @@
 
     /* Delete Project directly from Dashboard */
     async function deleteProjectFromStream(projectId, projectTitle, event) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-      const displayTitle = projectTitle || "this project";
-      if (!confirm(`Are you sure you want to delete project "${displayTitle}"?`)) return;
-
-      try {
-        const res = await fetch(`${API_URL}/projects/${projectId}`, { method: "DELETE" });
-        if (!res.ok && res.status !== 404) {
-          const msg = res.status === 401
-            ? "Authentication required to delete projects. Please enter your secret passcode."
-            : `Failed to delete project (HTTP ${res.status}).`;
-          alert(msg);
-          if (res.status === 401) openAuthModal();
-          return;
-        }
-      } catch (e) {
-        console.warn("Delete project request failed:", e);
-      }
+      if (event) event.stopPropagation();
+      if (!confirm(`Are you sure you want to delete project "${projectTitle}"?`)) return;
 
       folders.forEach(f => {
         if (f.recent_projects) {
@@ -3467,15 +3441,17 @@
         }
       });
       allFinishedProjects = allFinishedProjects.filter(p => p.id !== projectId);
-      currentFolderProjects = (currentFolderProjects || []).filter(p => p.id !== projectId);
-      const badge = document.getElementById("finishedCountBadge");
-      if (badge) badge.innerText = allFinishedProjects.length;
+      document.getElementById("finishedCountBadge").innerText = allFinishedProjects.length;
       saveCachedFolders(folders);
       renderBento(folders);
       renderFinishedProjects();
-      if (currentFolderId) renderFolderProjectsGrid();
-      await syncWithBackend();
-      if (currentFolderId) await loadFolderProjects(currentFolderId);
+      if (currentFolderId) loadFolderProjects(currentFolderId);
+
+      try {
+        await fetch(`${API_URL}/projects/${projectId}`, { method: "DELETE" });
+      } catch (e) {
+        console.warn("Delete project failed:", e);
+      }
     }
 
     /* Workspace Handlers */
@@ -3820,23 +3796,10 @@
 
     async function deleteCurrentProject() {
       if (!activeProjectId) return;
-      const title = (activeProjectData && activeProjectData.title) ? activeProjectData.title : "this project";
-      if (!confirm(`Are you sure you want to delete project "${title}" and all its actions?`)) return;
+      if (!confirm(`Are you sure you want to delete project "${activeProjectData.title}" and all its actions?`)) return;
 
       const pId = activeProjectId;
-      try {
-        const res = await fetch(`${API_URL}/projects/${pId}`, { method: "DELETE" });
-        if (!res.ok && res.status !== 404) {
-          const msg = res.status === 401
-            ? "Authentication required to delete projects. Please enter your secret passcode."
-            : `Failed to delete project (HTTP ${res.status}).`;
-          alert(msg);
-          if (res.status === 401) openAuthModal();
-          return;
-        }
-      } catch (e) {
-        console.warn("Delete current project request failed:", e);
-      }
+      closeWorkspace();
 
       folders.forEach(f => {
         if (f.recent_projects) {
@@ -3848,15 +3811,14 @@
         }
       });
       allFinishedProjects = allFinishedProjects.filter(p => p.id !== pId);
-      currentFolderProjects = (currentFolderProjects || []).filter(p => p.id !== pId);
-      const badge = document.getElementById("finishedCountBadge");
-      if (badge) badge.innerText = allFinishedProjects.length;
+      document.getElementById("finishedCountBadge").innerText = allFinishedProjects.length;
       saveCachedFolders(folders);
       renderBento(folders);
       renderFinishedProjects();
 
-      closeWorkspace();
-      await syncWithBackend();
+      try {
+        await fetch(`${API_URL}/projects/${pId}`, { method: "DELETE" });
+      } catch (e) {}
     }
 
     /* Auto-saving Project Notes & Context */
@@ -4065,10 +4027,7 @@
     }
 
     async function confirmDeleteFolder(folderId, event) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
+      if (event) event.stopPropagation();
       closeModals();
 
       const folder = folders.find(f => f.id === folderId);
@@ -4078,22 +4037,6 @@
       const confirmed = confirm(`Are you sure you want to delete the "${folderName}" field?\n\nThis will permanently delete this field and all ${projectCount} projects inside it.`);
       if (!confirmed) return;
 
-      try {
-        const res = await fetch(`${API_URL}/folders/${folderId}`, {
-          method: "DELETE"
-        });
-        if (!res.ok && res.status !== 404) {
-          const msg = res.status === 401
-            ? "Authentication required to delete fields. Please enter your secret passcode."
-            : `Failed to delete field (HTTP ${res.status}).`;
-          alert(msg);
-          if (res.status === 401) openAuthModal();
-          return;
-        }
-      } catch (e) {
-        console.warn("Delete folder request failed:", e);
-      }
-
       folders = folders.filter(f => f.id !== folderId);
       saveCachedFolders(folders);
       renderBento(folders);
@@ -4102,7 +4045,12 @@
       if (currentFolderId === folderId) {
         showDashboard("streams");
       }
-      await fetchFinishedProjects();
+
+      try {
+        await fetch(`${API_URL}/folders/${folderId}`, {
+          method: "DELETE"
+        });
+      } catch (e) {}
     }
 
     function openSettingsModal() {
