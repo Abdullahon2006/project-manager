@@ -127,11 +127,21 @@
       -moz-osx-font-smoothing: grayscale;
       -webkit-tap-highlight-color: transparent;
       -webkit-touch-callout: none;
+      transition: background-color 0.25s ease, color 0.2s ease;
+    }
+
+    /* GPU-composited fixed wallpaper layer (avoids software repaint on scroll) */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: var(--wallpaper-image, none);
       background-size: cover;
       background-position: center;
-      background-attachment: fixed;
       background-repeat: no-repeat;
-      transition: background-image 0.4s ease, background-color 0.25s ease, color 0.2s ease;
+      pointer-events: none;
+      z-index: 0;
+      transform: translateZ(0);
     }
 
     /* Edge-to-Edge Wallpaper without white washed overlay */
@@ -193,8 +203,8 @@
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
     }
     body.has-wallpaper .status-chip {
-      background: rgba(255, 255, 255, 0.12);
-      border-color: rgba(255, 255, 255, 0.18);
+      background: rgba(15, 23, 42, 0.65);
+      border-color: rgba(255, 255, 255, 0.22);
       color: #ffffff;
     }
     body.has-wallpaper .icon-btn {
@@ -446,8 +456,6 @@
     }
     .settings-card {
       background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--border-subtle);
       border-radius: 14px;
       padding: 24px;
@@ -675,14 +683,12 @@
       height: 36px;
       padding: 0 12px;
       background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--border-subtle);
       border-radius: 999px;
       min-width: 240px;
       flex: 1 1 240px;
       max-width: 340px;
-      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+      transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
     }
     .quick-search-box:focus-within {
       border-color: var(--accent);
@@ -854,7 +860,7 @@
     }
 
     .btn-success-subtle {
-      background: var(--accent-soft);
+      background: linear-gradient(var(--accent-soft), var(--accent-soft)), var(--card-bg);
       color: var(--accent);
       border: 1px solid var(--accent-glow);
     }
@@ -864,9 +870,9 @@
     }
 
     .btn-danger {
-      background: rgba(239, 68, 68, 0.12);
+      background: linear-gradient(rgba(239, 68, 68, 0.14), rgba(239, 68, 68, 0.14)), var(--card-bg);
       color: #ef4444;
-      border: 1px solid rgba(239, 68, 68, 0.28);
+      border: 1px solid rgba(239, 68, 68, 0.35);
     }
     .btn-danger:hover {
       background: #ef4444;
@@ -941,15 +947,13 @@
 
     .bento-card {
       background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--border-subtle);
       border-radius: 14px;
       padding: 24px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.18s ease;
       position: relative;
       box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
     }
@@ -1279,10 +1283,11 @@
       font-family: var(--mono);
       font-size: 11px;
       color: var(--accent);
-      background: var(--accent-soft);
+      background: linear-gradient(var(--accent-soft), var(--accent-soft)), var(--card-bg);
       border: 1px solid var(--accent-glow);
       border-radius: 999px;
-      padding: 2px 8px;
+      padding: 3px 9px;
+      line-height: 1;
     }
 
     .status-badge {
@@ -1301,12 +1306,12 @@
       white-space: nowrap;
     }
     .status-badge.active-badge {
-      background: var(--accent-soft);
+      background: linear-gradient(var(--accent-soft), var(--accent-soft)), var(--card-bg);
       color: var(--accent);
       border: 1px solid var(--accent-glow);
     }
     .status-badge.finished-badge {
-      background: rgba(5, 150, 105, 0.14);
+      background: linear-gradient(rgba(5, 150, 105, 0.14), rgba(5, 150, 105, 0.14)), var(--card-bg);
       color: var(--accent);
       border: 1px solid var(--accent-glow);
     }
@@ -1358,8 +1363,6 @@
     /* Actions Panel */
     .actions-panel {
       background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--border-subtle);
       border-radius: 14px;
       padding: 24px;
@@ -1594,7 +1597,7 @@
       color: var(--text-dim);
     }
     .btn-restore {
-      background: var(--accent-soft);
+      background: linear-gradient(var(--accent-soft), var(--accent-soft)), var(--card-bg);
       border: 1px solid var(--accent-glow);
       color: var(--accent);
       font-family: var(--mono);
@@ -1608,7 +1611,7 @@
       align-items: center;
       justify-content: center;
       gap: 4px;
-      transition: all 0.15s;
+      transition: background-color 0.15s, color 0.15s;
     }
     .btn-restore:hover {
       background: var(--accent);
@@ -1709,8 +1712,6 @@
     }
     .deadline-task-card {
       background: var(--card-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--border-subtle);
       border-radius: 14px;
       padding: 14px 18px;
@@ -1718,7 +1719,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: transform 0.16s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.15s ease, background-color 0.15s ease;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
     }
     .deadline-task-card:hover {
@@ -1776,8 +1777,6 @@
     /* Right Column: Project Notes & Context */
     .notes-panel {
       background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--border-subtle);
       border-radius: 14px;
       padding: 24px;
@@ -2655,27 +2654,27 @@
     const WALLPAPERS = {
       forest: {
         name: "🌲 Pine Mist",
-        url: "https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=2560&auto=format&fit=crop"
+        url: "https://images.unsplash.com/photo-1448375240586-882707db888b?q=75&w=1600&auto=format&fit=crop"
       },
       valley: {
         name: "🏞️ River Valley",
-        url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2560&auto=format&fit=crop"
+        url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=75&w=1600&auto=format&fit=crop"
       },
       mountain: {
         name: "🌫️ Mountain Fog",
-        url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=80&w=2560&auto=format&fit=crop"
+        url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?q=75&w=1600&auto=format&fit=crop"
       },
       alpine: {
         name: "🏔️ Alpine Peak",
-        url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2560&auto=format&fit=crop"
+        url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=75&w=1600&auto=format&fit=crop"
       },
       fjord: {
         name: "🌊 Nordic Fjord",
-        url: "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?q=80&w=2560&auto=format&fit=crop"
+        url: "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?q=75&w=1600&auto=format&fit=crop"
       },
       canopy: {
         name: "🌿 Emerald Canopy",
-        url: "https://images.unsplash.com/photo-1511497584788-87676104235f?q=80&w=2560&auto=format&fit=crop"
+        url: "https://images.unsplash.com/photo-1511497584788-87676104235f?q=75&w=1600&auto=format&fit=crop"
       },
       clean: {
         name: "◻️ Clean Canvas",
@@ -2704,14 +2703,17 @@
       }
 
       if (url) {
-        document.body.style.backgroundImage = `url('${url}')`;
+        document.documentElement.style.setProperty("--wallpaper-image", `url('${url}')`);
         document.body.classList.add("has-wallpaper");
       } else {
-        document.body.style.backgroundImage = "none";
+        document.documentElement.style.setProperty("--wallpaper-image", "none");
         document.body.classList.remove("has-wallpaper");
       }
 
-      renderSettingsWallpapers();
+      const settingsSec = document.getElementById("settingsSection");
+      if (settingsSec && settingsSec.style.display !== "none") {
+        renderSettingsWallpapers();
+      }
     }
 
     function setWallpaper(wpKey) {
@@ -2804,7 +2806,8 @@
         const item = WALLPAPERS[key];
         const isActive = currentWallpaper === key;
         const isClean = key === "clean";
-        const bgStyle = item.url ? `background-image: url('${item.url}')` : `background: var(--tag-bg); border: 1px dashed var(--border-subtle);`;
+        const thumbUrl = item.url ? item.url.replace("w=1600", "w=400").replace("q=75", "q=70") : "";
+        const bgStyle = thumbUrl ? `background-image: url('${thumbUrl}')` : `background: var(--tag-bg); border: 1px dashed var(--border-subtle);`;
         return `
           <div class="gallery-wp-card ${isActive ? 'active-wp' : ''} ${isClean ? 'clean-card' : ''}" onclick="setWallpaper('${key}')" style="${bgStyle}">
             <div class="gallery-wp-title">
@@ -3048,16 +3051,20 @@
       applyWallpaper(currentWallpaper);
       applyFontTheme(currentFontTheme);
       renderBento(folders);
-      const isSynced = await syncWithBackend();
+      handleHashChange();
+
+      const [syncResult] = await Promise.allSettled([
+        syncWithBackend(),
+        fetchFinishedProjects()
+      ]);
+      const isSynced = syncResult.status === "fulfilled" ? syncResult.value : false;
       if (!isSynced && !API_TOKEN) {
         const dot = document.getElementById("statusDot");
-        if (dot && dot.className.includes("offline") && document.getElementById("statusLabel").innerText.includes("AUTH")) {
+        const label = document.getElementById("statusLabel");
+        if (dot && dot.className.includes("offline") && label && label.innerText.includes("AUTH")) {
           openAuthModal();
         }
       }
-      await fetchFinishedProjects();
-      renderSettingsWallpapers();
-      handleHashChange();
     }
 
     window.addEventListener("hashchange", handleHashChange);
@@ -4113,18 +4120,27 @@
       const isFinished = activeProjectData.status === "completed";
       const badge = document.getElementById("projectStatusBadge");
       const btn = document.getElementById("toggleProjectStatusBtn");
+      const btnIcon = btn ? btn.querySelector("svg") : null;
       const btnLabel = document.getElementById("finishProjectBtnLabel");
 
       if (isFinished) {
         badge.className = "status-badge finished-badge";
         badge.innerText = "✓ FINISHED";
         btn.className = "btn-pill btn-secondary";
-        btnLabel.innerText = "↺ Reopen Project";
+        if (btnIcon) {
+          btnIcon.setAttribute("viewBox", "0 0 24 24");
+          btnIcon.innerHTML = `<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>`;
+        }
+        btnLabel.innerText = "Reopen Project";
       } else {
         badge.className = "status-badge active-badge";
         badge.innerText = "⚡ ACTIVE";
         btn.className = "btn-pill btn-success-subtle";
-        btnLabel.innerText = "✓ Mark Finished";
+        if (btnIcon) {
+          btnIcon.setAttribute("viewBox", "2 2 20 20");
+          btnIcon.innerHTML = `<polyline points="20 6 9 17 4 12"/>`;
+        }
+        btnLabel.innerText = "Mark Finished";
       }
     }
 

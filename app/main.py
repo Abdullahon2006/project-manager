@@ -2,6 +2,7 @@ import os
 from fastapi import FastAPI, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from .database import engine, Base, SessionLocal
 from .models import Folder, Project, Milestone
@@ -75,6 +76,8 @@ app = FastAPI(
     version="1.0.0",
     description="Synchronized Backend Engine with Bento Folders, Staged Conflict Resolution, and AI Agent API."
 )
+
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 app.add_middleware(
     CORSMiddleware,
