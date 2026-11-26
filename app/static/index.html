@@ -659,6 +659,154 @@
       color: var(--text-main);
     }
 
+    /* Quick Project Search */
+    .dashboard-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .quick-search-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 36px;
+      padding: 0 12px;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      min-width: 240px;
+      flex: 1 1 240px;
+      max-width: 340px;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+    .quick-search-box:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+      background: var(--card-hover);
+    }
+    .quick-search-box svg {
+      width: 14px;
+      height: 14px;
+      color: var(--text-dim);
+    }
+    .quick-search-input {
+      flex: 1;
+      min-width: 0;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-main);
+      font-family: var(--sans);
+      font-size: 13px;
+      line-height: 1.2;
+    }
+    .quick-search-input::placeholder {
+      color: var(--text-dim);
+    }
+    .quick-search-kbd {
+      font-family: var(--mono);
+      font-size: 10px;
+      line-height: 1;
+      color: var(--text-dim);
+      background: var(--tag-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 5px;
+      padding: 3px 6px;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .quick-search-clear {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border: none;
+      border-radius: 50%;
+      background: var(--tag-bg);
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+    .quick-search-clear:hover {
+      background: var(--border-subtle);
+      color: var(--text-main);
+    }
+    .quick-search-clear svg {
+      width: 11px;
+      height: 11px;
+    }
+    .search-results-section {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      animation: fadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .search-results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .quick-search-modal-dialog {
+      max-width: 580px;
+      padding: 0;
+      overflow: hidden;
+      gap: 0;
+    }
+    .quick-search-modal-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .quick-search-modal-top svg {
+      width: 16px;
+      height: 16px;
+      color: var(--text-dim);
+    }
+    .quick-search-modal-list {
+      max-height: 360px;
+      overflow-y: auto;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .quick-search-modal-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.12s;
+    }
+    .quick-search-modal-item:hover,
+    .quick-search-modal-item.selected {
+      background: var(--accent-soft);
+      border-color: var(--accent-glow);
+    }
+    .quick-search-modal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 16px;
+      border-top: 1px solid var(--border-subtle);
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
     /* Buttons */
     .btn-pill {
       font-family: var(--sans);
@@ -1914,20 +2062,39 @@
             <div class="display-h1">Active Workspaces</div>
             <div class="display-sub">Living state of projects, milestones, deadlines, and finished archives.</div>
           </div>
-          <div class="tab-pills">
-            <button type="button" class="tab-pill active" id="tabStreamsBtn" onclick="switchDashboardTab('streams')">
-              <svg class="vector-icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-              <span>Active Streams</span>
-            </button>
-            <button type="button" class="tab-pill" id="tabDeadlinesBtn" onclick="switchDashboardTab('deadlines')">
-              <svg class="vector-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              <span>Deadlines</span>
-            </button>
-            <button type="button" class="tab-pill" id="tabFinishedBtn" onclick="switchDashboardTab('finished')">
-              <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-              <span>Finished Projects</span>
-            </button>
+          <div class="dashboard-controls">
+            <div class="quick-search-box">
+              <svg class="vector-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" class="quick-search-input" id="dashboardSearchInput" placeholder="Quick search projects..." oninput="handleDashboardSearch(this.value)" onkeydown="if(event.key==='Escape'){clearDashboardSearch(); this.blur();}">
+              <span class="quick-search-kbd" id="dashboardSearchKbd">⌘K</span>
+              <button type="button" class="quick-search-clear" id="dashboardSearchClearBtn" onclick="clearDashboardSearch()" title="Clear search">
+                <svg class="vector-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div class="tab-pills">
+              <button type="button" class="tab-pill active" id="tabStreamsBtn" onclick="switchDashboardTab('streams')">
+                <svg class="vector-icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                <span>Active Streams</span>
+              </button>
+              <button type="button" class="tab-pill" id="tabDeadlinesBtn" onclick="switchDashboardTab('deadlines')">
+                <svg class="vector-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span>Deadlines</span>
+              </button>
+              <button type="button" class="tab-pill" id="tabFinishedBtn" onclick="switchDashboardTab('finished')">
+                <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Finished Projects</span>
+              </button>
+            </div>
           </div>
+        </div>
+
+        <!-- Quick Search Results -->
+        <div class="search-results-section" id="searchResultsContainer">
+          <div class="search-results-header">
+            <span class="eyebrow" id="searchResultsHeading" style="margin-bottom: 0;">SEARCH RESULTS</span>
+            <button type="button" class="btn-pill btn-secondary" style="padding: 5px 12px; font-size: 11px;" onclick="clearDashboardSearch()">Clear Search</button>
+          </div>
+          <div class="field-grid" id="searchResultsGrid"></div>
         </div>
 
         <!-- Bento Grid for Active Streams -->
@@ -2278,6 +2445,22 @@
   <div class="toast-undo" id="undoToast">
     <span id="toastMsg">Action completed</span>
     <button class="toast-undo-btn" id="toastUndoBtn" onclick="undoLastComplete()">↺ Undo</button>
+  </div>
+
+  <!-- Quick Search Palette Modal (Cmd/Ctrl+K) -->
+  <div class="modal-backdrop" id="quickSearchModal" onclick="if(event.target===this) closeQuickSearchModal()">
+    <div class="modal-dialog quick-search-modal-dialog">
+      <div class="quick-search-modal-top">
+        <svg class="vector-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="quick-search-input" id="quickSearchModalInput" style="font-size: 15px;" placeholder="Jump to any project..." oninput="handleQuickSearchModalInput(this.value)" onkeydown="handleQuickSearchKeydown(event)">
+        <button type="button" class="btn-pill btn-secondary" style="padding: 4px 10px; font-size: 11px;" onclick="closeQuickSearchModal()">Esc</button>
+      </div>
+      <div class="quick-search-modal-list" id="quickSearchModalList"></div>
+      <div class="quick-search-modal-footer">
+        <span>↑↓ Navigate &nbsp;·&nbsp; ↵ Open</span>
+        <span id="quickSearchModalCount">0 projects</span>
+      </div>
+    </div>
   </div>
 
   <!-- New Project Modal -->
@@ -2803,6 +2986,10 @@
 
     let folders = loadCachedFolders();
     let allFinishedProjects = [];
+    let allProjectsIndex = [];
+    let dashboardSearchQuery = "";
+    let quickSearchSelectedIdx = 0;
+    let quickSearchModalMatches = [];
     let currentFolderId = null;
     let currentFolderFilter = "active";
     let activeProjectId = null;
@@ -2919,6 +3106,7 @@
             saveCachedFolders(data);
             renderBento(folders);
           }
+          fetchAllProjectsIndex();
           if (dot) dot.className = "status-dot";
           if (label) label.innerText = "CLOUD SYNCED";
           if (chip) chip.title = "Cloud Synced • Click to manage sync settings";
@@ -2985,7 +3173,272 @@
       const badge = document.getElementById("finishedCountBadge");
       if (badge) badge.innerText = allFinishedProjects.length;
       renderFinishedProjects();
+      if (dashboardSearchQuery.trim()) renderDashboardSearchResults();
     }
+
+    /* ============================================================
+       QUICK PROJECT SEARCH (DASHBOARD + CMD/CTRL+K PALETTE)
+       ============================================================ */
+    async function fetchAllProjectsIndex() {
+      try {
+        const res = await fetch(`${API_URL}/projects`);
+        if (res.ok) {
+          allProjectsIndex = await res.json();
+          if (dashboardSearchQuery.trim()) renderDashboardSearchResults();
+          const modal = document.getElementById("quickSearchModal");
+          if (modal && modal.classList.contains("active")) {
+            const inp = document.getElementById("quickSearchModalInput");
+            handleQuickSearchModalInput(inp ? inp.value : "");
+          }
+        }
+      } catch (e) {}
+    }
+
+    function getSearchableProjects() {
+      const byId = new Map();
+      (allProjectsIndex || []).forEach(p => {
+        if (p && p.id) byId.set(p.id, { ...p });
+      });
+      (folders || []).forEach(f => {
+        (f.recent_projects || []).forEach(p => {
+          if (p && p.id && !byId.has(p.id)) {
+            byId.set(p.id, { ...p, folder_id: p.folder_id || f.id, status: p.status || "active" });
+          }
+        });
+      });
+      (allFinishedProjects || []).forEach(p => {
+        if (p && p.id && !byId.has(p.id)) {
+          byId.set(p.id, { ...p, status: p.status || "completed" });
+        }
+      });
+      return Array.from(byId.values());
+    }
+
+    function filterProjectsByQuery(query) {
+      const q = (query || "").trim().toLowerCase();
+      const all = getSearchableProjects();
+      const filtered = q
+        ? all.filter(p => {
+            const folder = (folders || []).find(f => f.id === p.folder_id);
+            const folderName = folder ? folder.name.toLowerCase() : "";
+            return (
+              (p.title || "").toLowerCase().includes(q) ||
+              (p.next_action || "").toLowerCase().includes(q) ||
+              folderName.includes(q)
+            );
+          })
+        : all;
+
+      return filtered.sort((a, b) => {
+        const aActive = (!a.status || a.status === "active") ? 0 : 1;
+        const bActive = (!b.status || b.status === "active") ? 0 : 1;
+        if (aActive !== bActive) return aActive - bActive;
+        const ta = a.updated_at ? new Date(a.updated_at).getTime() : 0;
+        const tb = b.updated_at ? new Date(b.updated_at).getTime() : 0;
+        return tb - ta;
+      });
+    }
+
+    function handleDashboardSearch(val) {
+      dashboardSearchQuery = val || "";
+      const clearBtn = document.getElementById("dashboardSearchClearBtn");
+      const kbd = document.getElementById("dashboardSearchKbd");
+      const hasQuery = dashboardSearchQuery.trim().length > 0;
+      if (clearBtn) clearBtn.style.display = hasQuery ? "inline-flex" : "none";
+      if (kbd) kbd.style.display = hasQuery ? "none" : "inline-block";
+
+      if (hasQuery) {
+        if (allProjectsIndex.length === 0) fetchAllProjectsIndex();
+        renderDashboardSearchResults();
+      } else {
+        switchDashboardTab(currentDashboardTab);
+      }
+    }
+
+    function clearDashboardSearch() {
+      dashboardSearchQuery = "";
+      const input = document.getElementById("dashboardSearchInput");
+      if (input) input.value = "";
+      const clearBtn = document.getElementById("dashboardSearchClearBtn");
+      const kbd = document.getElementById("dashboardSearchKbd");
+      if (clearBtn) clearBtn.style.display = "none";
+      if (kbd) kbd.style.display = "inline-block";
+      switchDashboardTab(currentDashboardTab);
+    }
+
+    function renderDashboardSearchResults() {
+      const searchSection = document.getElementById("searchResultsContainer");
+      const grid = document.getElementById("searchResultsGrid");
+      const heading = document.getElementById("searchResultsHeading");
+      const bentoContainer = document.getElementById("bentoContainer");
+      const deadlinesContainer = document.getElementById("deadlinesContainer");
+      const finishedContainer = document.getElementById("finishedContainer");
+      if (!searchSection || !grid) return;
+
+      if (bentoContainer) bentoContainer.style.display = "none";
+      if (deadlinesContainer) deadlinesContainer.style.display = "none";
+      if (finishedContainer) finishedContainer.style.display = "none";
+      searchSection.style.display = "flex";
+
+      const matches = filterProjectsByQuery(dashboardSearchQuery);
+      if (heading) {
+        heading.innerText = `SEARCH RESULTS (${matches.length})`;
+      }
+
+      if (matches.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: var(--card-bg); border: 1px dashed var(--border-subtle); border-radius: 18px;">
+            <div style="font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">No projects matching "${escapeHtml(dashboardSearchQuery.trim())}"</div>
+            <div style="font-size: 13px; color: var(--text-muted);">Try searching by project title, next action, or field name.</div>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = matches.map(p => {
+        const folder = (folders || []).find(f => f.id === p.folder_id);
+        const folderName = folder ? folder.name : "Field";
+        const folderColor = folder && folder.color ? folder.color : "var(--accent)";
+        const isFinished = p.status === "completed";
+        return `
+          <div class="field-card ${isFinished ? 'finished-card' : ''}" data-project-id="${escapeHtml(p.id)}" data-folder-name="${escapeHtml(folderName)}" onclick="openWorkspace(this.dataset.projectId, this.dataset.folderName)">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px;">
+                <span class="status-badge ${isFinished ? 'finished-badge' : 'active-badge'}">${isFinished ? '✓ FINISHED' : '⚡ ACTIVE'}</span>
+                <span class="count-badge" style="gap: 5px;">
+                  <span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:${folderColor};"></span>
+                  <span>${escapeHtml(folderName)}</span>
+                </span>
+              </div>
+              <h3 style="font-size: 17px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">${escapeHtml(p.title)}</h3>
+              <div class="stream-next">
+                <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                <span>${escapeHtml(p.next_action || (isFinished ? "Project completed" : "No open action"))}</span>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 12px; margin-top: 8px;">
+              <span style="font-family: var(--mono); font-size: 11px; color: var(--text-dim);">v${p.version || 1}</span>
+              <span style="font-family: var(--mono); font-size: 11px; color: var(--accent);">Open Workspace →</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function openQuickSearchModal() {
+      const modal = document.getElementById("quickSearchModal");
+      const input = document.getElementById("quickSearchModalInput");
+      if (!modal || !input) return;
+      modal.classList.add("active");
+      input.value = "";
+      quickSearchSelectedIdx = 0;
+      if (allProjectsIndex.length === 0) fetchAllProjectsIndex();
+      handleQuickSearchModalInput("");
+      setTimeout(() => input.focus(), 40);
+    }
+
+    function closeQuickSearchModal() {
+      const modal = document.getElementById("quickSearchModal");
+      if (modal) modal.classList.remove("active");
+    }
+
+    function handleQuickSearchModalInput(val) {
+      quickSearchModalMatches = filterProjectsByQuery(val).slice(0, 25);
+      quickSearchSelectedIdx = 0;
+      renderQuickSearchModalList();
+    }
+
+    function renderQuickSearchModalList() {
+      const list = document.getElementById("quickSearchModalList");
+      const countEl = document.getElementById("quickSearchModalCount");
+      if (!list) return;
+      if (countEl) {
+        countEl.innerText = `${quickSearchModalMatches.length} ${quickSearchModalMatches.length === 1 ? "project" : "projects"}`;
+      }
+      if (quickSearchModalMatches.length === 0) {
+        list.innerHTML = `<div style="padding: 28px 12px; text-align: center; color: var(--text-dim); font-size: 13px;">No matching projects found.</div>`;
+        return;
+      }
+      list.innerHTML = quickSearchModalMatches.map((p, idx) => {
+        const folder = (folders || []).find(f => f.id === p.folder_id);
+        const folderName = folder ? folder.name : "Field";
+        const folderColor = folder && folder.color ? folder.color : "var(--accent)";
+        const isFinished = p.status === "completed";
+        const isSelected = idx === quickSearchSelectedIdx;
+        return `
+          <div class="quick-search-modal-item ${isSelected ? 'selected' : ''}" data-idx="${idx}" onclick="selectQuickSearchItem(${idx})">
+            <div style="min-width: 0; flex: 1;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 3px;">
+                <span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:${folderColor}; flex-shrink: 0;"></span>
+                <span style="font-size: 14px; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(p.title)}</span>
+                <span class="status-badge ${isFinished ? 'finished-badge' : 'active-badge'}" style="font-size: 9px; padding: 2px 6px;">${isFinished ? 'FINISHED' : 'ACTIVE'}</span>
+              </div>
+              <div style="font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                ${escapeHtml(folderName)}${p.next_action ? " · " + escapeHtml(p.next_action) : ""}
+              </div>
+            </div>
+            <svg class="vector-icon" style="width:14px; height:14px; color: var(--text-dim);" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function selectQuickSearchItem(idx) {
+      const p = quickSearchModalMatches[idx];
+      if (!p) return;
+      const folder = (folders || []).find(f => f.id === p.folder_id);
+      const folderName = folder ? folder.name : "Field";
+      closeQuickSearchModal();
+      openWorkspace(p.id, folderName);
+    }
+
+    function handleQuickSearchKeydown(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeQuickSearchModal();
+      } else if (event.key === "ArrowDown") {
+        event.preventDefault();
+        if (quickSearchModalMatches.length > 0) {
+          quickSearchSelectedIdx = (quickSearchSelectedIdx + 1) % quickSearchModalMatches.length;
+          renderQuickSearchModalList();
+        }
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        if (quickSearchModalMatches.length > 0) {
+          quickSearchSelectedIdx = (quickSearchSelectedIdx - 1 + quickSearchModalMatches.length) % quickSearchModalMatches.length;
+          renderQuickSearchModalList();
+        }
+      } else if (event.key === "Enter") {
+        event.preventDefault();
+        selectQuickSearchItem(quickSearchSelectedIdx);
+      }
+    }
+
+    document.addEventListener("keydown", (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        const modal = document.getElementById("quickSearchModal");
+        if (modal && modal.classList.contains("active")) {
+          closeQuickSearchModal();
+        } else {
+          openQuickSearchModal();
+        }
+        return;
+      }
+      if (event.key === "/" && !event.metaKey && !event.ctrlKey && !event.altKey) {
+        const tag = document.activeElement ? document.activeElement.tagName : "";
+        if (tag !== "INPUT" && tag !== "TEXTAREA" && tag !== "SELECT") {
+          event.preventDefault();
+          const dashInput = document.getElementById("dashboardSearchInput");
+          const bentoVisible = document.getElementById("bentoSection") && document.getElementById("bentoSection").style.display !== "none";
+          if (bentoVisible && dashInput) {
+            dashInput.focus();
+          } else {
+            openQuickSearchModal();
+          }
+        }
+      }
+    });
 
     /* Dashboard Navigation */
     function showDashboard(tab) {
@@ -3021,6 +3474,18 @@
       const bentoContainer = document.getElementById("bentoContainer");
       const deadlinesContainer = document.getElementById("deadlinesContainer");
       const finishedContainer = document.getElementById("finishedContainer");
+      const searchSection = document.getElementById("searchResultsContainer");
+
+      if (searchSection) searchSection.style.display = "none";
+      if (dashboardSearchQuery.trim()) {
+        dashboardSearchQuery = "";
+        const dashInput = document.getElementById("dashboardSearchInput");
+        if (dashInput) dashInput.value = "";
+        const clearBtn = document.getElementById("dashboardSearchClearBtn");
+        const kbd = document.getElementById("dashboardSearchKbd");
+        if (clearBtn) clearBtn.style.display = "none";
+        if (kbd) kbd.style.display = "inline-block";
+      }
 
       if (streamsBtn) streamsBtn.classList.toggle("active", tab === "streams");
       if (deadlinesBtn) deadlinesBtn.classList.toggle("active", tab === "deadlines");
@@ -3576,12 +4041,14 @@
         }
       });
       allFinishedProjects = allFinishedProjects.filter(p => p.id !== projectId);
+      allProjectsIndex = allProjectsIndex.filter(p => p.id !== projectId);
       currentFolderProjects = (currentFolderProjects || []).filter(p => p.id !== projectId);
       const badge = document.getElementById("finishedCountBadge");
       if (badge) badge.innerText = allFinishedProjects.length;
       saveCachedFolders(folders);
       renderBento(folders);
       renderFinishedProjects();
+      if (dashboardSearchQuery.trim()) renderDashboardSearchResults();
       if (currentFolderId) renderFolderProjectsGrid();
       await syncWithBackend();
       if (currentFolderId) await loadFolderProjects(currentFolderId);
@@ -3955,12 +4422,14 @@
         }
       });
       allFinishedProjects = allFinishedProjects.filter(p => p.id !== pId);
+      allProjectsIndex = allProjectsIndex.filter(p => p.id !== pId);
       currentFolderProjects = (currentFolderProjects || []).filter(p => p.id !== pId);
       const badge = document.getElementById("finishedCountBadge");
       if (badge) badge.innerText = allFinishedProjects.length;
       saveCachedFolders(folders);
       renderBento(folders);
       renderFinishedProjects();
+      if (dashboardSearchQuery.trim()) renderDashboardSearchResults();
 
       closeWorkspace();
       await syncWithBackend();
@@ -4045,6 +4514,7 @@
         saveCachedFolders(folders);
         renderBento(folders);
       }
+      fetchAllProjectsIndex();
       openWorkspace(canonicalId, targetFolder ? targetFolder.name : "FIELD");
     }
 
