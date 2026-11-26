@@ -311,24 +311,29 @@
       font-weight: 700;
       font-style: normal;
       letter-spacing: 0;
+      line-height: 1;
       color: var(--text-main);
     }
 
     .status-chip {
       font-family: var(--mono);
       font-size: 11px;
+      line-height: 1;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 7px;
-      padding: 5px 12px;
+      height: 28px;
+      padding: 0 12px;
       background: var(--tag-bg);
       border: 1px solid var(--border-subtle);
       border-radius: 999px;
       color: var(--text-muted);
       cursor: pointer;
       user-select: none;
+      white-space: nowrap;
       transition: all 0.15s ease;
     }
     .status-chip:hover {
@@ -370,8 +375,10 @@
     .header-btn {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 7px;
-      padding: 6px 13px;
+      height: 34px;
+      padding: 0 14px;
       border-radius: 999px;
       background: var(--card-bg);
       border: 1px solid var(--border-subtle);
@@ -380,6 +387,8 @@
       font-family: var(--sans);
       font-size: 12px;
       font-weight: 600;
+      line-height: 1;
+      white-space: nowrap;
       transition: all 0.15s;
     }
     .header-btn:hover {
@@ -387,6 +396,24 @@
       background: var(--card-hover);
     }
     .header-btn svg { width: 14px; height: 14px; }
+    .nav-actions .btn-pill {
+      height: 34px;
+      padding: 0 15px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .nav-actions .btn-pill svg {
+      width: 14px;
+      height: 14px;
+    }
+    #modeIcon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
 
     /* ============================================================
        DEDICATED SETTINGS VIEW & WALLPAPER GALLERY
@@ -603,15 +630,25 @@
     .tab-pill {
       font-family: var(--mono);
       font-size: 11px;
+      line-height: 1;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      padding: 6px 14px;
+      padding: 7px 14px;
       border-radius: 999px;
       border: none;
       background: transparent;
       color: var(--text-muted);
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
       transition: all 0.15s;
+    }
+    .tab-pill svg {
+      width: 13px;
+      height: 13px;
     }
     .tab-pill.active {
       background: var(--card-bg);
@@ -622,17 +659,168 @@
       color: var(--text-main);
     }
 
+    /* Quick Project Search */
+    .dashboard-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .quick-search-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 36px;
+      padding: 0 12px;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 999px;
+      min-width: 240px;
+      flex: 1 1 240px;
+      max-width: 340px;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+    .quick-search-box:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+      background: var(--card-hover);
+    }
+    .quick-search-box svg {
+      width: 14px;
+      height: 14px;
+      color: var(--text-dim);
+    }
+    .quick-search-input {
+      flex: 1;
+      min-width: 0;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-main);
+      font-family: var(--sans);
+      font-size: 13px;
+      line-height: 1.2;
+    }
+    .quick-search-input::placeholder {
+      color: var(--text-dim);
+    }
+    .quick-search-kbd {
+      font-family: var(--mono);
+      font-size: 10px;
+      line-height: 1;
+      color: var(--text-dim);
+      background: var(--tag-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 5px;
+      padding: 3px 6px;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .quick-search-clear {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border: none;
+      border-radius: 50%;
+      background: var(--tag-bg);
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0;
+      flex-shrink: 0;
+      transition: all 0.15s;
+    }
+    .quick-search-clear:hover {
+      background: var(--border-subtle);
+      color: var(--text-main);
+    }
+    .quick-search-clear svg {
+      width: 11px;
+      height: 11px;
+    }
+    .search-results-section {
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+      animation: fadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .search-results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .quick-search-modal-dialog {
+      max-width: 580px;
+      padding: 0;
+      overflow: hidden;
+      gap: 0;
+    }
+    .quick-search-modal-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .quick-search-modal-top svg {
+      width: 16px;
+      height: 16px;
+      color: var(--text-dim);
+    }
+    .quick-search-modal-list {
+      max-height: 360px;
+      overflow-y: auto;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .quick-search-modal-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.12s;
+    }
+    .quick-search-modal-item:hover,
+    .quick-search-modal-item.selected {
+      background: var(--accent-soft);
+      border-color: var(--accent-glow);
+    }
+    .quick-search-modal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 16px;
+      border-top: 1px solid var(--border-subtle);
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
     /* Buttons */
     .btn-pill {
       font-family: var(--sans);
       font-size: 13px;
       font-weight: 600;
+      line-height: 1;
       padding: 8px 18px;
       border-radius: 999px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 7px;
+      white-space: nowrap;
       transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
       border: none;
       text-decoration: none;
@@ -806,11 +994,16 @@
     .count-badge {
       font-family: var(--mono);
       font-size: 11px;
-      padding: 3px 9px;
+      line-height: 1;
+      padding: 5px 10px;
       background: var(--tag-bg);
       border: 1px solid var(--border-subtle);
       border-radius: 999px;
       color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
     }
 
     /* In-Stream Quick Add */
@@ -909,6 +1102,7 @@
     }
     .stream-next {
       font-size: 12px;
+      line-height: 1.3;
       color: var(--accent);
       display: flex;
       align-items: center;
@@ -924,10 +1118,14 @@
       border: none;
       color: var(--text-dim);
       cursor: pointer;
-      padding: 2px 4px;
-      display: flex;
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      border-radius: 6px;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
       opacity: 0;
       transition: all 0.15s;
     }
@@ -1084,11 +1282,17 @@
     .status-badge {
       font-family: var(--mono);
       font-size: 10px;
+      line-height: 1;
       letter-spacing: 0.08em;
-      padding: 3px 8px;
+      padding: 4px 9px;
       border-radius: 999px;
       text-transform: uppercase;
       font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      white-space: nowrap;
     }
     .status-badge.active-badge {
       background: var(--accent-soft);
@@ -1128,6 +1332,7 @@
     .panel-title {
       font-family: var(--mono);
       font-size: 12px;
+      line-height: 1;
       letter-spacing: 0.14em;
       text-transform: uppercase;
       color: var(--accent);
@@ -1233,7 +1438,17 @@
       font-weight: 500;
       color: var(--text-main);
       flex: 1;
+      min-width: 0;
       line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .action-deadline-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+      margin-left: auto;
     }
 
     .action-delete-btn {
@@ -1241,10 +1456,14 @@
       border: none;
       color: var(--text-dim);
       cursor: pointer;
-      padding: 4px;
-      display: flex;
+      width: 26px;
+      height: 26px;
+      padding: 0;
+      border-radius: 6px;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
       opacity: 0;
       transition: all 0.15s;
     }
@@ -1298,6 +1517,7 @@
     .archive-tag {
       font-family: var(--mono);
       font-size: 11px;
+      line-height: 1;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--text-muted);
@@ -1373,12 +1593,14 @@
       color: var(--accent);
       font-family: var(--mono);
       font-size: 11px;
+      line-height: 1;
       font-weight: 600;
-      padding: 3px 8px;
+      padding: 5px 10px;
       border-radius: 6px;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 4px;
       transition: all 0.15s;
     }
@@ -1391,7 +1613,14 @@
       border: none;
       color: var(--text-dim);
       cursor: pointer;
-      padding: 2px 4px;
+      width: 24px;
+      height: 24px;
+      padding: 0;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
     .btn-archive-del:hover { color: var(--danger); }
     .btn-archive-del svg { width: 12px; height: 12px; }
@@ -1402,16 +1631,22 @@
     .deadline-badge {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      justify-content: center;
+      gap: 5px;
       font-family: var(--mono);
       font-size: 11px;
-      padding: 2px 7px;
+      line-height: 1;
+      padding: 4px 8px;
       border-radius: 6px;
       background: var(--tag-bg);
       border: 1px solid var(--border-subtle);
       color: var(--text-muted);
       white-space: nowrap;
       width: fit-content;
+    }
+    .deadline-badge svg {
+      width: 11px;
+      height: 11px;
     }
     .deadline-badge.overdue {
       background: rgba(239, 68, 68, 0.12);
@@ -1699,12 +1934,15 @@
       background: transparent;
       border: none;
       cursor: pointer;
-      padding: 4px;
-      border-radius: 6px;
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border-radius: 7px;
       color: var(--text-dim);
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
       transition: all 0.15s ease;
     }
     .stream-action-icon-btn:hover {
@@ -1718,7 +1956,8 @@
 
     /* Icons Utility */
     .vector-icon {
-      display: inline-block;
+      display: block;
+      flex-shrink: 0;
       stroke-width: 2;
       stroke-linecap: round;
       stroke-linejoin: round;
@@ -1743,8 +1982,10 @@
       .nav-actions {
         gap: 6px;
       }
+      .nav-actions .header-btn,
       .nav-actions .btn-pill {
-        padding: 5px 10px;
+        height: 30px;
+        padding: 0 10px;
         font-size: 11px;
       }
       main {
@@ -1759,6 +2000,13 @@
         max-width: 94% !important;
         margin: 12px auto;
         padding: 22px 18px;
+      }
+    }
+
+    @media (hover: none), (pointer: coarse) {
+      .stream-del-btn,
+      .action-delete-btn {
+        opacity: 0.72;
       }
     }
   </style>
@@ -1781,19 +2029,25 @@
 
       <div class="nav-actions">
         <!-- Clean Mode Toggle (Light / Dark) -->
-        <button class="header-btn" onclick="toggleTheme()" id="modeToggleBtn" title="Toggle Light / Dark Mode">
-          <span id="modeIcon">☀️</span>
-          <span id="modeLabel" style="font-family: var(--mono); font-size: 11px;">LIGHT</span>
+        <button type="button" class="header-btn" onclick="toggleTheme()" id="modeToggleBtn" title="Toggle Light / Dark Mode">
+          <span id="modeIcon">
+            <svg class="vector-icon" style="width:14px; height:14px;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          </span>
+          <span id="modeLabel" style="font-family: var(--mono); font-size: 11px; line-height: 1;">LIGHT</span>
         </button>
 
-        <button class="btn-pill btn-secondary" onclick="openNewFolderModal()">+ New Field</button>
-        <button class="btn-pill btn-primary" onclick="openNewProjectModal()">
-          <span>+ New Project</span>
-          <svg class="vector-icon" style="width:14px; height:14px;" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        <button type="button" class="btn-pill btn-secondary" onclick="openNewFolderModal()">
+          <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span>New Field</span>
         </button>
-        <button class="header-btn" onclick="openSettingsPage()" title="Settings & Appearance">
+        <button type="button" class="btn-pill btn-primary" onclick="openNewProjectModal()">
+          <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span>New Project</span>
+          <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+        <button type="button" class="header-btn" onclick="openSettingsPage()" title="Settings & Appearance">
           <svg class="vector-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          <span style="font-family: var(--mono); font-size: 11px;">SETTINGS</span>
+          <span style="font-family: var(--mono); font-size: 11px; line-height: 1;">SETTINGS</span>
         </button>
       </div>
     </header>
@@ -1808,11 +2062,39 @@
             <div class="display-h1">Active Workspaces</div>
             <div class="display-sub">Living state of projects, milestones, deadlines, and finished archives.</div>
           </div>
-          <div class="tab-pills">
-            <button class="tab-pill active" id="tabStreamsBtn" onclick="switchDashboardTab('streams')">⚡ Active Streams</button>
-            <button class="tab-pill" id="tabDeadlinesBtn" onclick="switchDashboardTab('deadlines')">⏰ Deadlines</button>
-            <button class="tab-pill" id="tabFinishedBtn" onclick="switchDashboardTab('finished')">✓ Finished Projects</button>
+          <div class="dashboard-controls">
+            <div class="quick-search-box">
+              <svg class="vector-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" class="quick-search-input" id="dashboardSearchInput" placeholder="Quick search projects..." oninput="handleDashboardSearch(this.value)" onkeydown="if(event.key==='Escape'){clearDashboardSearch(); this.blur();}">
+              <span class="quick-search-kbd" id="dashboardSearchKbd">⌘K</span>
+              <button type="button" class="quick-search-clear" id="dashboardSearchClearBtn" onclick="clearDashboardSearch()" title="Clear search">
+                <svg class="vector-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div class="tab-pills">
+              <button type="button" class="tab-pill active" id="tabStreamsBtn" onclick="switchDashboardTab('streams')">
+                <svg class="vector-icon" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                <span>Active Streams</span>
+              </button>
+              <button type="button" class="tab-pill" id="tabDeadlinesBtn" onclick="switchDashboardTab('deadlines')">
+                <svg class="vector-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span>Deadlines</span>
+              </button>
+              <button type="button" class="tab-pill" id="tabFinishedBtn" onclick="switchDashboardTab('finished')">
+                <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                <span>Finished Projects</span>
+              </button>
+            </div>
           </div>
+        </div>
+
+        <!-- Quick Search Results -->
+        <div class="search-results-section" id="searchResultsContainer">
+          <div class="search-results-header">
+            <span class="eyebrow" id="searchResultsHeading" style="margin-bottom: 0;">SEARCH RESULTS</span>
+            <button type="button" class="btn-pill btn-secondary" style="padding: 5px 12px; font-size: 11px;" onclick="clearDashboardSearch()">Clear Search</button>
+          </div>
+          <div class="field-grid" id="searchResultsGrid"></div>
         </div>
 
         <!-- Bento Grid for Active Streams -->
@@ -1823,13 +2105,12 @@
           <div class="deadlines-top-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
             <div>
               <h2 style="font-size: 20px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">Tasks by Target Deadline</h2>
-              <p style="font-size: 13px; color: var(--text-muted); margin: 0;">Active tasks across all streams, ordered chronologically by target date.</p>
+              <p style="font-size: 13px; color: var(--text-muted); margin: 0;">Active tasks with target deadlines across all streams, ordered chronologically.</p>
             </div>
             <div style="display: flex; gap: 8px; align-items: center;">
               <div class="tab-pills">
-                <button class="tab-pill active" id="deadlineFilterAll" onclick="filterDeadlines('all')">All</button>
-                <button class="tab-pill" id="deadlineFilterDue" onclick="filterDeadlines('due')">With Deadline</button>
-                <button class="tab-pill" id="deadlineFilterOverdue" onclick="filterDeadlines('overdue')">Overdue</button>
+                <button type="button" class="tab-pill active" id="deadlineFilterDue" onclick="filterDeadlines('due')">With Deadline</button>
+                <button type="button" class="tab-pill" id="deadlineFilterOverdue" onclick="filterDeadlines('overdue')">Overdue</button>
               </div>
             </div>
           </div>
@@ -1866,12 +2147,12 @@
                 <button class="tab-pill" id="folderTabFinished" onclick="filterFolderProjects('finished')">Finished</button>
               </div>
               <button class="btn-pill btn-primary" onclick="openNewProjectInCurrentFolder()">+ New Project</button>
-              <button class="btn-pill btn-secondary" onclick="openEditFolderModal(currentFolderId)">
-                <svg class="vector-icon" style="width:13px; height:13px; vertical-align:-2px;" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              <button type="button" class="btn-pill btn-secondary" onclick="openEditFolderModal(currentFolderId)">
+                <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 <span>Edit Field</span>
               </button>
-              <button class="btn-pill btn-secondary" style="color: var(--danger);" onclick="confirmDeleteFolder(currentFolderId)">
-                <svg class="vector-icon" style="width:13px; height:13px; vertical-align:-2px;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              <button type="button" class="btn-pill btn-secondary" style="color: var(--danger);" onclick="confirmDeleteFolder(currentFolderId)">
+                <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 <span>Delete Field</span>
               </button>
               <button class="btn-pill btn-secondary" onclick="showDashboard('streams')">
@@ -1910,7 +2191,7 @@
               </button>
 
               <!-- Delete Project Button -->
-              <button class="btn-pill btn-danger" onclick="deleteCurrentProject()" title="Delete Project">
+              <button type="button" class="btn-pill btn-danger" onclick="deleteCurrentProject()" title="Delete Project">
                 <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 <span>Delete</span>
               </button>
@@ -2114,7 +2395,9 @@
               </label>
               <div style="position: relative;">
                 <input type="password" class="form-input" id="settingsApiTokenInput" placeholder="Enter pre-shared APP_SECRET_KEY" style="padding-right: 40px;" onkeydown="if(event.key==='Enter') saveBackendSettingsFromPage()">
-                <button type="button" onclick="toggleAuthPasscodeVisibility('settingsApiTokenInput')" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 14px;" title="Show/Hide Passcode">👁️</button>
+                <button type="button" onclick="toggleAuthPasscodeVisibility('settingsApiTokenInput')" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-dim); width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="Show/Hide Passcode">
+                  <svg class="vector-icon" style="width:15px; height:15px;" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
               </div>
               <span style="font-size: 11px; color: var(--text-dim); margin-top: 4px; display: block;">Required when the server has APP_SECRET_KEY configured. Matches X-App-Token.</span>
             </div>
@@ -2162,6 +2445,22 @@
   <div class="toast-undo" id="undoToast">
     <span id="toastMsg">Action completed</span>
     <button class="toast-undo-btn" id="toastUndoBtn" onclick="undoLastComplete()">↺ Undo</button>
+  </div>
+
+  <!-- Quick Search Palette Modal (Cmd/Ctrl+K) -->
+  <div class="modal-backdrop" id="quickSearchModal" onclick="if(event.target===this) closeQuickSearchModal()">
+    <div class="modal-dialog quick-search-modal-dialog">
+      <div class="quick-search-modal-top">
+        <svg class="vector-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="quick-search-input" id="quickSearchModalInput" style="font-size: 15px;" placeholder="Jump to any project..." oninput="handleQuickSearchModalInput(this.value)" onkeydown="handleQuickSearchKeydown(event)">
+        <button type="button" class="btn-pill btn-secondary" style="padding: 4px 10px; font-size: 11px;" onclick="closeQuickSearchModal()">Esc</button>
+      </div>
+      <div class="quick-search-modal-list" id="quickSearchModalList"></div>
+      <div class="quick-search-modal-footer">
+        <span>↑↓ Navigate &nbsp;·&nbsp; ↵ Open</span>
+        <span id="quickSearchModalCount">0 projects</span>
+      </div>
+    </div>
   </div>
 
   <!-- New Project Modal -->
@@ -2270,8 +2569,8 @@
 
       <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
         <button type="button" class="btn-pill" style="background: rgba(239, 68, 68, 0.12); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.25);" onclick="confirmDeleteFolder(document.getElementById('editModalFolderId').value)">
-          <svg class="vector-icon" style="width:13px; height:13px; vertical-align:-2px; margin-right:4px;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-          Delete Field
+          <svg class="vector-icon" style="width:13px; height:13px;" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          <span>Delete Field</span>
         </button>
         <div style="display: flex; gap: 8px;">
           <button class="btn-pill btn-secondary" onclick="closeModals()">Cancel</button>
@@ -2298,7 +2597,9 @@
         <label class="form-label">Secret Access Token (X-App-Token)</label>
         <div style="position: relative;">
           <input type="password" class="form-input" id="backendTokenInput" placeholder="Enter pre-shared APP_SECRET_KEY" style="padding-right: 40px;">
-          <button type="button" onclick="toggleAuthPasscodeVisibility('backendTokenInput')" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 14px;" title="Show/Hide Passcode">👁️</button>
+          <button type="button" onclick="toggleAuthPasscodeVisibility('backendTokenInput')" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-dim); width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="Show/Hide Passcode">
+            <svg class="vector-icon" style="width:15px; height:15px;" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
         </div>
         <span style="font-size: 11px; color: var(--text-dim); margin-top: 4px; display: block;">Required when the server has APP_SECRET_KEY configured.</span>
       </div>
@@ -2324,7 +2625,9 @@
         <label class="form-label">Secret Access Passcode (X-App-Token)</label>
         <div style="position: relative;">
           <input type="password" class="form-input" id="authPasscodeInput" placeholder="Paste your APP_SECRET_KEY here" style="padding-right: 40px;" onkeydown="if(event.key==='Enter') submitAuthModal()">
-          <button type="button" onclick="toggleAuthPasscodeVisibility('authPasscodeInput')" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-dim); font-size: 14px;" title="Show/Hide Passcode">👁️</button>
+          <button type="button" onclick="toggleAuthPasscodeVisibility('authPasscodeInput')" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-dim); width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;" title="Show/Hide Passcode">
+            <svg class="vector-icon" style="width:15px; height:15px;" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
         </div>
         <div id="authModalFeedback" style="font-size: 12px; margin-top: 8px; display: none; line-height: 1.4;"></div>
       </div>
@@ -2424,10 +2727,10 @@
       const label = document.getElementById("modeLabel");
       if (icon && label) {
         if (themeName === "dark") {
-          icon.innerText = "🌙";
+          icon.innerHTML = `<svg class="vector-icon" style="width:14px; height:14px; color:#fbbf24;" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`;
           label.innerText = "DARK";
         } else {
-          icon.innerText = "☀️";
+          icon.innerHTML = `<svg class="vector-icon" style="width:14px; height:14px; color:#f59e0b;" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
           label.innerText = "LIGHT";
         }
       }
@@ -2683,6 +2986,10 @@
 
     let folders = loadCachedFolders();
     let allFinishedProjects = [];
+    let allProjectsIndex = [];
+    let dashboardSearchQuery = "";
+    let quickSearchSelectedIdx = 0;
+    let quickSearchModalMatches = [];
     let currentFolderId = null;
     let currentFolderFilter = "active";
     let activeProjectId = null;
@@ -2799,6 +3106,7 @@
             saveCachedFolders(data);
             renderBento(folders);
           }
+          fetchAllProjectsIndex();
           if (dot) dot.className = "status-dot";
           if (label) label.innerText = "CLOUD SYNCED";
           if (chip) chip.title = "Cloud Synced • Click to manage sync settings";
@@ -2865,7 +3173,272 @@
       const badge = document.getElementById("finishedCountBadge");
       if (badge) badge.innerText = allFinishedProjects.length;
       renderFinishedProjects();
+      if (dashboardSearchQuery.trim()) renderDashboardSearchResults();
     }
+
+    /* ============================================================
+       QUICK PROJECT SEARCH (DASHBOARD + CMD/CTRL+K PALETTE)
+       ============================================================ */
+    async function fetchAllProjectsIndex() {
+      try {
+        const res = await fetch(`${API_URL}/projects`);
+        if (res.ok) {
+          allProjectsIndex = await res.json();
+          if (dashboardSearchQuery.trim()) renderDashboardSearchResults();
+          const modal = document.getElementById("quickSearchModal");
+          if (modal && modal.classList.contains("active")) {
+            const inp = document.getElementById("quickSearchModalInput");
+            handleQuickSearchModalInput(inp ? inp.value : "");
+          }
+        }
+      } catch (e) {}
+    }
+
+    function getSearchableProjects() {
+      const byId = new Map();
+      (allProjectsIndex || []).forEach(p => {
+        if (p && p.id) byId.set(p.id, { ...p });
+      });
+      (folders || []).forEach(f => {
+        (f.recent_projects || []).forEach(p => {
+          if (p && p.id && !byId.has(p.id)) {
+            byId.set(p.id, { ...p, folder_id: p.folder_id || f.id, status: p.status || "active" });
+          }
+        });
+      });
+      (allFinishedProjects || []).forEach(p => {
+        if (p && p.id && !byId.has(p.id)) {
+          byId.set(p.id, { ...p, status: p.status || "completed" });
+        }
+      });
+      return Array.from(byId.values());
+    }
+
+    function filterProjectsByQuery(query) {
+      const q = (query || "").trim().toLowerCase();
+      const all = getSearchableProjects();
+      const filtered = q
+        ? all.filter(p => {
+            const folder = (folders || []).find(f => f.id === p.folder_id);
+            const folderName = folder ? folder.name.toLowerCase() : "";
+            return (
+              (p.title || "").toLowerCase().includes(q) ||
+              (p.next_action || "").toLowerCase().includes(q) ||
+              folderName.includes(q)
+            );
+          })
+        : all;
+
+      return filtered.sort((a, b) => {
+        const aActive = (!a.status || a.status === "active") ? 0 : 1;
+        const bActive = (!b.status || b.status === "active") ? 0 : 1;
+        if (aActive !== bActive) return aActive - bActive;
+        const ta = a.updated_at ? new Date(a.updated_at).getTime() : 0;
+        const tb = b.updated_at ? new Date(b.updated_at).getTime() : 0;
+        return tb - ta;
+      });
+    }
+
+    function handleDashboardSearch(val) {
+      dashboardSearchQuery = val || "";
+      const clearBtn = document.getElementById("dashboardSearchClearBtn");
+      const kbd = document.getElementById("dashboardSearchKbd");
+      const hasQuery = dashboardSearchQuery.trim().length > 0;
+      if (clearBtn) clearBtn.style.display = hasQuery ? "inline-flex" : "none";
+      if (kbd) kbd.style.display = hasQuery ? "none" : "inline-block";
+
+      if (hasQuery) {
+        if (allProjectsIndex.length === 0) fetchAllProjectsIndex();
+        renderDashboardSearchResults();
+      } else {
+        switchDashboardTab(currentDashboardTab);
+      }
+    }
+
+    function clearDashboardSearch() {
+      dashboardSearchQuery = "";
+      const input = document.getElementById("dashboardSearchInput");
+      if (input) input.value = "";
+      const clearBtn = document.getElementById("dashboardSearchClearBtn");
+      const kbd = document.getElementById("dashboardSearchKbd");
+      if (clearBtn) clearBtn.style.display = "none";
+      if (kbd) kbd.style.display = "inline-block";
+      switchDashboardTab(currentDashboardTab);
+    }
+
+    function renderDashboardSearchResults() {
+      const searchSection = document.getElementById("searchResultsContainer");
+      const grid = document.getElementById("searchResultsGrid");
+      const heading = document.getElementById("searchResultsHeading");
+      const bentoContainer = document.getElementById("bentoContainer");
+      const deadlinesContainer = document.getElementById("deadlinesContainer");
+      const finishedContainer = document.getElementById("finishedContainer");
+      if (!searchSection || !grid) return;
+
+      if (bentoContainer) bentoContainer.style.display = "none";
+      if (deadlinesContainer) deadlinesContainer.style.display = "none";
+      if (finishedContainer) finishedContainer.style.display = "none";
+      searchSection.style.display = "flex";
+
+      const matches = filterProjectsByQuery(dashboardSearchQuery);
+      if (heading) {
+        heading.innerText = `SEARCH RESULTS (${matches.length})`;
+      }
+
+      if (matches.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 48px 20px; background: var(--card-bg); border: 1px dashed var(--border-subtle); border-radius: 18px;">
+            <div style="font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;">No projects matching "${escapeHtml(dashboardSearchQuery.trim())}"</div>
+            <div style="font-size: 13px; color: var(--text-muted);">Try searching by project title, next action, or field name.</div>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = matches.map(p => {
+        const folder = (folders || []).find(f => f.id === p.folder_id);
+        const folderName = folder ? folder.name : "Field";
+        const folderColor = folder && folder.color ? folder.color : "var(--accent)";
+        const isFinished = p.status === "completed";
+        return `
+          <div class="field-card ${isFinished ? 'finished-card' : ''}" data-project-id="${escapeHtml(p.id)}" data-folder-name="${escapeHtml(folderName)}" onclick="openWorkspace(this.dataset.projectId, this.dataset.folderName)">
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px;">
+                <span class="status-badge ${isFinished ? 'finished-badge' : 'active-badge'}">${isFinished ? '✓ FINISHED' : '⚡ ACTIVE'}</span>
+                <span class="count-badge" style="gap: 5px;">
+                  <span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:${folderColor};"></span>
+                  <span>${escapeHtml(folderName)}</span>
+                </span>
+              </div>
+              <h3 style="font-size: 17px; font-weight: 700; color: var(--text-main); margin-bottom: 8px;">${escapeHtml(p.title)}</h3>
+              <div class="stream-next">
+                <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                <span>${escapeHtml(p.next_action || (isFinished ? "Project completed" : "No open action"))}</span>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 12px; margin-top: 8px;">
+              <span style="font-family: var(--mono); font-size: 11px; color: var(--text-dim);">v${p.version || 1}</span>
+              <span style="font-family: var(--mono); font-size: 11px; color: var(--accent);">Open Workspace →</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function openQuickSearchModal() {
+      const modal = document.getElementById("quickSearchModal");
+      const input = document.getElementById("quickSearchModalInput");
+      if (!modal || !input) return;
+      modal.classList.add("active");
+      input.value = "";
+      quickSearchSelectedIdx = 0;
+      if (allProjectsIndex.length === 0) fetchAllProjectsIndex();
+      handleQuickSearchModalInput("");
+      setTimeout(() => input.focus(), 40);
+    }
+
+    function closeQuickSearchModal() {
+      const modal = document.getElementById("quickSearchModal");
+      if (modal) modal.classList.remove("active");
+    }
+
+    function handleQuickSearchModalInput(val) {
+      quickSearchModalMatches = filterProjectsByQuery(val).slice(0, 25);
+      quickSearchSelectedIdx = 0;
+      renderQuickSearchModalList();
+    }
+
+    function renderQuickSearchModalList() {
+      const list = document.getElementById("quickSearchModalList");
+      const countEl = document.getElementById("quickSearchModalCount");
+      if (!list) return;
+      if (countEl) {
+        countEl.innerText = `${quickSearchModalMatches.length} ${quickSearchModalMatches.length === 1 ? "project" : "projects"}`;
+      }
+      if (quickSearchModalMatches.length === 0) {
+        list.innerHTML = `<div style="padding: 28px 12px; text-align: center; color: var(--text-dim); font-size: 13px;">No matching projects found.</div>`;
+        return;
+      }
+      list.innerHTML = quickSearchModalMatches.map((p, idx) => {
+        const folder = (folders || []).find(f => f.id === p.folder_id);
+        const folderName = folder ? folder.name : "Field";
+        const folderColor = folder && folder.color ? folder.color : "var(--accent)";
+        const isFinished = p.status === "completed";
+        const isSelected = idx === quickSearchSelectedIdx;
+        return `
+          <div class="quick-search-modal-item ${isSelected ? 'selected' : ''}" data-idx="${idx}" onclick="selectQuickSearchItem(${idx})">
+            <div style="min-width: 0; flex: 1;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 3px;">
+                <span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:${folderColor}; flex-shrink: 0;"></span>
+                <span style="font-size: 14px; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(p.title)}</span>
+                <span class="status-badge ${isFinished ? 'finished-badge' : 'active-badge'}" style="font-size: 9px; padding: 2px 6px;">${isFinished ? 'FINISHED' : 'ACTIVE'}</span>
+              </div>
+              <div style="font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                ${escapeHtml(folderName)}${p.next_action ? " · " + escapeHtml(p.next_action) : ""}
+              </div>
+            </div>
+            <svg class="vector-icon" style="width:14px; height:14px; color: var(--text-dim);" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function selectQuickSearchItem(idx) {
+      const p = quickSearchModalMatches[idx];
+      if (!p) return;
+      const folder = (folders || []).find(f => f.id === p.folder_id);
+      const folderName = folder ? folder.name : "Field";
+      closeQuickSearchModal();
+      openWorkspace(p.id, folderName);
+    }
+
+    function handleQuickSearchKeydown(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeQuickSearchModal();
+      } else if (event.key === "ArrowDown") {
+        event.preventDefault();
+        if (quickSearchModalMatches.length > 0) {
+          quickSearchSelectedIdx = (quickSearchSelectedIdx + 1) % quickSearchModalMatches.length;
+          renderQuickSearchModalList();
+        }
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        if (quickSearchModalMatches.length > 0) {
+          quickSearchSelectedIdx = (quickSearchSelectedIdx - 1 + quickSearchModalMatches.length) % quickSearchModalMatches.length;
+          renderQuickSearchModalList();
+        }
+      } else if (event.key === "Enter") {
+        event.preventDefault();
+        selectQuickSearchItem(quickSearchSelectedIdx);
+      }
+    }
+
+    document.addEventListener("keydown", (event) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        const modal = document.getElementById("quickSearchModal");
+        if (modal && modal.classList.contains("active")) {
+          closeQuickSearchModal();
+        } else {
+          openQuickSearchModal();
+        }
+        return;
+      }
+      if (event.key === "/" && !event.metaKey && !event.ctrlKey && !event.altKey) {
+        const tag = document.activeElement ? document.activeElement.tagName : "";
+        if (tag !== "INPUT" && tag !== "TEXTAREA" && tag !== "SELECT") {
+          event.preventDefault();
+          const dashInput = document.getElementById("dashboardSearchInput");
+          const bentoVisible = document.getElementById("bentoSection") && document.getElementById("bentoSection").style.display !== "none";
+          if (bentoVisible && dashInput) {
+            dashInput.focus();
+          } else {
+            openQuickSearchModal();
+          }
+        }
+      }
+    });
 
     /* Dashboard Navigation */
     function showDashboard(tab) {
@@ -2901,6 +3474,18 @@
       const bentoContainer = document.getElementById("bentoContainer");
       const deadlinesContainer = document.getElementById("deadlinesContainer");
       const finishedContainer = document.getElementById("finishedContainer");
+      const searchSection = document.getElementById("searchResultsContainer");
+
+      if (searchSection) searchSection.style.display = "none";
+      if (dashboardSearchQuery.trim()) {
+        dashboardSearchQuery = "";
+        const dashInput = document.getElementById("dashboardSearchInput");
+        if (dashInput) dashInput.value = "";
+        const clearBtn = document.getElementById("dashboardSearchClearBtn");
+        const kbd = document.getElementById("dashboardSearchKbd");
+        if (clearBtn) clearBtn.style.display = "none";
+        if (kbd) kbd.style.display = "inline-block";
+      }
 
       if (streamsBtn) streamsBtn.classList.toggle("active", tab === "streams");
       if (deadlinesBtn) deadlinesBtn.classList.toggle("active", tab === "deadlines");
@@ -2978,7 +3563,7 @@
                         <div class="stream-header">
                           <span class="stream-title">${escapeHtml(p.title)}</span>
                           <div style="display:flex; align-items:center; gap:8px;">
-                            <button class="stream-del-btn" onclick="deleteProjectFromStream('${p.id}', '${escapeHtml(p.title)}', event)" title="Delete project">
+                            <button type="button" class="stream-del-btn" data-project-id="${escapeHtml(p.id)}" data-project-title="${escapeHtml(p.title)}" onclick="deleteProjectFromStream(this.dataset.projectId, this.dataset.projectTitle, event)" title="Delete project">
                               <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                             </button>
                             <span class="stream-dot"></span>
@@ -3040,7 +3625,7 @@
               <button class="btn-restore" onclick="reopenFinishedProject('${p.id}', event)">↺ Reopen to Active</button>
               <div style="display: flex; gap: 8px;">
                 <button class="btn-pill btn-secondary" style="padding: 4px 10px; font-size: 11px;" onclick="openWorkspace('${p.id}', '${escapeHtml(folderName)}')">View</button>
-                <button class="stream-del-btn" style="opacity: 0.8;" onclick="deleteProjectFromStream('${p.id}', '${escapeHtml(p.title)}', event)">
+                <button type="button" class="stream-del-btn" style="opacity: 0.8;" data-project-id="${escapeHtml(p.id)}" data-project-title="${escapeHtml(p.title)}" onclick="deleteProjectFromStream(this.dataset.projectId, this.dataset.projectTitle, event)" title="Delete project">
                   <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 </button>
               </div>
@@ -3061,7 +3646,8 @@
       } catch (e) {}
 
       allFinishedProjects = allFinishedProjects.filter(p => p.id !== projectId);
-      document.getElementById("finishedCountBadge").innerText = allFinishedProjects.length;
+      const badge = document.getElementById("finishedCountBadge");
+      if (badge) badge.innerText = allFinishedProjects.length;
       renderFinishedProjects();
       syncWithBackend();
     }
@@ -3070,7 +3656,7 @@
        DEADLINES TAB LOGIC
        ============================================================ */
     let allDeadlineTasks = [];
-    let currentDeadlineFilter = 'all'; // 'all', 'due', 'overdue'
+    let currentDeadlineFilter = 'due'; // 'due', 'overdue'
 
     async function loadAndRenderDeadlines() {
       const listContainer = document.getElementById("deadlinesListContainer");
@@ -3092,13 +3678,11 @@
     }
 
     function filterDeadlines(type) {
-      currentDeadlineFilter = type;
-      const allBtn = document.getElementById("deadlineFilterAll");
+      currentDeadlineFilter = type === "overdue" ? "overdue" : "due";
       const dueBtn = document.getElementById("deadlineFilterDue");
       const overdueBtn = document.getElementById("deadlineFilterOverdue");
-      if (allBtn) allBtn.classList.toggle("active", type === "all");
-      if (dueBtn) dueBtn.classList.toggle("active", type === "due");
-      if (overdueBtn) overdueBtn.classList.toggle("active", type === "overdue");
+      if (dueBtn) dueBtn.classList.toggle("active", currentDeadlineFilter === "due");
+      if (overdueBtn) overdueBtn.classList.toggle("active", currentDeadlineFilter === "overdue");
       renderDeadlinesList();
     }
 
@@ -3142,7 +3726,8 @@
           text = d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
         }
 
-        return `<span class="${badgeClass}">⏰ ${text}</span>`;
+        const clockSvg = `<svg class="vector-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+        return `<span class="${badgeClass}">${clockSvg}<span>${text}</span></span>`;
       } catch (e) {
         return "";
       }
@@ -3152,17 +3737,15 @@
       const container = document.getElementById("deadlinesListContainer");
       if (!container) return;
 
-      let items = allDeadlineTasks;
-      if (currentDeadlineFilter === "due") {
-        items = items.filter(t => t.deadline != null);
-      } else if (currentDeadlineFilter === "overdue") {
+      let items = allDeadlineTasks.filter(t => t.deadline != null);
+      if (currentDeadlineFilter === "overdue") {
         items = items.filter(t => isTaskOverdue(t.deadline));
       }
 
       if (items.length === 0) {
-        let msg = "No active tasks found.";
-        if (currentDeadlineFilter === "due") msg = "No tasks with target deadlines assigned yet.";
-        if (currentDeadlineFilter === "overdue") msg = "Awesome! There are no overdue tasks.";
+        const msg = currentDeadlineFilter === "overdue"
+          ? "Awesome! There are no overdue tasks."
+          : "No tasks with target deadlines assigned yet.";
 
         container.innerHTML = `
           <div style="text-align: center; padding: 48px 20px; background: var(--card-bg); border: 1px dashed var(--border-subtle); border-radius: 18px;">
@@ -3195,12 +3778,11 @@
                     <span style="font-weight: 600; color: var(--text-main);">${escapeHtml(projTitle)}</span>
                     <span style="color: var(--text-dim); font-size: 11px;">(${escapeHtml(folderName)})</span>
                   </span>
-                  <span>•</span>
-                  ${badgeHtml}
                 </div>
               </div>
             </div>
             <div class="deadline-task-right">
+              ${badgeHtml}
               <input type="date" class="action-date-input" value="${dateVal}" onchange="changeTaskDeadlineFromList('${t.id}', this.value)" title="Change task deadline">
             </div>
           </div>
@@ -3351,7 +3933,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-subtle); padding-top: 14px; margin-top: 8px;">
               <span style="font-family: var(--mono); font-size: 11px; color: var(--text-dim);">v${p.version || 1}</span>
               <div style="display: flex; gap: 8px;" onclick="event.stopPropagation()">
-                <button class="stream-del-btn" style="opacity: 0.8;" onclick="deleteProjectFromStream('${p.id}', '${escapeHtml(p.title)}', event)">
+                <button type="button" class="stream-del-btn" style="opacity: 0.8;" data-project-id="${escapeHtml(p.id)}" data-project-title="${escapeHtml(p.title)}" onclick="deleteProjectFromStream(this.dataset.projectId, this.dataset.projectTitle, event)" title="Delete project">
                   <svg class="vector-icon" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 </button>
               </div>
@@ -3428,8 +4010,26 @@
 
     /* Delete Project directly from Dashboard */
     async function deleteProjectFromStream(projectId, projectTitle, event) {
-      if (event) event.stopPropagation();
-      if (!confirm(`Are you sure you want to delete project "${projectTitle}"?`)) return;
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      const displayTitle = projectTitle || "this project";
+      if (!confirm(`Are you sure you want to delete project "${displayTitle}"?`)) return;
+
+      try {
+        const res = await fetch(`${API_URL}/projects/${projectId}`, { method: "DELETE" });
+        if (!res.ok && res.status !== 404) {
+          const msg = res.status === 401
+            ? "Authentication required to delete projects. Please enter your secret passcode."
+            : `Failed to delete project (HTTP ${res.status}).`;
+          alert(msg);
+          if (res.status === 401) openAuthModal();
+          return;
+        }
+      } catch (e) {
+        console.warn("Delete project request failed:", e);
+      }
 
       folders.forEach(f => {
         if (f.recent_projects) {
@@ -3441,17 +4041,17 @@
         }
       });
       allFinishedProjects = allFinishedProjects.filter(p => p.id !== projectId);
-      document.getElementById("finishedCountBadge").innerText = allFinishedProjects.length;
+      allProjectsIndex = allProjectsIndex.filter(p => p.id !== projectId);
+      currentFolderProjects = (currentFolderProjects || []).filter(p => p.id !== projectId);
+      const badge = document.getElementById("finishedCountBadge");
+      if (badge) badge.innerText = allFinishedProjects.length;
       saveCachedFolders(folders);
       renderBento(folders);
       renderFinishedProjects();
-      if (currentFolderId) loadFolderProjects(currentFolderId);
-
-      try {
-        await fetch(`${API_URL}/projects/${projectId}`, { method: "DELETE" });
-      } catch (e) {
-        console.warn("Delete project failed:", e);
-      }
+      if (dashboardSearchQuery.trim()) renderDashboardSearchResults();
+      if (currentFolderId) renderFolderProjectsGrid();
+      await syncWithBackend();
+      if (currentFolderId) await loadFolderProjects(currentFolderId);
     }
 
     /* Workspace Handlers */
@@ -3580,14 +4180,12 @@
               <polyline points="20 6 9 17 4 12"/>
             </svg>
           </button>
-          <div style="flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0;">
-            <span class="action-text">${escapeHtml(m.title)}</span>
-            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-              ${badge}
-              <input type="date" class="action-date-input" value="${dateVal}" onchange="updateMilestoneDeadline('${m.id}', this.value)" title="Set or change target deadline">
-            </div>
+          <span class="action-text">${escapeHtml(m.title)}</span>
+          <div class="action-deadline-controls">
+            ${badge}
+            <input type="date" class="action-date-input" value="${dateVal}" onchange="updateMilestoneDeadline('${m.id}', this.value)" title="Set or change target deadline">
           </div>
-          <button class="action-delete-btn" onclick="deleteMilestone('${m.id}')" title="Delete action">
+          <button type="button" class="action-delete-btn" onclick="deleteMilestone('${m.id}')" title="Delete action">
             <svg class="vector-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
@@ -3796,10 +4394,23 @@
 
     async function deleteCurrentProject() {
       if (!activeProjectId) return;
-      if (!confirm(`Are you sure you want to delete project "${activeProjectData.title}" and all its actions?`)) return;
+      const title = (activeProjectData && activeProjectData.title) ? activeProjectData.title : "this project";
+      if (!confirm(`Are you sure you want to delete project "${title}" and all its actions?`)) return;
 
       const pId = activeProjectId;
-      closeWorkspace();
+      try {
+        const res = await fetch(`${API_URL}/projects/${pId}`, { method: "DELETE" });
+        if (!res.ok && res.status !== 404) {
+          const msg = res.status === 401
+            ? "Authentication required to delete projects. Please enter your secret passcode."
+            : `Failed to delete project (HTTP ${res.status}).`;
+          alert(msg);
+          if (res.status === 401) openAuthModal();
+          return;
+        }
+      } catch (e) {
+        console.warn("Delete current project request failed:", e);
+      }
 
       folders.forEach(f => {
         if (f.recent_projects) {
@@ -3811,14 +4422,17 @@
         }
       });
       allFinishedProjects = allFinishedProjects.filter(p => p.id !== pId);
-      document.getElementById("finishedCountBadge").innerText = allFinishedProjects.length;
+      allProjectsIndex = allProjectsIndex.filter(p => p.id !== pId);
+      currentFolderProjects = (currentFolderProjects || []).filter(p => p.id !== pId);
+      const badge = document.getElementById("finishedCountBadge");
+      if (badge) badge.innerText = allFinishedProjects.length;
       saveCachedFolders(folders);
       renderBento(folders);
       renderFinishedProjects();
+      if (dashboardSearchQuery.trim()) renderDashboardSearchResults();
 
-      try {
-        await fetch(`${API_URL}/projects/${pId}`, { method: "DELETE" });
-      } catch (e) {}
+      closeWorkspace();
+      await syncWithBackend();
     }
 
     /* Auto-saving Project Notes & Context */
@@ -3900,6 +4514,7 @@
         saveCachedFolders(folders);
         renderBento(folders);
       }
+      fetchAllProjectsIndex();
       openWorkspace(canonicalId, targetFolder ? targetFolder.name : "FIELD");
     }
 
@@ -4027,7 +4642,10 @@
     }
 
     async function confirmDeleteFolder(folderId, event) {
-      if (event) event.stopPropagation();
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
       closeModals();
 
       const folder = folders.find(f => f.id === folderId);
@@ -4037,6 +4655,22 @@
       const confirmed = confirm(`Are you sure you want to delete the "${folderName}" field?\n\nThis will permanently delete this field and all ${projectCount} projects inside it.`);
       if (!confirmed) return;
 
+      try {
+        const res = await fetch(`${API_URL}/folders/${folderId}`, {
+          method: "DELETE"
+        });
+        if (!res.ok && res.status !== 404) {
+          const msg = res.status === 401
+            ? "Authentication required to delete fields. Please enter your secret passcode."
+            : `Failed to delete field (HTTP ${res.status}).`;
+          alert(msg);
+          if (res.status === 401) openAuthModal();
+          return;
+        }
+      } catch (e) {
+        console.warn("Delete folder request failed:", e);
+      }
+
       folders = folders.filter(f => f.id !== folderId);
       saveCachedFolders(folders);
       renderBento(folders);
@@ -4045,12 +4679,7 @@
       if (currentFolderId === folderId) {
         showDashboard("streams");
       }
-
-      try {
-        await fetch(`${API_URL}/folders/${folderId}`, {
-          method: "DELETE"
-        });
-      } catch (e) {}
+      await fetchFinishedProjects();
     }
 
     function openSettingsModal() {
