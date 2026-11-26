@@ -7,13 +7,12 @@ struct DeadlinesListView: View {
 
     @State private var tasks: [TaskDeadlineItem] = []
     @State private var isLoading: Bool = false
-    @State private var selectedFilter: DeadlineFilter = .all
+    @State private var selectedFilter: DeadlineFilter = .dueOnly
     @State private var errorMessage: String? = nil
 
     private let cacheKey = "state_next_ios_deadlines_cache"
 
     enum DeadlineFilter: String, CaseIterable, Identifiable {
-        case all = "All Tasks"
         case dueOnly = "With Deadline"
         case overdue = "Overdue"
         var id: String { rawValue }
@@ -34,8 +33,6 @@ struct DeadlinesListView: View {
         var list = tasks
 
         switch selectedFilter {
-        case .all:
-            break
         case .dueOnly:
             list = list.filter { $0.deadline != nil }
         case .overdue:
