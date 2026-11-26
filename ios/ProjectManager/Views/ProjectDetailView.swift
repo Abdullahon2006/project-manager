@@ -1059,27 +1059,29 @@ struct ActiveMilestoneRow: View {
             }
             .buttonStyle(.plain)
 
-            Text(milestone.title)
-                .font(.subheadline)
-                .fontWeight(.medium)
-                .foregroundColor(.primary)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(milestone.title)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.primary)
+
+                if let dl = milestone.deadline {
+                    let overdue = Calendar.current.startOfDay(for: dl) < Calendar.current.startOfDay(for: Date())
+                    HStack(spacing: 4) {
+                        Image(systemName: overdue ? "exclamationmark.triangle.fill" : "calendar")
+                            .font(.system(size: 9))
+                        Text(formatRowDeadline(dl))
+                            .font(.system(size: 10, weight: .semibold))
+                    }
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(overdue ? Color.red.opacity(0.14) : Color.blue.opacity(0.12))
+                    .foregroundColor(overdue ? .red : .blue)
+                    .clipShape(Capsule())
+                }
+            }
 
             Spacer()
-
-            if let dl = milestone.deadline {
-                let overdue = Calendar.current.startOfDay(for: dl) < Calendar.current.startOfDay(for: Date())
-                HStack(spacing: 4) {
-                    Image(systemName: overdue ? "exclamationmark.triangle.fill" : "calendar")
-                        .font(.system(size: 9))
-                    Text(formatRowDeadline(dl))
-                        .font(.system(size: 10, weight: .semibold))
-                }
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
-                .background(overdue ? Color.red.opacity(0.14) : Color.blue.opacity(0.12))
-                .foregroundColor(overdue ? .red : .blue)
-                .clipShape(Capsule())
-            }
 
             // Move Up/Down Controls
             HStack(spacing: 2) {

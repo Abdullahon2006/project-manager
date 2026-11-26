@@ -1290,17 +1290,7 @@
       font-weight: 500;
       color: var(--text-main);
       flex: 1;
-      min-width: 0;
       line-height: 1.4;
-      word-break: break-word;
-    }
-
-    .action-deadline-controls {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-      margin-left: auto;
     }
 
     .action-delete-btn {
@@ -3318,11 +3308,12 @@
                     <span style="font-weight: 600; color: var(--text-main);">${escapeHtml(projTitle)}</span>
                     <span style="color: var(--text-dim); font-size: 11px;">(${escapeHtml(folderName)})</span>
                   </span>
+                  <span>•</span>
+                  ${badgeHtml}
                 </div>
               </div>
             </div>
             <div class="deadline-task-right">
-              ${badgeHtml}
               <input type="date" class="action-date-input" value="${dateVal}" onchange="changeTaskDeadlineFromList('${t.id}', this.value)" title="Change task deadline">
             </div>
           </div>
@@ -3718,12 +3709,14 @@
               <polyline points="20 6 9 17 4 12"/>
             </svg>
           </button>
-          <span class="action-text">${escapeHtml(m.title)}</span>
-          <div class="action-deadline-controls">
-            ${badge}
-            <input type="date" class="action-date-input" value="${dateVal}" onchange="updateMilestoneDeadline('${m.id}', this.value)" title="Set or change target deadline">
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+            <span class="action-text">${escapeHtml(m.title)}</span>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              ${badge}
+              <input type="date" class="action-date-input" value="${dateVal}" onchange="updateMilestoneDeadline('${m.id}', this.value)" title="Set or change target deadline">
+            </div>
           </div>
-          <button type="button" class="action-delete-btn" onclick="deleteMilestone('${m.id}')" title="Delete action">
+          <button class="action-delete-btn" onclick="deleteMilestone('${m.id}')" title="Delete action">
             <svg class="vector-icon" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
